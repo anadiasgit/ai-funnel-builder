@@ -25,7 +25,7 @@ export default function Login() {
           email,
           password,
           options: {
-            emailRedirectTo: `${location.origin}/dashboard`
+            emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || location.origin}/dashboard`
           }
         })
         if (error) throw error
