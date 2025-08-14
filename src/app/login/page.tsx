@@ -38,8 +38,9 @@ export default function Login() {
         if (error) throw error
         router.push('/dashboard')
       }
-    } catch (error: any) {
-      alert(error.message)
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred'
+      alert(errorMessage)
     } finally {
       setLoading(false)
     }

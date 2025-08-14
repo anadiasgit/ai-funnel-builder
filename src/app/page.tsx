@@ -46,7 +46,7 @@ export default function Home() {
   // Test Supabase connection
   const testSupabase = async () => {
     try {
-      const { data, error } = await supabase.from('_dummy_table_').select('*').limit(1)
+      const { error } = await supabase.from('_dummy_table_').select('*').limit(1)
       if (error) {
         console.log('Supabase connection successful! (Error is expected for non-existent table)')
         alert('✅ Supabase is connected! (Error shown is normal for test)')
