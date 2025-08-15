@@ -87,7 +87,7 @@ function ResetPasswordForm() {
     setError('')
 
     try {
-      console.log('🔄 Updating password for user...')
+      console.log('🔄 Starting password update process...')
       
       // Add timeout to prevent infinite loading
       const timeoutId = setTimeout(() => {
@@ -96,8 +96,21 @@ function ResetPasswordForm() {
           setLoading(false)
           setError('Password update timed out. Please try again.')
         }
-      }, 15000) // 15 second timeout
+      }, 10000) // 10 second timeout
 
+      // Check if user is authenticated
+      const { data: { user: currentUser } } = await supabase.auth.getUser()
+      
+      if (!currentUser) {
+        clearTimeout(timeoutId)
+        setError('No authenticated user found. Please request a new password reset link.')
+        setLoading(false)
+        return
+      }
+
+      console.log('👤 Updating password for user:', currentUser.email)
+
+      // Try to update password
       const { error } = await supabase.auth.updateUser({
         password: password
       })
@@ -106,18 +119,34 @@ function ResetPasswordForm() {
 
       if (error) {
         console.error('❌ Password update error:', error)
-        setError(error.message)
+        
+        // Handle specific error cases
+        if (error.message.includes('JWT')) {
+          setError('Reset link expired. Please request a new password reset link.')
+        } else if (error.message.includes('password')) {
+          setError('Password does not meet requirements. Please try a different password.')
+        } else {
+          setError(`Password update failed: ${error.message}`)
+        }
       } else {
         console.log('✅ Password updated successfully')
         setSuccess(true)
-        // Redirect to login after 3 seconds
+        
+        // Force redirect after 2 seconds, regardless of any issues
         setTimeout(() => {
-          router.push('/login')
-        }, 3000)
+          console.log('🔄 Redirecting to login...')
+          try {
+            router.push('/login')
+          } catch (redirectError) {
+            console.error('❌ Redirect failed:', redirectError)
+            // Fallback: force page reload to login
+            window.location.href = '/login'
+          }
+        }, 2000)
       }
     } catch (err) {
       console.error('❌ Password update exception:', err)
-      setError('An unexpected error occurred. Please try again.')
+      setError('An unexpected error occurred. Please try again or request a new reset link.')
     } finally {
       setLoading(false)
     }
@@ -156,6 +185,17 @@ function ResetPasswordForm() {
               Your password has been successfully reset. Redirecting to login...
             </CardDescription>
           </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <div className="text-sm text-gray-600">
+              If you&apos;re not redirected automatically, click the button below.
+            </div>
+            <Button 
+              onClick={() => router.push('/login')} 
+              className="w-full bg-green-600 hover:bg-green-700"
+            >
+              Go to Login
+            </Button>
+          </CardContent>
         </Card>
       </div>
     )

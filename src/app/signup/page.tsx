@@ -332,7 +332,7 @@ export default function SignupPage() {
                 id="terms" 
                 checked={agreedToTerms}
                 onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
-                className="mt-1 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                className="mt-1 h-5 w-5 border-2 border-gray-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 data-[state=checked]:text-white data-[state=unchecked]:bg-white data-[state=unchecked]:border-gray-300"
               />
               <Label htmlFor="terms" className="text-sm text-gray-600 leading-relaxed">
                 I agree to the{' '}
