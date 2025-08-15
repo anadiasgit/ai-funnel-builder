@@ -60,27 +60,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false)
 
         if (event === 'SIGNED_IN' && session?.user) {
-          // Check if user profile exists, create if it doesn't
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('onboarding_completed')
-            .eq('id', session.user.id)
-            .single()
+          try {
+            // Check if user profile exists, create if it doesn't
+            const { data: profile, error: profileError } = await supabase
+              .from('profiles')
+              .select('onboarding_completed')
+              .eq('id', session.user.id)
+              .single()
 
-          if (!profile) {
-            // Create profile for OAuth users
-            await supabase.from('profiles').insert({
-              id: session.user.id,
-              email: session.user.email,
-              full_name: session.user.user_metadata?.full_name || '',
-              company_name: session.user.user_metadata?.company_name || '',
-              onboarding_completed: false
-            })
+            if (profileError && profileError.code !== 'PGRST116') {
+              // PGRST116 is "no rows returned" - that's expected for new users
+              console.error('Error fetching profile:', profileError)
+              // If we can't fetch profile, redirect to onboarding to be safe
+              router.push('/onboarding')
+              return
+            }
+
+            if (!profile) {
+              // Create profile for OAuth users
+              const { error: insertError } = await supabase.from('profiles').insert({
+                id: session.user.id,
+                email: session.user.email,
+                full_name: session.user.user_metadata?.full_name || '',
+                company_name: session.user.user_metadata?.company_name || '',
+                onboarding_completed: false
+              })
+              
+              if (insertError) {
+                console.error('Error creating profile:', insertError)
+                // If profile creation fails, redirect to onboarding anyway
+                router.push('/onboarding')
+                return
+              }
+              
+              router.push('/onboarding')
+            } else if (!profile.onboarding_completed) {
+              router.push('/onboarding')
+            } else {
+              router.push('/dashboard')
+            }
+          } catch (error) {
+            console.error('Unexpected error in auth state change:', error)
+            // If anything goes wrong, redirect to onboarding to be safe
             router.push('/onboarding')
-          } else if (!profile.onboarding_completed) {
-            router.push('/onboarding')
-          } else {
-            router.push('/dashboard')
           }
         }
 
