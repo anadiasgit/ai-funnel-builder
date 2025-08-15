@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { ArrowRight, Zap, Target, TrendingUp } from 'lucide-react'
 
 export default function HomePage() {
+  // Latest deployment with TypeScript fixes
   const { user } = useAuth()
 
   if (user) {
