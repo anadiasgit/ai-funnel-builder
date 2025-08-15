@@ -21,7 +21,8 @@ import {
   Copy,
   Calendar,
   BarChart3,
-  DollarSign
+  DollarSign,
+  Settings
 } from 'lucide-react'
 import {
   DropdownMenu,
