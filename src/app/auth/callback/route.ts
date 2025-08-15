@@ -57,11 +57,14 @@ export async function GET(request: NextRequest) {
     
     // Check if user needs to complete onboarding
     try {
-      let { data: profile, error: profileError } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('onboarding_completed')
         .eq('id', data.user?.id)
         .single()
+
+      let profile = profileData
+      let needsOnboarding = true
 
       // If profile doesn't exist, create it
       if (profileError && profileError.code === 'PGRST116') {
@@ -123,8 +126,13 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(requestUrl.origin + '/onboarding')
       }
 
+      // Determine if user needs onboarding
+      if (profile && profile.onboarding_completed) {
+        needsOnboarding = false
+      }
+
       // Always redirect to onboarding if no profile or onboarding not completed
-      if (!profile || !profile.onboarding_completed) {
+      if (needsOnboarding) {
         console.log('📝 User needs onboarding, redirecting...')
         console.log('📝 Profile state:', { profile, onboarding_completed: profile?.onboarding_completed })
         return NextResponse.redirect(requestUrl.origin + '/onboarding')
