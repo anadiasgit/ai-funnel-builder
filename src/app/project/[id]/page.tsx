@@ -555,27 +555,49 @@ export default function ProjectWorkspace() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {generationStatus.offer !== 'completed' ? (
-                    <div className="text-center py-8">
-                      <ShoppingCart className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">
-                        Main Offer Required
-                      </h3>
-                      <p className="text-gray-600 mb-4">
-                        Please complete your main offer first to generate targeted order bumps.
+                  <div className="space-y-6">
+                    {generationStatus.offer !== 'completed' && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                        <ShoppingCart className="h-12 w-12 text-blue-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-blue-900 mb-2">
+                          Recommended: Complete Main Offer First
+                        </h3>
+                        <p className="text-blue-700 mb-4">
+                          For best results, complete your main offer to generate targeted order bumps.
+                        </p>
+                        <Button 
+                          onClick={() => setActiveTab('offer')}
+                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                        >
+                          Complete Main Offer First
+                          <ArrowRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                    
+                    <div className="text-center">
+                      <div className="inline-flex items-center gap-2 text-gray-500 mb-4">
+                        <div className="w-8 h-px bg-gray-300"></div>
+                        <span className="text-sm font-medium">OR</span>
+                        <div className="w-8 h-px bg-gray-300"></div>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-6">
+                        Input your own content to proceed without dependencies
                       </p>
-                      <Button 
-                        onClick={() => setActiveTab('offer')}
-                        className="flex items-center gap-2"
-                      >
-                        Create Main Offer First
-                        <ArrowRight className="h-4 w-4" />
-                      </Button>
                     </div>
-                  ) : (
+
                     <OrderBumpForm 
-                      customerAvatar={project.customer_avatar!}
-                      mainOffer={project.main_offer!}
+                      customerAvatar={project.customer_avatar || {
+                        id: 'demo',
+                        businessName: 'Your Business',
+                        industry: 'Your Industry',
+                        targetAudience: 'Your Target Audience'
+                      }}
+                      mainOffer={project.main_offer || {
+                        id: 'demo',
+                        productName: 'Your Product',
+                        price: '0'
+                      }}
                       existingOrderBump={project.generated_content?.order_bump}
                       onOrderBumpGenerated={(orderBump) => {
                         setProject(prev => prev ? { 
@@ -590,7 +612,7 @@ export default function ProjectWorkspace() {
                         setGenerationStatus(prev => ({ ...prev, order_bump: 'completed' }))
                       }}
                     />
-                  )}
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -608,27 +630,49 @@ export default function ProjectWorkspace() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {generationStatus.offer !== 'completed' ? (
-                    <div className="text-center py-8">
-                      <TrendingUp className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">
-                        Main Offer Required
-                      </h3>
-                      <p className="text-gray-600 mb-4">
-                        Please complete your main offer first to generate targeted upsells.
+                  <div className="space-y-6">
+                    {generationStatus.offer !== 'completed' && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                        <TrendingUp className="h-12 w-12 text-blue-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-blue-900 mb-2">
+                          Recommended: Complete Main Offer First
+                        </h3>
+                        <p className="text-blue-700 mb-4">
+                          For best results, complete your main offer to generate targeted upsells.
+                        </p>
+                        <Button 
+                          onClick={() => setActiveTab('offer')}
+                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                        >
+                          Complete Main Offer First
+                          <ArrowRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                    
+                    <div className="text-center">
+                      <div className="inline-flex items-center gap-2 text-gray-500 mb-4">
+                        <div className="w-8 h-px bg-gray-300"></div>
+                        <span className="text-sm font-medium">OR</span>
+                        <div className="w-8 h-px bg-gray-300"></div>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-6">
+                        Input your own content to proceed without dependencies
                       </p>
-                      <Button 
-                        onClick={() => setActiveTab('offer')}
-                        className="flex items-center gap-2"
-                      >
-                        Create Main Offer First
-                        <ArrowRight className="h-4 w-4" />
-                      </Button>
                     </div>
-                  ) : (
+
                     <UpsellsForm 
-                      customerAvatar={project.customer_avatar!}
-                      mainOffer={project.main_offer!}
+                      customerAvatar={project.customer_avatar || {
+                        id: 'demo',
+                        businessName: 'Your Business',
+                        industry: 'Your Industry',
+                        targetAudience: 'Your Target Audience'
+                      }}
+                      mainOffer={project.main_offer || {
+                        id: 'demo',
+                        productName: 'Your Product',
+                        price: '0'
+                      }}
                       existingUpsells={project.generated_content?.upsells}
                       onUpsellsGenerated={(upsells) => {
                         setProject(prev => prev ? { 
@@ -643,7 +687,7 @@ export default function ProjectWorkspace() {
                         setGenerationStatus(prev => ({ ...prev, upsells: 'completed' }))
                       }}
                     />
-                  )}
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -661,20 +705,49 @@ export default function ProjectWorkspace() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {generationStatus.offer !== 'completed' ? (
-                    <div className="text-center py-8">
-                      <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">
-                        Main Offer Required
-                      </h3>
-                      <p className="text-gray-600">
-                        Complete your main offer to generate targeted order page copy.
+                  <div className="space-y-6">
+                    {generationStatus.offer !== 'completed' && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                        <FileText className="h-12 w-12 text-blue-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-blue-900 mb-2">
+                          Recommended: Complete Main Offer First
+                        </h3>
+                        <p className="text-blue-700 mb-4">
+                          For best results, complete your main offer to generate targeted order page copy.
+                        </p>
+                        <Button 
+                          onClick={() => setActiveTab('offer')}
+                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                        >
+                          Complete Main Offer First
+                          <ArrowRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                    
+                    <div className="text-center">
+                      <div className="inline-flex items-center gap-2 text-gray-500 mb-4">
+                        <div className="w-8 h-px bg-gray-300"></div>
+                        <span className="text-sm font-medium">OR</span>
+                        <div className="w-8 h-px bg-gray-300"></div>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-6">
+                        Input your own content to proceed without dependencies
                       </p>
                     </div>
-                  ) : (
+
                     <OrderPageForm 
-                      customerAvatar={project.customer_avatar!}
-                      mainOffer={project.main_offer!}
+                      customerAvatar={project.customer_avatar || {
+                        id: 'demo',
+                        businessName: 'Your Business',
+                        industry: 'Your Industry',
+                        targetAudience: 'Your Target Audience'
+                      }}
+                      mainOffer={project.main_offer || {
+                        id: 'demo',
+                        productName: 'Your Product',
+                        price: '0'
+                      }}
                       existingOrderPage={project.generated_content?.order_page}
                       onOrderPageGenerated={(orderPage) => {
                         setProject(prev => prev ? { 
@@ -689,7 +762,7 @@ export default function ProjectWorkspace() {
                         setGenerationStatus(prev => ({ ...prev, order_page: 'completed' }))
                       }}
                     />
-                  )}
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -707,20 +780,49 @@ export default function ProjectWorkspace() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {generationStatus.offer !== 'completed' ? (
-                    <div className="text-center py-8">
-                      <CheckCircle2 className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">
-                        Main Offer Required
-                      </h3>
-                      <p className="text-gray-600">
-                        Complete your main offer to generate targeted thank you page content.
+                  <div className="space-y-6">
+                    {generationStatus.offer !== 'completed' && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                        <CheckCircle2 className="h-12 w-12 text-blue-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-blue-900 mb-2">
+                          Recommended: Complete Main Offer First
+                        </h3>
+                        <p className="text-blue-700 mb-4">
+                          For best results, complete your main offer to generate targeted thank you page content.
+                        </p>
+                        <Button 
+                          onClick={() => setActiveTab('offer')}
+                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                        >
+                          Complete Main Offer First
+                          <ArrowRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                    
+                    <div className="text-center">
+                      <div className="inline-flex items-center gap-2 text-gray-500 mb-4">
+                        <div className="w-8 h-px bg-gray-300"></div>
+                        <span className="text-sm font-medium">OR</span>
+                        <div className="w-8 h-px bg-gray-300"></div>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-6">
+                        Input your own content to proceed without dependencies
                       </p>
                     </div>
-                  ) : (
+
                     <ThankYouPageForm 
-                      customerAvatar={project.customer_avatar!}
-                      mainOffer={project.main_offer!}
+                      customerAvatar={project.customer_avatar || {
+                        id: 'demo',
+                        businessName: 'Your Business',
+                        industry: 'Your Industry',
+                        targetAudience: 'Your Target Audience'
+                      }}
+                      mainOffer={project.main_offer || {
+                        id: 'demo',
+                        productName: 'Your Product',
+                        price: '0'
+                      }}
                       existingThankYou={project.generated_content?.thank_you}
                       onThankYouGenerated={(thankYou) => {
                         setProject(prev => prev ? { 
@@ -735,7 +837,7 @@ export default function ProjectWorkspace() {
                         setGenerationStatus(prev => ({ ...prev, thank_you: 'completed' }))
                       }}
                     />
-                  )}
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -753,20 +855,49 @@ export default function ProjectWorkspace() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {generationStatus.offer !== 'completed' ? (
-                    <div className="text-center py-8">
-                      <Video className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">
-                        Main Offer Required
-                      </h3>
-                      <p className="text-gray-600">
-                        Complete your main offer to generate targeted VSL script.
+                  <div className="space-y-6">
+                    {generationStatus.offer !== 'completed' && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                        <Video className="h-12 w-12 text-blue-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-blue-900 mb-2">
+                          Recommended: Complete Main Offer First
+                        </h3>
+                        <p className="text-blue-700 mb-4">
+                          For best results, complete your main offer to generate targeted VSL script.
+                        </p>
+                        <Button 
+                          onClick={() => setActiveTab('offer')}
+                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                        >
+                          Complete Main Offer First
+                          <ArrowRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                    
+                    <div className="text-center">
+                      <div className="inline-flex items-center gap-2 text-gray-500 mb-4">
+                        <div className="w-8 h-px bg-gray-300"></div>
+                        <span className="text-sm font-medium">OR</span>
+                        <div className="w-8 h-px bg-gray-300"></div>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-6">
+                        Input your own content to proceed without dependencies
                       </p>
                     </div>
-                  ) : (
+
                     <MainVSLForm 
-                      customerAvatar={project.customer_avatar!}
-                      mainOffer={project.main_offer!}
+                      customerAvatar={project.customer_avatar || {
+                        id: 'demo',
+                        businessName: 'Your Business',
+                        industry: 'Your Industry',
+                        targetAudience: 'Your Target Audience'
+                      }}
+                      mainOffer={project.main_offer || {
+                        id: 'demo',
+                        productName: 'Your Product',
+                        price: '0'
+                      }}
                       existingVSL={project.generated_content?.main_vsl}
                       onVSLGenerated={(vsl) => {
                         setProject(prev => prev ? { 
@@ -781,7 +912,7 @@ export default function ProjectWorkspace() {
                         setGenerationStatus(prev => ({ ...prev, main_vsl: 'completed' }))
                       }}
                     />
-                  )}
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -799,20 +930,49 @@ export default function ProjectWorkspace() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {generationStatus.offer !== 'completed' ? (
-                    <div className="text-center py-8">
-                      <Video className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">
-                        Main Offer Required
-                      </h3>
-                      <p className="text-gray-600">
-                        Complete your main offer to generate targeted upsell VSL script.
+                  <div className="space-y-6">
+                    {generationStatus.offer !== 'completed' && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                        <Video className="h-12 w-12 text-blue-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-blue-900 mb-2">
+                          Recommended: Complete Main Offer First
+                        </h3>
+                        <p className="text-blue-700 mb-4">
+                          For best results, complete your main offer to generate targeted upsell VSL script.
+                        </p>
+                        <Button 
+                          onClick={() => setActiveTab('offer')}
+                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                        >
+                          Complete Main Offer First
+                          <ArrowRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                    
+                    <div className="text-center">
+                      <div className="inline-flex items-center gap-2 text-gray-500 mb-4">
+                        <div className="w-8 h-px bg-gray-300"></div>
+                        <span className="text-sm font-medium">OR</span>
+                        <div className="w-8 h-px bg-gray-300"></div>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-6">
+                        Input your own content to proceed without dependencies
                       </p>
                     </div>
-                  ) : (
+
                     <UpsellVSLForm 
-                      customerAvatar={project.customer_avatar!}
-                      mainOffer={project.main_offer!}
+                      customerAvatar={project.customer_avatar || {
+                        id: 'demo',
+                        businessName: 'Your Business',
+                        industry: 'Your Industry',
+                        targetAudience: 'Your Target Audience'
+                      }}
+                      mainOffer={project.main_offer || {
+                        id: 'demo',
+                        productName: 'Your Product',
+                        price: '0'
+                      }}
                       existingVSL={project.generated_content?.upsell_vsl}
                       onVSLGenerated={(vsl) => {
                         setProject(prev => prev ? { 
@@ -827,7 +987,7 @@ export default function ProjectWorkspace() {
                         setGenerationStatus(prev => ({ ...prev, upsell_vsl: 'completed' }))
                       }}
                     />
-                  )}
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -845,20 +1005,49 @@ export default function ProjectWorkspace() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {generationStatus.offer !== 'completed' ? (
-                    <div className="text-center py-8">
-                      <Mail className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">
-                        Main Offer Required
-                      </h3>
-                      <p className="text-gray-600">
-                        Complete your main offer to generate targeted email strategy.
+                  <div className="space-y-6">
+                    {generationStatus.offer !== 'completed' && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                        <Mail className="h-12 w-12 text-blue-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-blue-900 mb-2">
+                          Recommended: Complete Main Offer First
+                        </h3>
+                        <p className="text-blue-700 mb-4">
+                          For best results, complete your main offer to generate targeted email strategy.
+                        </p>
+                        <Button 
+                          onClick={() => setActiveTab('offer')}
+                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                        >
+                          Complete Main Offer First
+                          <ArrowRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                    
+                    <div className="text-center">
+                      <div className="inline-flex items-center gap-2 text-gray-500 mb-4">
+                        <div className="w-8 h-px bg-gray-300"></div>
+                        <span className="text-sm font-medium">OR</span>
+                        <div className="w-8 h-px bg-gray-300"></div>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-6">
+                        Input your own content to proceed without dependencies
                       </p>
                     </div>
-                  ) : (
+
                     <EmailStrategyForm 
-                      customerAvatar={project.customer_avatar!}
-                      mainOffer={project.main_offer!}
+                      customerAvatar={project.customer_avatar || {
+                        id: 'demo',
+                        businessName: 'Your Business',
+                        industry: 'Your Industry',
+                        targetAudience: 'Your Target Audience'
+                      }}
+                      mainOffer={project.main_offer || {
+                        id: 'demo',
+                        productName: 'Your Product',
+                        price: '0'
+                      }}
                       existingStrategy={project.generated_content?.email_strategy}
                       onStrategyGenerated={(strategy) => {
                         setProject(prev => prev ? { 
@@ -873,7 +1062,7 @@ export default function ProjectWorkspace() {
                         setGenerationStatus(prev => ({ ...prev, email_strategy: 'completed' }))
                       }}
                     />
-                  )}
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
