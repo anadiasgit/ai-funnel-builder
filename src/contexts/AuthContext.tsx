@@ -74,8 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               email: session.user.email,
               full_name: session.user.user_metadata?.full_name || '',
               company_name: session.user.user_metadata?.company_name || '',
-              onboarding_completed: false,
-              created_at: new Date().toISOString()
+              onboarding_completed: false
             })
             router.push('/onboarding')
           } else if (!profile.onboarding_completed) {
@@ -110,8 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: data.user.email,
         full_name: userData?.full_name || '',
         company_name: userData?.company_name || '',
-        onboarding_completed: false,
-        created_at: new Date().toISOString()
+        onboarding_completed: false
       })
     }
 
