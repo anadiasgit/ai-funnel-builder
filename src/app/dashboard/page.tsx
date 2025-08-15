@@ -83,43 +83,63 @@ export default function DashboardPage() {
     totalRevenue: 0
   })
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (user) {
+      // Add timeout to prevent infinite loading
+      const timeoutId = setTimeout(() => {
+        if (loading) {
+          console.warn('Dashboard loading timeout - forcing completion')
+          setLoading(false)
+        }
+      }, 10000) // 10 second timeout
+
       fetchDashboardData()
+      
+      return () => clearTimeout(timeoutId)
     }
   }, [user])
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = async (retryCount = 0) => {
     try {
+      setLoading(true)
+      setError(null)
+      
       // Fetch profile
-      const { data: profileData } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user?.id)
         .single()
       
-      setProfile(profileData)
+      if (profileError) {
+        console.error('Profile fetch error:', profileError)
+        // Don't throw error, just set profile to null
+        setProfile(null)
+      } else {
+        setProfile(profileData)
+      }
 
-      // Fetch projects with related data
-      const { data: projectsData } = await supabase
+      // Fetch projects with related data - fix the query
+      const { data: projectsData, error: projectsError } = await supabase
         .from('projects')
-        .select(`
-          *,
-          avatars(count),
-          offers(count),
-          generated_content(count)
-        `)
+        .select('*')
         .eq('user_id', user?.id)
         .order('updated_at', { ascending: false })
 
-      setProjects(projectsData || [])
+      if (projectsError) {
+        console.error('Projects fetch error:', projectsError)
+        setProjects([])
+      } else {
+        setProjects(projectsData || [])
+      }
 
-      // Calculate stats
+      // Calculate stats safely
       const totalProjects = projectsData?.length || 0
-      const totalAvatars = projectsData?.reduce((sum, p) => sum + (p.avatars?.length || 0), 0) || 0
-      const totalOffers = projectsData?.reduce((sum, p) => sum + (p.offers?.length || 0), 0) || 0
-      const totalContent = projectsData?.reduce((sum, p) => sum + (p.generated_content?.length || 0), 0) || 0
+      const totalAvatars = 0 // We'll implement this later when avatars table is set up
+      const totalOffers = 0  // We'll implement this later when offers table is set up
+      const totalContent = 0 // We'll implement this later when content table is set up
 
       setStats({
         totalProjects,
@@ -133,6 +153,27 @@ export default function DashboardPage() {
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
+      
+      // Retry once if it's the first attempt
+      if (retryCount === 0) {
+        console.log('Retrying dashboard data fetch...')
+        setTimeout(() => fetchDashboardData(1), 2000)
+        return
+      }
+      
+      setError('Failed to load dashboard data. Please try refreshing the page.')
+      // Set default values on error
+      setProjects([])
+      setProfile(null)
+      setStats({
+        totalProjects: 0,
+        totalAvatars: 0,
+        totalOffers: 0,
+        totalContent: 0,
+        monthlyUsage: 0,
+        monthlyLimit: 100,
+        totalRevenue: 0
+      })
     } finally {
       setLoading(false)
     }
@@ -210,6 +251,31 @@ export default function DashboardPage() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="text-red-600 text-2xl">⚠️</div>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Something went wrong</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <div className="space-y-3">
+            <Button onClick={() => fetchDashboardData()} className="w-full">
+              Try Again
+            </Button>
+            <Button onClick={() => window.location.reload()} variant="outline" className="w-full">
+              Refresh Page
+            </Button>
+            <Button variant="outline" onClick={() => router.push('/')} className="w-full">
+              Go to Home
+            </Button>
+          </div>
         </div>
       </div>
     )

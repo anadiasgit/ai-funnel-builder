@@ -1,4 +1,4 @@
-// contexts/AuthContext.tsx
+// contexts/AuthContext.tsx - FIXED VERSION
 'use client'
 
 import { createContext, useContext, useEffect, useState } from 'react'
@@ -60,66 +60,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false)
 
         if (event === 'SIGNED_IN' && session?.user) {
+          // Wait a moment for the database trigger to create the profile
+          await new Promise(resolve => setTimeout(resolve, 1000))
+          
           try {
-            // Check if user profile exists, create if it doesn't
-            const { data: profile, error: profileError } = await supabase
+            // Check if user has completed onboarding
+            const { data: profile } = await supabase
               .from('profiles')
               .select('onboarding_completed')
               .eq('id', session.user.id)
               .single()
 
-            if (profileError && profileError.code !== 'PGRST116') {
-              // PGRST116 is "no rows returned" - that's expected for new users
-              console.error('Error fetching profile:', profileError)
-              // If we can't fetch profile, redirect to onboarding to be safe
-              router.push('/onboarding')
-              return
-            }
-
-            if (!profile) {
-              console.log('Creating new profile for user:', session.user.id)
-              console.log('User metadata:', session.user.user_metadata)
-              
-              // Validate user ID is a proper UUID
-              if (!session.user.id || typeof session.user.id !== 'string' || session.user.id.length !== 36) {
-                console.error('Invalid user ID format:', session.user.id)
+            const currentPath = window.location.pathname
+            
+            if (!profile?.onboarding_completed) {
+              // Only redirect if not already on onboarding page
+              if (currentPath !== '/onboarding') {
                 router.push('/onboarding')
-                return
               }
-              
-              // Create profile for OAuth users
-              const { data: insertData, error: insertError } = await supabase.from('profiles').insert({
-                id: session.user.id,
-                email: session.user.email,
-                full_name: session.user.user_metadata?.full_name || '',
-                company_name: session.user.user_metadata?.company_name || '',
-                onboarding_completed: false
-              })
-              
-              if (insertError) {
-                console.error('Error creating profile:', insertError)
-                console.error('Error details:', {
-                  code: insertError.code,
-                  message: insertError.message,
-                  details: insertError.details,
-                  hint: insertError.hint
-                })
-                // If profile creation fails, redirect to onboarding anyway
-                router.push('/onboarding')
-                return
-              }
-              
-              console.log('Profile created successfully:', insertData)
-              router.push('/onboarding')
-            } else if (!profile.onboarding_completed) {
-              router.push('/onboarding')
             } else {
-              router.push('/dashboard')
+              // Only redirect to dashboard if not already there and not on main page
+              if (currentPath !== '/dashboard' && currentPath !== '/') {
+                router.push('/dashboard')
+              }
             }
           } catch (error) {
-            console.error('Unexpected error in auth state change:', error)
+            console.error('Error checking profile:', error)
             // If anything goes wrong, redirect to onboarding to be safe
-            router.push('/onboarding')
+            const currentPath = window.location.pathname
+            if (currentPath !== '/onboarding') {
+              router.push('/onboarding')
+            }
           }
         }
 
@@ -133,47 +104,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [router])
 
   const signUp = async (email: string, password: string, userData?: UserData) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: userData
-      }
-    })
-
-    if (data.user && !error) {
-      console.log('Creating profile for new user:', data.user.id)
-      console.log('User data:', data.user)
-      
-      // Validate user ID is a proper UUID
-      if (!data.user.id || typeof data.user.id !== 'string' || data.user.id.length !== 36) {
-        console.error('Invalid user ID format during signup:', data.user.id)
-        return { user: data.user, error: { message: 'Invalid user ID format' } as AuthError }
-      }
-      
-      // Create profile record
-      const { data: profileData, error: profileError } = await supabase.from('profiles').insert({
-        id: data.user.id,
-        email: data.user.email,
-        full_name: userData?.full_name || '',
-        company_name: userData?.company_name || '',
-        onboarding_completed: false
+    console.log('🔍 Starting signup process...')
+    console.log('  Email:', email)
+    console.log('  User data:', userData)
+    
+    try {
+      // Just create the user - the database trigger will handle profile creation
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: userData // This gets stored in user_metadata and used by the trigger
+        }
       })
       
-      if (profileError) {
-        console.error('Error creating profile during signup:', profileError)
-        console.error('Profile error details:', {
-          code: profileError.code,
-          message: profileError.message,
-          details: profileError.details,
-          hint: profileError.hint
+      console.log('🔍 Signup response:')
+      console.log('  Data:', data)
+      console.log('  Error:', error)
+      
+      if (error) {
+        console.error('❌ Signup error details:', {
+          message: error.message,
+          status: error.status,
+          name: error.name
         })
-      } else {
-        console.log('Profile created successfully during signup:', profileData)
       }
+      
+      return { user: data.user, error }
+    } catch (err) {
+      console.error('❌ Signup exception:', err)
+      return { user: null, error: { message: 'Unexpected error during signup' } as AuthError }
     }
-
-    return { user: data.user, error }
   }
 
   const signIn = async (email: string, password: string) => {
@@ -192,7 +153,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/dashboard`
+        redirectTo: `${window.location.origin}/auth/callback`
       }
     })
     return { user: data, error }
@@ -202,7 +163,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'github',
       options: {
-        redirectTo: `${window.location.origin}/dashboard`
+        redirectTo: `${window.location.origin}/auth/callback`
       }
     })
     return { user: data, error }
@@ -210,7 +171,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const resetPassword = async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/login`
+      redirectTo: `${window.location.origin}/auth/reset-password`
     })
     return { error }
   }

@@ -7,19 +7,15 @@ import Link from 'next/link'
 import { ArrowRight, Zap, Target, TrendingUp } from 'lucide-react'
 
 export default function HomePage() {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
 
-  if (user) {
-    // If user is logged in, redirect to dashboard
+  // Show loading state while auth is being determined
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Welcome back!</h1>
-          <Link href="/dashboard">
-            <Button size="lg">
-              Go to Dashboard <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </Link>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
         </div>
       </div>
     )
@@ -32,12 +28,20 @@ export default function HomePage() {
         <nav className="flex items-center justify-between">
           <div className="text-2xl font-bold text-blue-600">AI Funnel Builder</div>
           <div className="flex items-center gap-4">
-            <Link href="/login">
-              <Button variant="ghost">Sign In</Button>
-            </Link>
-            <Link href="/signup">
-              <Button>Get Started</Button>
-            </Link>
+            {user ? (
+              <Link href="/dashboard">
+                <Button>Go to Dashboard</Button>
+              </Link>
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button variant="ghost">Sign In</Button>
+                </Link>
+                <Link href="/signup">
+                  <Button>Get Started</Button>
+                </Link>
+              </>
+            )}
           </div>
         </nav>
       </header>
@@ -45,28 +49,42 @@ export default function HomePage() {
       {/* Hero Section */}
       <main className="container mx-auto px-4 py-20">
         <div className="text-center max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-            Build High-Converting Funnels with{' '}
-            <span className="text-blue-600">AI</span>
-          </h1>
-          
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Generate customer avatars, compelling offers, and high-converting copy 
-            in minutes. Perfect for funnel builders and entrepreneurs.
-          </p>
+          {user ? (
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold text-gray-900 mb-4">Welcome back!</h1>
+              <p className="text-xl text-gray-600 mb-6">Ready to build more high-converting funnels?</p>
+              <Link href="/dashboard">
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                  Go to Dashboard <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <>
+              <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+                Build High-Converting Funnels with{' '}
+                <span className="text-blue-600">AI</span>
+              </h1>
+              
+              <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+                Generate customer avatars, compelling offers, and high-converting copy 
+                in minutes. Perfect for funnel builders and entrepreneurs.
+              </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <Link href="/signup">
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-                Start Building for Free <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
-            <Link href="/login">
-              <Button size="lg" variant="outline">
-                Sign In
-              </Button>
-            </Link>
-          </div>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+                <Link href="/signup">
+                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                    Start Building for Free <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+                <Link href="/login">
+                  <Button size="lg" variant="outline">
+                    Sign In
+                  </Button>
+                </Link>
+              </div>
+            </>
+          )}
 
           {/* Features */}
           <div className="grid md:grid-cols-3 gap-8 mt-20">
