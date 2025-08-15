@@ -100,4 +100,4 @@ export default function HomePage() {
   )
 }
 
-// Force Vercel to redeploy and refresh environment variables
+// Force Vercel to redeploy with the latest profile creation fix
