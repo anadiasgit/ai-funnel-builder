@@ -56,10 +56,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        setUser(session?.user ?? null)
-        setLoading(false)
-
+        console.log('🔄 Auth state change:', event, session?.user?.email)
+        
         if (event === 'SIGNED_IN' && session?.user) {
+          // Clear any previous user data
+          setUser(null)
+          
           // Wait a moment for the database trigger to create the profile
           await new Promise(resolve => setTimeout(resolve, 1000))
           
@@ -76,11 +78,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (!profile?.onboarding_completed) {
               // Only redirect if not already on onboarding page
               if (currentPath !== '/onboarding') {
+                console.log('📝 User needs onboarding, redirecting...')
                 router.push('/onboarding')
               }
             } else {
               // Only redirect to dashboard if not already there and not on main page
               if (currentPath !== '/dashboard' && currentPath !== '/') {
+                console.log('🚀 User completed onboarding, redirecting to dashboard...')
                 router.push('/dashboard')
               }
             }
@@ -89,14 +93,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             // If anything goes wrong, redirect to onboarding to be safe
             const currentPath = window.location.pathname
             if (currentPath !== '/onboarding') {
+              console.log('⚠️ Profile check failed, redirecting to onboarding...')
               router.push('/onboarding')
             }
           }
+          
+          // Set user after all checks are done
+          setUser(session.user)
         }
 
         if (event === 'SIGNED_OUT') {
+          console.log('🚪 User signed out, clearing data...')
+          setUser(null)
+          // Clear any stored user data
+          localStorage.removeItem('onboarding-progress')
+          sessionStorage.clear()
           router.push('/')
         }
+        
+        setLoading(false)
       }
     )
 
@@ -154,7 +169,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
-    await supabase.auth.signOut()
+    try {
+      // Clear any stored user data
+      localStorage.removeItem('onboarding-progress')
+      sessionStorage.clear()
+      
+      // Sign out from Supabase
+      await supabase.auth.signOut()
+      
+      // Force clear any cached user data
+      setUser(null)
+      
+      // Redirect to home
+      router.push('/')
+    } catch (error) {
+      console.error('Sign out error:', error)
+      // Force redirect even if there's an error
+      router.push('/')
+    }
   }
 
   const signInWithGoogle = async () => {

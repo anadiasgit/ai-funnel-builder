@@ -87,13 +87,28 @@ function ResetPasswordForm() {
     setError('')
 
     try {
+      console.log('🔄 Updating password for user...')
+      
+      // Add timeout to prevent infinite loading
+      const timeoutId = setTimeout(() => {
+        if (loading) {
+          console.warn('Password update timeout - forcing completion')
+          setLoading(false)
+          setError('Password update timed out. Please try again.')
+        }
+      }, 15000) // 15 second timeout
+
       const { error } = await supabase.auth.updateUser({
         password: password
       })
 
+      clearTimeout(timeoutId)
+
       if (error) {
+        console.error('❌ Password update error:', error)
         setError(error.message)
       } else {
+        console.log('✅ Password updated successfully')
         setSuccess(true)
         // Redirect to login after 3 seconds
         setTimeout(() => {
@@ -101,7 +116,8 @@ function ResetPasswordForm() {
         }, 3000)
       }
     } catch (err) {
-      setError('An unexpected error occurred')
+      console.error('❌ Password update exception:', err)
+      setError('An unexpected error occurred. Please try again.')
     } finally {
       setLoading(false)
     }

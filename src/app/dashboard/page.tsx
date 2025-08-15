@@ -92,12 +92,15 @@ export default function DashboardPage() {
         if (loading) {
           console.warn('Dashboard loading timeout - forcing completion')
           setLoading(false)
+          setError('Dashboard loading timed out. Please refresh the page.')
         }
-      }, 10000) // 10 second timeout
+      }, 15000) // 15 second timeout
 
       fetchDashboardData()
       
       return () => clearTimeout(timeoutId)
+    } else {
+      setLoading(false)
     }
   }, [user])
 

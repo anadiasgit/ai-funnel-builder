@@ -144,6 +144,15 @@ export default function OnboardingPage() {
     console.log('👤 User:', user)
     
     try {
+      // Add timeout to prevent infinite loading
+      const timeoutId = setTimeout(() => {
+        if (loading) {
+          console.warn('Onboarding completion timeout - forcing completion')
+          setLoading(false)
+          setError('Setup timed out. Please try refreshing the page.')
+        }
+      }, 20000) // 20 second timeout
+
       // Update profile with onboarding data
       console.log('📝 Updating profile...')
       const profileResult = await updateProfile({
@@ -154,6 +163,7 @@ export default function OnboardingPage() {
 
       if (profileResult.error) {
         console.error('❌ Profile update failed:', profileResult.error)
+        clearTimeout(timeoutId)
         throw new Error(profileResult.error.message || 'Failed to update profile')
       }
 
@@ -178,15 +188,14 @@ export default function OnboardingPage() {
         }
       }
 
+      clearTimeout(timeoutId)
       console.log('🎉 Onboarding completed, redirecting to dashboard...')
       
       // Clear saved progress
       localStorage.removeItem('onboarding-progress')
       
-      // Force redirect with a small delay to ensure state updates
-      setTimeout(() => {
-        router.push('/dashboard')
-      }, 500)
+      // Force redirect immediately
+      router.push('/dashboard')
       
     } catch (error) {
       console.error('❌ Onboarding error:', error)
