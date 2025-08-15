@@ -1,7 +1,7 @@
 // app/onboarding/page.tsx
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
-import { ArrowRight, User, Building, Target, CheckCircle } from 'lucide-react'
+import { ArrowRight, User, Building, Target, CheckCircle, SkipForward, Loader2 } from 'lucide-react'
 
 const BUSINESS_TYPES = [
   'E-commerce',
@@ -57,6 +57,28 @@ export default function OnboardingPage() {
     goals: [] as string[]
   })
 
+  // Load saved progress from localStorage
+  useEffect(() => {
+    const savedData = localStorage.getItem('onboarding-progress')
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData)
+        setFormData(parsed.formData || formData)
+        setCurrentStep(parsed.currentStep || 1)
+      } catch (e) {
+        console.warn('Failed to parse saved onboarding data')
+      }
+    }
+  }, [])
+
+  // Save progress to localStorage
+  useEffect(() => {
+    localStorage.setItem('onboarding-progress', JSON.stringify({
+      formData,
+      currentStep
+    }))
+  }, [formData, currentStep])
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
@@ -76,6 +98,26 @@ export default function OnboardingPage() {
 
   const prevStep = () => {
     setCurrentStep(prev => Math.max(prev - 1, 1))
+  }
+
+  const skipStep = () => {
+    // Skip to next step if current step has required fields
+    if (currentStep === 1 && formData.full_name) {
+      nextStep()
+    } else if (currentStep === 2) {
+      nextStep()
+    } else if (currentStep === 3 && formData.goals.length === 0) {
+      // Add a default goal if none selected
+      setFormData(prev => ({ ...prev, goals: ['Learn funnel best practices'] }))
+      nextStep()
+    }
+  }
+
+  const canSkipStep = () => {
+    if (currentStep === 1) return formData.full_name.length > 0
+    if (currentStep === 2) return true
+    if (currentStep === 3) return formData.goals.length === 0
+    return false
   }
 
   const completeOnboarding = async () => {
@@ -110,6 +152,9 @@ export default function OnboardingPage() {
         }
       }
 
+      // Clear saved progress
+      localStorage.removeItem('onboarding-progress')
+      
       router.push('/dashboard')
     } catch (error) {
       console.error('Onboarding error:', error)
@@ -126,7 +171,7 @@ export default function OnboardingPage() {
       <div className="container mx-auto max-w-2xl px-4">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to AI Funnel Builder!</h1>
-                          <p className="text-gray-600">Let&apos;s get you set up in just a few steps</p>
+          <p className="text-gray-600">Let&apos;s get you set up in just a few steps</p>
           <div className="mt-4">
             <Progress value={progress} className="w-full h-2" />
             <p className="text-sm text-gray-500 mt-2">
@@ -136,12 +181,12 @@ export default function OnboardingPage() {
         </div>
 
         {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg animate-in slide-in-from-top-2">
             <p className="text-red-700 text-sm">{error}</p>
           </div>
         )}
         
-        <Card>
+        <Card className="shadow-xl">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               {currentStep === 1 && <User className="w-5 h-5" />}
@@ -156,7 +201,7 @@ export default function OnboardingPage() {
             </CardTitle>
             <CardDescription>
               {currentStep === 1 && 'Tell us a bit about yourself'}
-              {currentStep === 2 && 'Help us understand your business'}
+              {currentStep === 2 && 'Help us understand your business (optional)'}
               {currentStep === 3 && 'What would you like to achieve?'}
               {currentStep === 4 && 'Your account is ready to go!'}
             </CardDescription>
@@ -165,7 +210,7 @@ export default function OnboardingPage() {
           <CardContent>
             {/* Step 1: Personal Information */}
             {currentStep === 1 && (
-              <div className="space-y-4">
+              <div className="space-y-4 animate-in slide-in-from-right-4">
                 <div>
                   <Label htmlFor="full_name">Full Name *</Label>
                   <Input
@@ -175,6 +220,7 @@ export default function OnboardingPage() {
                     placeholder="Enter your full name"
                     required
                     aria-describedby="full_name_help"
+                    className="transition-all duration-200 focus:scale-[1.02]"
                   />
                   <p id="full_name_help" className="text-sm text-gray-500 mt-1">
                     This will be displayed on your profile
@@ -188,11 +234,15 @@ export default function OnboardingPage() {
                     value={formData.company_name}
                     onChange={(e) => handleInputChange('company_name', e.target.value)}
                     placeholder="Enter your company name"
+                    className="transition-all duration-200 focus:scale-[1.02]"
                   />
                 </div>
 
-                <div className="flex justify-end">
-                  <Button onClick={nextStep} disabled={!formData.full_name}>
+                <div className="flex justify-between items-center">
+                  <div className="text-sm text-gray-500">
+                    Only your name is required to continue
+                  </div>
+                  <Button onClick={nextStep} disabled={!formData.full_name} className="transition-all duration-200 hover:scale-105">
                     Next <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </div>
@@ -201,11 +251,11 @@ export default function OnboardingPage() {
 
             {/* Step 2: Business Details */}
             {currentStep === 2 && (
-              <div className="space-y-4">
+              <div className="space-y-4 animate-in slide-in-from-right-4">
                 <div>
                   <Label htmlFor="business_type">Business Type</Label>
                   <Select value={formData.business_type} onValueChange={(value: string) => handleInputChange('business_type', value)}>
-                    <SelectTrigger>
+                    <SelectTrigger className="transition-all duration-200 focus:scale-[1.02]">
                       <SelectValue placeholder="Select your business type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -219,7 +269,7 @@ export default function OnboardingPage() {
                 <div>
                   <Label htmlFor="industry">Industry</Label>
                   <Select value={formData.industry} onValueChange={(value: string) => handleInputChange('industry', value)}>
-                    <SelectTrigger>
+                    <SelectTrigger className="transition-all duration-200 focus:scale-[1.02]">
                       <SelectValue placeholder="Select your industry" />
                     </SelectTrigger>
                     <SelectContent>
@@ -233,7 +283,7 @@ export default function OnboardingPage() {
                 <div>
                   <Label htmlFor="experience_level">Experience with Funnel Building</Label>
                   <Select value={formData.experience_level} onValueChange={(value: string) => handleInputChange('experience_level', value)}>
-                    <SelectTrigger>
+                    <SelectTrigger className="transition-all duration-200 focus:scale-[1.02]">
                       <SelectValue placeholder="Select your experience level" />
                     </SelectTrigger>
                     <SelectContent>
@@ -244,20 +294,34 @@ export default function OnboardingPage() {
                   </Select>
                 </div>
 
-                <div className="flex justify-between">
-                  <Button variant="outline" onClick={prevStep}>
+                <div className="flex justify-between items-center">
+                  <Button variant="outline" onClick={prevStep} className="transition-all duration-200 hover:scale-105">
                     Back
                   </Button>
-                  <Button onClick={nextStep} disabled={!formData.business_type || !formData.industry || !formData.experience_level}>
-                    Next <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="ghost" 
+                      onClick={skipStep} 
+                      className="text-gray-500 hover:text-gray-700 transition-all duration-200"
+                    >
+                      <SkipForward className="w-4 h-4 mr-2" />
+                      Skip
+                    </Button>
+                    <Button 
+                      onClick={nextStep} 
+                      disabled={!formData.business_type || !formData.industry || !formData.experience_level}
+                      className="transition-all duration-200 hover:scale-105"
+                    >
+                      Next <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
 
             {/* Step 3: Goals */}
             {currentStep === 3 && (
-              <div className="space-y-4">
+              <div className="space-y-4 animate-in slide-in-from-right-4">
                 <div>
                   <Label>What are your main goals? (Select all that apply)</Label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
@@ -273,10 +337,10 @@ export default function OnboardingPage() {
                     ].map(goal => (
                       <div
                         key={goal}
-                        className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                        className={`p-3 border rounded-lg cursor-pointer transition-all duration-200 hover:scale-105 ${
                           formData.goals.includes(goal)
-                            ? 'border-blue-500 bg-blue-50 text-blue-700'
-                            : 'border-gray-200 hover:border-gray-300'
+                            ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-md'
+                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                         }`}
                         onClick={() => handleGoalToggle(goal)}
                       >
@@ -286,21 +350,35 @@ export default function OnboardingPage() {
                   </div>
                 </div>
 
-                <div className="flex justify-between">
-                  <Button variant="outline" onClick={prevStep}>
+                <div className="flex justify-between items-center">
+                  <Button variant="outline" onClick={prevStep} className="transition-all duration-200 hover:scale-105">
                     Back
                   </Button>
-                  <Button onClick={nextStep} disabled={formData.goals.length === 0}>
-                    Next <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="ghost" 
+                      onClick={skipStep} 
+                      className="text-gray-500 hover:text-gray-700 transition-all duration-200"
+                    >
+                      <SkipForward className="w-4 h-4 mr-2" />
+                      Skip
+                    </Button>
+                    <Button 
+                      onClick={nextStep} 
+                      disabled={formData.goals.length === 0}
+                      className="transition-all duration-200 hover:scale-105"
+                    >
+                      Next <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
 
             {/* Step 4: Completion */}
             {currentStep === 4 && (
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+              <div className="text-center space-y-4 animate-in slide-in-from-right-4">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto animate-in zoom-in-50">
                   <CheckCircle className="w-8 h-8 text-green-600" />
                 </div>
                 
@@ -310,7 +388,7 @@ export default function OnboardingPage() {
                   AI-powered funnel content right away.
                 </p>
 
-                <div className="bg-blue-50 p-4 rounded-lg">
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                   <p className="text-sm text-blue-700">
                     <strong>What&apos;s next?</strong> You&apos;ll be taken to your dashboard where you can:
                   </p>
@@ -321,12 +399,24 @@ export default function OnboardingPage() {
                   </ul>
                 </div>
 
-                <div className="flex justify-between">
-                  <Button variant="outline" onClick={prevStep}>
+                <div className="flex justify-between items-center">
+                  <Button variant="outline" onClick={prevStep} className="transition-all duration-200 hover:scale-105">
                     Back
                   </Button>
-                  <Button onClick={completeOnboarding} disabled={loading} size="lg" className="ml-auto">
-                    {loading ? 'Setting up...' : 'Get Started'}
+                  <Button 
+                    onClick={completeOnboarding} 
+                    disabled={loading} 
+                    size="lg" 
+                    className="ml-auto transition-all duration-200 hover:scale-105"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Setting up...
+                      </>
+                    ) : (
+                      'Get Started'
+                    )}
                   </Button>
                 </div>
               </div>
