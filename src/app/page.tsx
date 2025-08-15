@@ -1,3 +1,4 @@
+// app/page.tsx
 'use client'
 
 import { useAuth } from '@/contexts/AuthContext'
@@ -6,7 +7,6 @@ import Link from 'next/link'
 import { ArrowRight, Zap, Target, TrendingUp } from 'lucide-react'
 
 export default function HomePage() {
-  // Latest deployment with TypeScript fixes
   const { user } = useAuth()
 
   if (user) {
@@ -99,3 +99,5 @@ export default function HomePage() {
     </div>
   )
 }
+
+// Force Vercel to redeploy and refresh environment variables
