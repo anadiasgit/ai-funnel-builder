@@ -16,6 +16,7 @@ import {
   TrendingUp, 
   FileText, 
   Mail, 
+  Video,
   ArrowRight,
   Sparkles,
   Clock,
@@ -28,7 +29,13 @@ import { AIStatusIndicator } from '@/components/ui/ai-status-indicator'
 import { GenerationProgress } from '@/components/ui/generation-progress'
 import { CustomerAvatarForm } from '@/components/forms/customer-avatar-form'
 import { OfferGenerationForm } from '@/components/forms/offer-generation-form'
-import { CopyGenerationForm } from '@/components/forms/copy-generation-form'
+import { OrderBumpForm } from '@/components/forms/order-bump-form'
+import { UpsellsForm } from '@/components/forms/upsells-form'
+import { OrderPageForm } from '@/components/forms/order-page-form'
+import { ThankYouPageForm } from '@/components/forms/thank-you-page-form'
+import { MainVSLForm } from '@/components/forms/main-vsl-form'
+import { UpsellVSLForm } from '@/components/forms/upsell-vsl-form'
+import { EmailStrategyForm } from '@/components/forms/email-strategy-form'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 interface Project {
@@ -82,29 +89,65 @@ interface MainOffer {
 interface GeneratedContent {
   id: string
   generatedAt: string
-  salesPage: {
+  order_bump?: {
+    title: string
+    description: string
+    price: string
+    benefits: string[]
+    urgency: string
+  }
+  upsells?: {
+    upsell1: {
+      title: string
+      description: string
+      price: string
+      benefits: string[]
+    }
+    upsell2: {
+      title: string
+      description: string
+      price: string
+      benefits: string[]
+    }
+  }
+  order_page?: {
     headline: string
     subheadline: string
-    heroSection: string
-    problemSection: string
-    solutionSection: string
     benefits: string[]
     socialProof: string[]
     callToAction: string
-    urgency: string
+    guarantee: string
   }
-  videoScript: {
+  thank_you?: {
+    headline: string
+    message: string
+    nextSteps: string[]
+    bonus: string
+  }
+  main_vsl?: {
     hook: string
     problem: string
     solution: string
     proof: string
     offer: string
     close: string
+    urgency: string
   }
-  emailSequence: {
+  upsell_vsl?: {
+    hook: string
+    problem: string
+    solution: string
+    proof: string
+    offer: string
+    close: string
+    urgency: string
+  }
+  email_strategy?: {
     welcome: { subject: string; body: string }
     nurture: { subject: string; body: string }
     offer: { subject: string; body: string }
+    followUp: { subject: string; body: string }
+    abandonedCart: { subject: string; body: string }
   }
 }
 
@@ -113,7 +156,11 @@ interface GenerationStatus {
   offer: 'pending' | 'generating' | 'completed' | 'error'
   order_bump: 'pending' | 'generating' | 'completed' | 'error'
   upsells: 'pending' | 'generating' | 'completed' | 'error'
-  copy: 'pending' | 'generating' | 'completed' | 'error'
+  order_page: 'pending' | 'generating' | 'completed' | 'error'
+  thank_you: 'pending' | 'generating' | 'completed' | 'error'
+  main_vsl: 'pending' | 'generating' | 'completed' | 'error'
+  upsell_vsl: 'pending' | 'generating' | 'completed' | 'error'
+  email_strategy: 'pending' | 'generating' | 'completed' | 'error'
 }
 
 export default function ProjectWorkspace() {
@@ -127,7 +174,11 @@ export default function ProjectWorkspace() {
     offer: 'pending',
     order_bump: 'pending',
     upsells: 'pending',
-    copy: 'pending'
+    order_page: 'pending',
+    thank_you: 'pending',
+    main_vsl: 'pending',
+    upsell_vsl: 'pending',
+    email_strategy: 'pending'
   })
 
   useEffect(() => {
@@ -179,9 +230,13 @@ export default function ProjectWorkspace() {
     setGenerationStatus({
       avatar: projectData.customer_avatar ? 'completed' : 'pending',
       offer: projectData.main_offer ? 'completed' : 'pending',
-      order_bump: projectData.generated_content ? 'completed' : 'pending',
-      upsells: projectData.generated_content ? 'completed' : 'pending',
-      copy: projectData.generated_content ? 'completed' : 'pending'
+      order_bump: projectData.generated_content?.order_bump ? 'completed' : 'pending',
+      upsells: projectData.generated_content?.upsells ? 'completed' : 'pending',
+      order_page: projectData.generated_content?.order_page ? 'completed' : 'pending',
+      thank_you: projectData.generated_content?.thank_you ? 'completed' : 'pending',
+      main_vsl: projectData.generated_content?.main_vsl ? 'completed' : 'pending',
+      upsell_vsl: projectData.generated_content?.upsell_vsl ? 'completed' : 'pending',
+      email_strategy: projectData.generated_content?.email_strategy ? 'completed' : 'pending'
     })
   }
 
@@ -261,7 +316,7 @@ export default function ProjectWorkspace() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           {/* Tab Navigation */}
-          <TabsList className="grid w-full grid-cols-5 lg:grid-cols-5 h-auto p-1">
+          <TabsList className="grid w-full grid-cols-9 lg:grid-cols-9 h-auto p-1">
             <TabsTrigger 
               value="avatar" 
               className="flex flex-col items-center gap-2 py-3 px-2 text-xs sm:text-sm"
@@ -276,7 +331,7 @@ export default function ProjectWorkspace() {
                   ) : null
                 })()}
               </div>
-              <span>Customer Avatar</span>
+              <span>Avatar</span>
             </TabsTrigger>
             
             <TabsTrigger 
@@ -297,6 +352,23 @@ export default function ProjectWorkspace() {
             </TabsTrigger>
             
             <TabsTrigger 
+              value="order-bump" 
+              className="flex flex-col items-center gap-2 py-3 px-2 text-xs sm:text-sm"
+            >
+              <div className="flex items-center gap-2">
+                <ShoppingCart className="h-4 w-4" />
+                {(() => {
+                  const status = getTabStatus('order_bump')
+                  const IconComponent = status.icon
+                  return IconComponent ? (
+                    <IconComponent className={`h-3 w-3 ${status.color}`} />
+                  ) : null
+                })()}
+              </div>
+              <span>Order Bump</span>
+            </TabsTrigger>
+            
+            <TabsTrigger 
               value="upsells" 
               className="flex flex-col items-center gap-2 py-3 px-2 text-xs sm:text-sm"
             >
@@ -310,33 +382,90 @@ export default function ProjectWorkspace() {
                   ) : null
                 })()}
               </div>
-              <span>Upsells</span>
+              <span>Upsells x2</span>
             </TabsTrigger>
             
             <TabsTrigger 
-              value="copy" 
+              value="order-page" 
               className="flex flex-col items-center gap-2 py-3 px-2 text-xs sm:text-sm"
             >
               <div className="flex items-center gap-2">
                 <FileText className="h-4 w-4" />
                 {(() => {
-                  const status = getTabStatus('copy')
+                  const status = getTabStatus('order_page')
                   const IconComponent = status.icon
                   return IconComponent ? (
                     <IconComponent className={`h-3 w-3 ${status.color}`} />
                   ) : null
                 })()}
               </div>
-              <span>Sales Copy</span>
+              <span>Order Page</span>
             </TabsTrigger>
             
             <TabsTrigger 
-              value="email" 
+              value="thank-you" 
+              className="flex flex-col items-center gap-2 py-3 px-2 text-xs sm:text-sm"
+            >
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4" />
+                {(() => {
+                  const status = getTabStatus('thank_you')
+                  const IconComponent = status.icon
+                  return IconComponent ? (
+                    <IconComponent className={`h-3 w-3 ${status.color}`} />
+                  ) : null
+                })()}
+              </div>
+              <span>Thank You</span>
+            </TabsTrigger>
+            
+            <TabsTrigger 
+              value="main-vsl" 
+              className="flex flex-col items-center gap-2 py-3 px-2 text-xs sm:text-sm"
+            >
+              <div className="flex items-center gap-2">
+                <Video className="h-4 w-4" />
+                {(() => {
+                  const status = getTabStatus('main_vsl')
+                  const IconComponent = status.icon
+                  return IconComponent ? (
+                    <IconComponent className={`h-3 w-3 ${status.color}`} />
+                  ) : null
+                })()}
+              </div>
+              <span>Main VSL</span>
+            </TabsTrigger>
+            
+            <TabsTrigger 
+              value="upsell-vsl" 
+              className="flex flex-col items-center gap-2 py-3 px-2 text-xs sm:text-sm"
+            >
+              <div className="flex items-center gap-2">
+                <Video className="h-4 w-4" />
+                {(() => {
+                  const status = getTabStatus('upsell_vsl')
+                  const IconComponent = status.icon
+                  return IconComponent ? (
+                    <IconComponent className={`h-3 w-3 ${status.color}`} />
+                  ) : null
+                })()}
+              </div>
+              <span>Upsell VSL</span>
+            </TabsTrigger>
+            
+            <TabsTrigger 
+              value="email-strategy" 
               className="flex flex-col items-center gap-2 py-3 px-2 text-xs sm:text-sm"
             >
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4" />
-                <Clock className="h-3 w-3 text-gray-400" />
+                {(() => {
+                  const status = getTabStatus('email_strategy')
+                  const IconComponent = status.icon
+                  return IconComponent ? (
+                    <IconComponent className={`h-3 w-3 ${status.color}`} />
+                  ) : null
+                })()}
               </div>
               <span>Email Strategy</span>
             </TabsTrigger>
@@ -413,145 +542,338 @@ export default function ProjectWorkspace() {
               </Card>
             </TabsContent>
 
-            {/* Upsells Tab */}
-            <TabsContent value="upsells" className="space-y-6">
-              <div className="grid gap-6 md:grid-cols-2">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <ShoppingCart className="h-5 w-5" />
-                      Order Bump Ideas
-                    </CardTitle>
-                    <CardDescription>
-                      Generate complementary order bump offers to increase average order value.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {generationStatus.offer !== 'completed' ? (
-                      <div className="text-center py-4">
-                        <p className="text-sm text-gray-600">Complete your main offer first</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        <Button className="w-full" disabled={generationStatus.order_bump === 'generating'}>
-                          {generationStatus.order_bump === 'generating' ? (
-                            <>
-                              <LoadingSpinner size="sm" className="mr-2" />
-                              Generating...
-                            </>
-                          ) : (
-                            <>
-                              <Sparkles className="h-4 w-4 mr-2" />
-                              Generate Order Bump
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5" />
-                      Upsell Offers
-                    </CardTitle>
-                    <CardDescription>
-                      Create strategic upsell offers for post-purchase optimization.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {generationStatus.offer !== 'completed' ? (
-                      <div className="text-center py-4">
-                        <p className="text-sm text-gray-600">Complete your main offer first</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        <Button className="w-full" disabled={generationStatus.upsells === 'generating'}>
-                          {generationStatus.upsells === 'generating' ? (
-                            <>
-                              <LoadingSpinner size="sm" className="mr-2" />
-                              Generating...
-                            </>
-                          ) : (
-                            <>
-                              <Sparkles className="h-4 w-4 mr-2" />
-                              Generate Upsells
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
+            {/* Order Bump Tab */}
+            <TabsContent value="order-bump" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ShoppingCart className="h-5 w-5" />
+                    Order Bump Generation
+                  </CardTitle>
+                  <CardDescription>
+                    Generate a compelling order bump offer to increase average order value.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {generationStatus.offer !== 'completed' ? (
+                    <div className="text-center py-8">
+                      <ShoppingCart className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        Main Offer Required
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        Please complete your main offer first to generate targeted order bumps.
+                      </p>
+                      <Button 
+                        onClick={() => setActiveTab('offer')}
+                        className="flex items-center gap-2"
+                      >
+                        Create Main Offer First
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <OrderBumpForm 
+                      customerAvatar={project.customer_avatar!}
+                      mainOffer={project.main_offer!}
+                      existingOrderBump={project.generated_content?.order_bump}
+                      onOrderBumpGenerated={(orderBump) => {
+                        setProject(prev => prev ? { 
+                          ...prev, 
+                          generated_content: { 
+                            ...prev.generated_content, 
+                            id: prev.generated_content?.id || Date.now().toString(),
+                            generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                            order_bump: orderBump
+                          }
+                        } : null)
+                        setGenerationStatus(prev => ({ ...prev, order_bump: 'completed' }))
+                      }}
+                    />
+                  )}
+                </CardContent>
+              </Card>
             </TabsContent>
 
-            {/* Sales Copy Tab */}
-            <TabsContent value="copy" className="space-y-6">
-              <div className="grid gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <FileText className="h-5 w-5" />
-                      Sales Copy Generation
-                    </CardTitle>
-                    <CardDescription>
-                      Generate high-converting copy for all your funnel pages and videos.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {generationStatus.offer !== 'completed' ? (
-                      <div className="text-center py-8">
-                        <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">
-                          Main Offer Required
-                        </h3>
-                        <p className="text-gray-600">
-                          Complete your main offer to generate targeted sales copy.
-                        </p>
-                      </div>
-                    ) : (
-                      <CopyGenerationForm 
-                        customerAvatar={project.customer_avatar!}
-                        mainOffer={project.main_offer!}
-                        existingContent={project.generated_content}
-                        onContentGenerated={(content) => {
-                          setProject(prev => prev ? { 
-                            ...prev, 
-                            generated_content: { ...prev.generated_content, ...content }
-                          } : null)
-                          setGenerationStatus(prev => ({ ...prev, copy: 'completed' }))
-                        }}
-                      />
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
+            {/* Upsells Tab */}
+            <TabsContent value="upsells" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5" />
+                    Upsell Offers Generation
+                  </CardTitle>
+                  <CardDescription>
+                    Generate two strategic upsell offers for post-purchase optimization.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {generationStatus.offer !== 'completed' ? (
+                    <div className="text-center py-8">
+                      <TrendingUp className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        Main Offer Required
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        Please complete your main offer first to generate targeted upsells.
+                      </p>
+                      <Button 
+                        onClick={() => setActiveTab('offer')}
+                        className="flex items-center gap-2"
+                      >
+                        Create Main Offer First
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <UpsellsForm 
+                      customerAvatar={project.customer_avatar!}
+                      mainOffer={project.main_offer!}
+                      existingUpsells={project.generated_content?.upsells}
+                      onUpsellsGenerated={(upsells) => {
+                        setProject(prev => prev ? { 
+                          ...prev, 
+                          generated_content: { 
+                            ...prev.generated_content, 
+                            id: prev.generated_content?.id || Date.now().toString(),
+                            generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                            upsells: upsells
+                          }
+                        } : null)
+                        setGenerationStatus(prev => ({ ...prev, upsells: 'completed' }))
+                      }}
+                    />
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Order Page Tab */}
+            <TabsContent value="order-page" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Order Page Copy Generation
+                  </CardTitle>
+                  <CardDescription>
+                    Generate high-converting copy for your order/checkout page.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {generationStatus.offer !== 'completed' ? (
+                    <div className="text-center py-8">
+                      <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        Main Offer Required
+                      </h3>
+                      <p className="text-gray-600">
+                        Complete your main offer to generate targeted order page copy.
+                      </p>
+                    </div>
+                  ) : (
+                    <OrderPageForm 
+                      customerAvatar={project.customer_avatar!}
+                      mainOffer={project.main_offer!}
+                      existingOrderPage={project.generated_content?.order_page}
+                      onOrderPageGenerated={(orderPage) => {
+                        setProject(prev => prev ? { 
+                          ...prev, 
+                          generated_content: { 
+                            ...prev.generated_content, 
+                            id: prev.generated_content?.id || Date.now().toString(),
+                            generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                            order_page: orderPage
+                          }
+                        } : null)
+                        setGenerationStatus(prev => ({ ...prev, order_page: 'completed' }))
+                      }}
+                    />
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+                        {/* Thank You Page Tab */}
+            <TabsContent value="thank-you" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CheckCircle2 className="h-5 w-5" />
+                    Thank You Page Generation
+                  </CardTitle>
+                  <CardDescription>
+                    Generate engaging thank you page content with next steps and bonuses.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {generationStatus.offer !== 'completed' ? (
+                    <div className="text-center py-8">
+                      <CheckCircle2 className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        Main Offer Required
+                      </h3>
+                      <p className="text-gray-600">
+                        Complete your main offer to generate targeted thank you page content.
+                      </p>
+                    </div>
+                  ) : (
+                    <ThankYouPageForm 
+                      customerAvatar={project.customer_avatar!}
+                      mainOffer={project.main_offer!}
+                      existingThankYou={project.generated_content?.thank_you}
+                      onThankYouGenerated={(thankYou) => {
+                        setProject(prev => prev ? { 
+                          ...prev, 
+                          generated_content: { 
+                            ...prev.generated_content, 
+                            id: prev.generated_content?.id || Date.now().toString(),
+                            generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                            thank_you: thankYou
+                          }
+                        } : null)
+                        setGenerationStatus(prev => ({ ...prev, thank_you: 'completed' }))
+                      }}
+                    />
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Main VSL Tab */}
+            <TabsContent value="main-vsl" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Video className="h-5 w-5" />
+                    Main VSL Script Generation
+                  </CardTitle>
+                  <CardDescription>
+                    Generate a compelling video sales letter script for your main offer.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {generationStatus.offer !== 'completed' ? (
+                    <div className="text-center py-8">
+                      <Video className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        Main Offer Required
+                      </h3>
+                      <p className="text-gray-600">
+                        Complete your main offer to generate targeted VSL script.
+                      </p>
+                    </div>
+                  ) : (
+                    <MainVSLForm 
+                      customerAvatar={project.customer_avatar!}
+                      mainOffer={project.main_offer!}
+                      existingVSL={project.generated_content?.main_vsl}
+                      onVSLGenerated={(vsl) => {
+                        setProject(prev => prev ? { 
+                          ...prev, 
+                          generated_content: { 
+                            ...prev.generated_content, 
+                            id: prev.generated_content?.id || Date.now().toString(),
+                            generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                            main_vsl: vsl
+                          }
+                        } : null)
+                        setGenerationStatus(prev => ({ ...prev, main_vsl: 'completed' }))
+                      }}
+                    />
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Upsell VSL Tab */}
+            <TabsContent value="upsell-vsl" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Video className="h-5 w-5" />
+                    Upsell VSL Script Generation
+                  </CardTitle>
+                  <CardDescription>
+                    Generate a compelling video sales letter script for your upsell offers.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {generationStatus.offer !== 'completed' ? (
+                    <div className="text-center py-8">
+                      <Video className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        Main Offer Required
+                      </h3>
+                      <p className="text-gray-600">
+                        Complete your main offer to generate targeted upsell VSL script.
+                      </p>
+                    </div>
+                  ) : (
+                    <UpsellVSLForm 
+                      customerAvatar={project.customer_avatar!}
+                      mainOffer={project.main_offer!}
+                      existingVSL={project.generated_content?.upsell_vsl}
+                      onVSLGenerated={(vsl) => {
+                        setProject(prev => prev ? { 
+                          ...prev, 
+                          generated_content: { 
+                            ...prev.generated_content, 
+                            id: prev.generated_content?.id || Date.now().toString(),
+                            generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                            upsell_vsl: vsl
+                          }
+                        } : null)
+                        setGenerationStatus(prev => ({ ...prev, upsell_vsl: 'completed' }))
+                      }}
+                    />
+                  )}
+                </CardContent>
+              </Card>
             </TabsContent>
 
             {/* Email Strategy Tab */}
-            <TabsContent value="email" className="space-y-6">
+            <TabsContent value="email-strategy" className="space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Mail className="h-5 w-5" />
-                    Email Marketing Strategy
+                    Email Strategy & Copy Generation
                   </CardTitle>
                   <CardDescription>
-                    Coming soon: Generate complete email sequences and marketing automation.
+                    Generate complete email sequences and marketing automation for your funnel.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="text-center py-12">
-                  <Mail className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    Email Strategy Coming Soon
-                  </h3>
-                                      <p className="text-gray-600 mb-4">
-                      We&apos;re working on advanced email sequence generation and automation features.
-                    </p>
-                  <Badge variant="secondary">Phase 2 Feature</Badge>
+                <CardContent>
+                  {generationStatus.offer !== 'completed' ? (
+                    <div className="text-center py-8">
+                      <Mail className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        Main Offer Required
+                      </h3>
+                      <p className="text-gray-600">
+                        Complete your main offer to generate targeted email strategy.
+                      </p>
+                    </div>
+                  ) : (
+                    <EmailStrategyForm 
+                      customerAvatar={project.customer_avatar!}
+                      mainOffer={project.main_offer!}
+                      existingStrategy={project.generated_content?.email_strategy}
+                      onStrategyGenerated={(strategy) => {
+                        setProject(prev => prev ? { 
+                          ...prev, 
+                          generated_content: { 
+                            ...prev.generated_content, 
+                            id: prev.generated_content?.id || Date.now().toString(),
+                            generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                            email_strategy: strategy
+                          }
+                        } : null)
+                        setGenerationStatus(prev => ({ ...prev, email_strategy: 'completed' }))
+                      }}
+                    />
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
