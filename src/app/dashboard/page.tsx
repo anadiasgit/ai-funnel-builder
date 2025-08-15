@@ -22,7 +22,8 @@ import {
   Calendar,
   BarChart3,
   DollarSign,
-  Settings
+  Settings,
+  Sparkles
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -304,6 +305,14 @@ export default function DashboardPage() {
               <Button onClick={createNewProject} className="bg-blue-600 hover:bg-blue-700">
                 <Plus className="w-4 h-4 mr-2" />
                 New Project
+              </Button>
+              <Button 
+                onClick={() => router.push('/test-project')} 
+                variant="outline"
+                className="border-green-200 text-green-700 hover:bg-green-50"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                View Demo
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
