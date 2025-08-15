@@ -77,8 +77,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
 
             if (!profile) {
+              console.log('Creating new profile for user:', session.user.id)
+              console.log('User metadata:', session.user.user_metadata)
+              
+              // Validate user ID is a proper UUID
+              if (!session.user.id || typeof session.user.id !== 'string' || session.user.id.length !== 36) {
+                console.error('Invalid user ID format:', session.user.id)
+                router.push('/onboarding')
+                return
+              }
+              
               // Create profile for OAuth users
-              const { error: insertError } = await supabase.from('profiles').insert({
+              const { data: insertData, error: insertError } = await supabase.from('profiles').insert({
                 id: session.user.id,
                 email: session.user.email,
                 full_name: session.user.user_metadata?.full_name || '',
@@ -88,11 +98,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               
               if (insertError) {
                 console.error('Error creating profile:', insertError)
+                console.error('Error details:', {
+                  code: insertError.code,
+                  message: insertError.message,
+                  details: insertError.details,
+                  hint: insertError.hint
+                })
                 // If profile creation fails, redirect to onboarding anyway
                 router.push('/onboarding')
                 return
               }
               
+              console.log('Profile created successfully:', insertData)
               router.push('/onboarding')
             } else if (!profile.onboarding_completed) {
               router.push('/onboarding')
@@ -125,14 +142,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })
 
     if (data.user && !error) {
+      console.log('Creating profile for new user:', data.user.id)
+      console.log('User data:', data.user)
+      
+      // Validate user ID is a proper UUID
+      if (!data.user.id || typeof data.user.id !== 'string' || data.user.id.length !== 36) {
+        console.error('Invalid user ID format during signup:', data.user.id)
+        return { user: data.user, error: { message: 'Invalid user ID format' } as AuthError }
+      }
+      
       // Create profile record
-      await supabase.from('profiles').insert({
+      const { data: profileData, error: profileError } = await supabase.from('profiles').insert({
         id: data.user.id,
         email: data.user.email,
         full_name: userData?.full_name || '',
         company_name: userData?.company_name || '',
         onboarding_completed: false
       })
+      
+      if (profileError) {
+        console.error('Error creating profile during signup:', profileError)
+        console.error('Profile error details:', {
+          code: profileError.code,
+          message: profileError.message,
+          details: profileError.details,
+          hint: profileError.hint
+        })
+      } else {
+        console.log('Profile created successfully during signup:', profileData)
+      }
     }
 
     return { user: data.user, error }

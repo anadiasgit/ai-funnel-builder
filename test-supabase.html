@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supabase Test</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Supabase Connection Test</h1>
+    <button onclick="testConnection()">Test Supabase Connection</button>
+    <div id="result"></div>
+
+    <script>
+        const supabaseUrl = 'https://ermyyqopbhbuqqgpotpg.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVybXl5cW9wYmhidXFxZ3BvdHBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxOTc1NzUsImV4cCI6MjA3MDc3MzU3NX0.RcYKnKdLVJGwYmOstQMGBI3jjAbP6Kz5029rAW8Efu0'
+        
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
+        
+        async function testConnection() {
+            const resultDiv = document.getElementById('result')
+            resultDiv.innerHTML = 'Testing connection...'
+            
+            try {
+                // Test basic connection
+                const { data, error } = await supabase.from('profiles').select('count').limit(1)
+                
+                if (error) {
+                    resultDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p><p>Code: ${error.code}</p>`
+                } else {
+                    resultDiv.innerHTML = '<p style="color: green;">✅ Supabase connection successful!</p>'
+                    
+                    // Now test profile creation
+                    resultDiv.innerHTML += '<p>Testing profile creation...</p>'
+                    await testProfileCreation()
+                }
+            } catch (err) {
+                resultDiv.innerHTML = `<p style="color: red;">Exception: ${err.message}</p>`
+            }
+        }
+        
+        async function testProfileCreation() {
+            const resultDiv = document.getElementById('result')
+            
+            try {
+                // Test inserting a profile (this will fail but show us the exact error)
+                const { data, error } = await supabase.from('profiles').insert({
+                    id: 'test-user-id',
+                    email: 'test@example.com',
+                    full_name: 'Test User',
+                    onboarding_completed: false
+                })
+                
+                if (error) {
+                    resultDiv.innerHTML += `<p style="color: red;">❌ Profile creation failed: ${error.message}</p>`
+                    resultDiv.innerHTML += `<p>Error code: ${error.code}</p>`
+                    if (error.details) resultDiv.innerHTML += `<p>Details: ${error.details}</p>`
+                    if (error.hint) resultDiv.innerHTML += `<p>Hint: ${error.hint}</p>`
+                } else {
+                    resultDiv.innerHTML += '<p style="color: green;">✅ Profile creation successful!</p>'
+                }
+            } catch (err) {
+                resultDiv.innerHTML += `<p style="color: red;">Exception during profile creation: ${err.message}</p>`
+            }
+        }
+    </script>
+</body>
+</html>
