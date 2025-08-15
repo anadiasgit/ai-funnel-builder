@@ -19,6 +19,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -45,6 +46,9 @@ export default function LoginPage() {
       const { error } = await signInWithGoogle()
       if (error) {
         setError(error.message)
+      } else {
+        // OAuth redirect will happen automatically
+        setSuccess('Redirecting to Google...')
       }
     } catch (err) {
       setError('Failed to sign in with Google')
@@ -133,6 +137,12 @@ export default function LoginPage() {
             {error && (
               <Alert variant="destructive">
                 <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            {success && (
+              <Alert>
+                <AlertDescription>{success}</AlertDescription>
               </Alert>
             )}
 

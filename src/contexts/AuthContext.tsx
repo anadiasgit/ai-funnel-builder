@@ -114,13 +114,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email,
         password,
         options: {
-          data: userData // This gets stored in user_metadata and used by the trigger
+          data: userData, // This gets stored in user_metadata and used by the trigger
+          emailRedirectTo: `${window.location.origin}/auth/callback`
         }
       })
       
       console.log('🔍 Signup response:')
       console.log('  Data:', data)
       console.log('  Error:', error)
+      console.log('  Session:', data.session)
+      console.log('  User:', data.user)
       
       if (error) {
         console.error('❌ Signup error details:', {
@@ -128,6 +131,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           status: error.status,
           name: error.name
         })
+      } else if (data.user && !data.session) {
+        console.log('📧 Email confirmation required - user created but no session')
+        // This means email confirmation is required
+      } else if (data.session) {
+        console.log('✅ User signed up and session created immediately')
       }
       
       return { user: data.user, error }

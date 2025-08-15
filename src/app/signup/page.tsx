@@ -68,6 +68,9 @@ export default function SignupPage() {
       const { error } = await signInWithGoogle()
       if (error) {
         setError(error.message)
+      } else {
+        // OAuth redirect will happen automatically
+        setSuccess('Redirecting to Google...')
       }
     } catch (err) {
       setError('Failed to sign up with Google')
