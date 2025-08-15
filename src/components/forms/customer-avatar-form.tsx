@@ -6,23 +6,30 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { 
   User, 
-  Building2, 
-  Target, 
-  Users, 
-  DollarSign, 
   Sparkles,
   CheckCircle2
 } from 'lucide-react'
 
 interface CustomerAvatarFormProps {
-  projectId: string
-  existingAvatar?: any
-  onAvatarGenerated: (avatar: any) => void
+  existingAvatar?: CustomerAvatar | null
+  onAvatarGenerated: (avatar: CustomerAvatar) => void
+}
+
+interface CustomerAvatar {
+  id: string
+  businessName: string
+  industry: string
+  targetAudience: string
+  painPoints: string
+  goals: string
+  budget: string
+  location: string
+  insights?: string[]
+  recommendations?: string[]
 }
 
 interface AvatarFormData {
@@ -36,7 +43,6 @@ interface AvatarFormData {
 }
 
 export function CustomerAvatarForm({ 
-  projectId, 
   existingAvatar, 
   onAvatarGenerated 
 }: CustomerAvatarFormProps) {
@@ -151,7 +157,7 @@ export function CustomerAvatarForm({
             <div>
               <Label className="text-sm font-medium text-gray-700">AI Insights</Label>
               <div className="mt-2 space-y-2">
-                {avatar.insights.map((insight: string, index: number) => (
+                {avatar.insights?.map((insight: string, index: number) => (
                   <div key={index} className="flex items-start gap-2">
                     <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
                     <p className="text-sm text-gray-700">{insight}</p>
@@ -166,7 +172,7 @@ export function CustomerAvatarForm({
             <div>
               <Label className="text-sm font-medium text-gray-700">AI Recommendations</Label>
               <div className="mt-2 space-y-2">
-                {avatar.recommendations.map((rec: string, index: number) => (
+                {avatar.recommendations?.map((rec: string, index: number) => (
                   <div key={index} className="flex items-start gap-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
                     <p className="text-sm text-gray-700">{rec}</p>

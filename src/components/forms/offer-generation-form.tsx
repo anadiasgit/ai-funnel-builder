@@ -11,19 +11,50 @@ import { Separator } from '@/components/ui/separator'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { 
   Target, 
-  DollarSign, 
-  Package, 
   Sparkles,
   CheckCircle2,
-  TrendingUp,
   Star
 } from 'lucide-react'
 
 interface OfferGenerationFormProps {
-  projectId: string
-  customerAvatar: any
-  existingOffer?: any
-  onOfferGenerated: (offer: any) => void
+  customerAvatar: CustomerAvatar
+  existingOffer?: MainOffer | null
+  onOfferGenerated: (offer: MainOffer) => void
+}
+
+interface CustomerAvatar {
+  id: string
+  businessName: string
+  industry: string
+  targetAudience: string
+  painPoints: string
+  goals: string
+  budget: string
+  location: string
+}
+
+interface MainOffer {
+  id: string
+  productName: string
+  productDescription: string
+  price: string
+  valueProposition: string
+  features: string
+  guarantee: string
+  aiOptimizations?: {
+    headline: string
+    subheadline: string
+    urgency: string
+    socialProof: string[]
+    objections: string[]
+    responses: string[]
+  }
+  pricing?: {
+    originalPrice: number
+    currentPrice: number
+    savings: number
+    paymentOptions: string[]
+  }
 }
 
 interface OfferFormData {
@@ -36,7 +67,6 @@ interface OfferFormData {
 }
 
 export function OfferGenerationForm({ 
-  projectId, 
   customerAvatar, 
   existingOffer, 
   onOfferGenerated 
@@ -128,12 +158,12 @@ export function OfferGenerationForm({
             {/* AI Headlines */}
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg">
               <Label className="text-sm font-medium text-gray-700">AI-Generated Headline</Label>
-              <h3 className="text-xl font-bold text-gray-900 mt-2">
-                {offer.aiOptimizations.headline}
-              </h3>
-              <p className="text-gray-600 mt-1">
-                {offer.aiOptimizations.subheadline}
-              </p>
+                              <h3 className="text-xl font-bold text-gray-900 mt-2">
+                  {offer.aiOptimizations?.headline}
+                </h3>
+                <p className="text-gray-600 mt-1">
+                  {offer.aiOptimizations?.subheadline}
+                </p>
             </div>
 
             {/* Pricing */}
@@ -141,18 +171,18 @@ export function OfferGenerationForm({
               <Label className="text-sm font-medium text-gray-700">Optimized Pricing</Label>
               <div className="flex items-baseline gap-2 mt-2">
                 <span className="text-3xl font-bold text-green-600">
-                  ${offer.pricing.currentPrice}
+                  ${offer.pricing?.currentPrice || offer.price}
                 </span>
                 <span className="text-lg text-gray-500 line-through">
-                  ${offer.pricing.originalPrice}
+                  ${offer.pricing?.originalPrice || offer.price}
                 </span>
                 <Badge variant="secondary" className="ml-2">
-                  Save ${offer.pricing.savings}
+                  Save ${offer.pricing?.savings || '0'}
                 </Badge>
               </div>
-              <p className="text-sm text-gray-600 mt-1">
-                {offer.pricing.paymentOptions.join(' • ')}
-              </p>
+                              <p className="text-sm text-gray-600 mt-1">
+                  {offer.pricing?.paymentOptions?.join(' • ') || 'One-time payment'}
+                </p>
             </div>
 
             <Separator />
@@ -183,7 +213,7 @@ export function OfferGenerationForm({
             <div>
               <Label className="text-sm font-medium text-gray-700">Social Proof Elements</Label>
               <div className="mt-2 space-y-2">
-                {offer.aiOptimizations.socialProof.map((proof: string, index: number) => (
+                {offer.aiOptimizations?.socialProof?.map((proof: string, index: number) => (
                   <div key={index} className="flex items-center gap-2">
                     <Star className="h-4 w-4 text-yellow-500" />
                     <p className="text-sm text-gray-700">{proof}</p>
@@ -198,13 +228,13 @@ export function OfferGenerationForm({
             <div>
               <Label className="text-sm font-medium text-gray-700">AI Objection Handling</Label>
               <div className="mt-2 space-y-3">
-                {offer.aiOptimizations.objections.map((objection: string, index: number) => (
+                {offer.aiOptimizations?.objections?.map((objection: string, index: number) => (
                   <div key={index} className="bg-gray-50 p-3 rounded-lg">
                     <p className="text-sm font-medium text-gray-900 mb-1">
                       Objection: {objection}
                     </p>
                     <p className="text-sm text-gray-700">
-                      Response: {offer.aiOptimizations.responses[index]}
+                      Response: {offer.aiOptimizations?.responses?.[index]}
                     </p>
                   </div>
                 ))}

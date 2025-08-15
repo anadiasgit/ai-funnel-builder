@@ -12,8 +12,8 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { 
   FileText, 
-  Video, 
   Mail, 
+  Video,
   Sparkles,
   CheckCircle2,
   Copy,
@@ -21,11 +21,56 @@ import {
 } from 'lucide-react'
 
 interface CopyGenerationFormProps {
-  projectId: string
-  customerAvatar: any
-  mainOffer: any
-  existingContent?: any
-  onContentGenerated: (content: any) => void
+  customerAvatar: CustomerAvatar
+  mainOffer: MainOffer
+  existingContent?: GeneratedContent | null
+  onContentGenerated: (content: GeneratedContent) => void
+}
+
+interface CustomerAvatar {
+  id: string
+  businessName: string
+  industry: string
+  targetAudience: string
+}
+
+interface MainOffer {
+  id: string
+  productName: string
+  price: string
+  pricing?: {
+    currentPrice: number
+    originalPrice: number
+  }
+}
+
+interface GeneratedContent {
+  id: string
+  generatedAt: string
+  salesPage: {
+    headline: string
+    subheadline: string
+    heroSection: string
+    problemSection: string
+    solutionSection: string
+    benefits: string[]
+    socialProof: string[]
+    callToAction: string
+    urgency: string
+  }
+  videoScript: {
+    hook: string
+    problem: string
+    solution: string
+    proof: string
+    offer: string
+    close: string
+  }
+  emailSequence: {
+    welcome: { subject: string; body: string }
+    nurture: { subject: string; body: string }
+    offer: { subject: string; body: string }
+  }
 }
 
 interface CopyFormData {
@@ -36,7 +81,6 @@ interface CopyFormData {
 }
 
 export function CopyGenerationForm({ 
-  projectId, 
   customerAvatar, 
   mainOffer, 
   existingContent, 
@@ -84,16 +128,16 @@ export function CopyGenerationForm({
             '4.9/5 star rating from 200+ reviews',
             'Featured in Business Insider, Forbes'
           ],
-          callToAction: `Get Started Today - Only $${mainOffer.pricing.currentPrice}`,
+          callToAction: `Get Started Today - Only $${mainOffer.pricing?.currentPrice || mainOffer.price || '0'}`,
           urgency: 'Limited Time: Only 47 spots available this month'
         },
         videoScript: {
-          hook: `"What if I told you that you could transform your ${customerAvatar.industry} business in just 30 days?"`,
-          problem: `"Most business owners are stuck in a cycle of trying different marketing strategies, spending money, and not seeing results."`,
-          solution: `"That's why I created ${mainOffer.productName} - a proven system that's helped 500+ businesses like yours."`,
-          proof: `"Here's what one of our clients said: 'We increased our revenue by 300% in just 90 days using this system.'"`,
-          offer: `"Today, I'm offering you access to this system for just $${mainOffer.pricing.currentPrice}."`,
-          close: `"Click the button below to get started now. This offer won't last long."`
+          hook: `&quot;What if I told you that you could transform your ${customerAvatar.industry} business in just 30 days?&quot;`,
+                      problem: `&quot;Most business owners are stuck in a cycle of trying different marketing strategies, spending money, and not seeing results.&quot;`,
+                      solution: `&quot;That&apos;s why I created ${mainOffer.productName} - a proven system that&apos;s helped 500+ businesses like yours.&quot;`,
+            proof: `&quot;Here&apos;s what one of our clients said: &apos;We increased our revenue by 300% in just 90 days using this system.&apos;&quot;`,
+            offer: `&quot;Today, I&apos;m offering you access to this system for just $${mainOffer.pricing?.currentPrice || mainOffer.price || '0'}.&quot;`,
+            close: `&quot;Click the button below to get started now. This offer won&apos;t last long.&quot;`
         },
         emailSequence: {
           welcome: {
@@ -106,7 +150,7 @@ export function CopyGenerationForm({
           },
           offer: {
             subject: `Special Offer: Get ${mainOffer.productName} at 50% Off`,
-            body: `Hi!\n\nI wanted to give you a special opportunity to get ${mainOffer.productName} at 50% off.\n\nThis system normally costs $${mainOffer.pricing.originalPrice}, but for the next 24 hours, you can get it for just $${mainOffer.pricing.currentPrice}.\n\nHere's what you'll get:\n• Complete step-by-step system\n• Done-for-you implementation\n• 30-day money-back guarantee\n• Lifetime access to updates\n\nClick here to claim your discount: [LINK]\n\nThis offer expires in 24 hours.\n\nBest regards,\n[Your Name]`
+            body: `Hi!\n\nI wanted to give you a special opportunity to get ${mainOffer.productName} at 50% off.\n\nThis system normally costs $${mainOffer.pricing?.originalPrice || mainOffer.price || '0'}, but for the next 24 hours, you can get it for just $${mainOffer.pricing?.currentPrice || mainOffer.price || '0'}.\n\nHere's what you'll get:\n• Complete step-by-step system\n• Done-for-you implementation\n• 30-day money-back guarantee\n• Lifetime access to updates\n\nClick here to claim your discount: [LINK]\n\nThis offer expires in 24 hours.\n\nBest regards,\n[Your Name]`
           }
         }
       }
@@ -244,7 +288,7 @@ export function CopyGenerationForm({
                         {section.replace(/([A-Z])/g, ' $1')}
                       </Label>
                       <div className="bg-gray-50 p-3 rounded-lg mt-1">
-                        <p className="text-sm text-gray-700 italic">"{text}"</p>
+                        <p className="text-sm text-gray-700 italic">&quot;{text}&quot;</p>
                       </div>
                     </div>
                   ))}

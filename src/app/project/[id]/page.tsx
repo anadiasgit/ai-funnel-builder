@@ -8,17 +8,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import { Separator } from '@/components/ui/separator'
+
 import { 
   User, 
   Target, 
   ShoppingCart, 
   TrendingUp, 
   FileText, 
-  ThumbsUp, 
   Mail, 
-  Video,
   ArrowRight,
   Sparkles,
   Clock,
@@ -40,9 +37,75 @@ interface Project {
   description: string
   status: 'draft' | 'generating' | 'completed'
   created_at: string
-  customer_avatar?: any
-  main_offer?: any
-  generated_content?: any
+  customer_avatar?: CustomerAvatar | null
+  main_offer?: MainOffer | null
+  generated_content?: GeneratedContent | null
+}
+
+interface CustomerAvatar {
+  id: string
+  businessName: string
+  industry: string
+  targetAudience: string
+  painPoints: string
+  goals: string
+  budget: string
+  location: string
+  insights?: string[]
+  recommendations?: string[]
+}
+
+interface MainOffer {
+  id: string
+  productName: string
+  productDescription: string
+  price: string
+  valueProposition: string
+  features: string
+  guarantee: string
+  aiOptimizations?: {
+    headline: string
+    subheadline: string
+    urgency: string
+    socialProof: string[]
+    objections: string[]
+    responses: string[]
+  }
+  pricing?: {
+    originalPrice: number
+    currentPrice: number
+    savings: number
+    paymentOptions: string[]
+  }
+}
+
+interface GeneratedContent {
+  id: string
+  generatedAt: string
+  salesPage: {
+    headline: string
+    subheadline: string
+    heroSection: string
+    problemSection: string
+    solutionSection: string
+    benefits: string[]
+    socialProof: string[]
+    callToAction: string
+    urgency: string
+  }
+  videoScript: {
+    hook: string
+    problem: string
+    solution: string
+    proof: string
+    offer: string
+    close: string
+  }
+  emailSequence: {
+    welcome: { subject: string; body: string }
+    nurture: { subject: string; body: string }
+    offer: { subject: string; body: string }
+  }
 }
 
 interface GenerationStatus {
@@ -112,13 +175,13 @@ export default function ProjectWorkspace() {
     }
   }
 
-  const updateGenerationStatus = (projectData: any) => {
+  const updateGenerationStatus = (projectData: Project) => {
     setGenerationStatus({
       avatar: projectData.customer_avatar ? 'completed' : 'pending',
       offer: projectData.main_offer ? 'completed' : 'pending',
-      order_bump: projectData.generated_content?.order_bump ? 'completed' : 'pending',
-      upsells: projectData.generated_content?.upsells ? 'completed' : 'pending',
-      copy: projectData.generated_content?.copy ? 'completed' : 'pending'
+      order_bump: projectData.generated_content ? 'completed' : 'pending',
+      upsells: projectData.generated_content ? 'completed' : 'pending',
+      copy: projectData.generated_content ? 'completed' : 'pending'
     })
   }
 
@@ -153,7 +216,7 @@ export default function ProjectWorkspace() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="p-6">
           <h2 className="text-xl font-semibold mb-2">Project Not Found</h2>
-          <p className="text-gray-600">The project you're looking for doesn't exist.</p>
+          <p className="text-gray-600">The project you&apos;re looking for doesn&apos;t exist.</p>
         </Card>
       </div>
     )
@@ -205,9 +268,13 @@ export default function ProjectWorkspace() {
             >
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4" />
-                {getTabStatus('avatar').icon && (
-                  <getTabStatus('avatar').icon className={`h-3 w-3 ${getTabStatus('avatar').color}`} />
-                )}
+                {(() => {
+                  const status = getTabStatus('avatar')
+                  const IconComponent = status.icon
+                  return IconComponent ? (
+                    <IconComponent className={`h-3 w-3 ${status.color}`} />
+                  ) : null
+                })()}
               </div>
               <span>Customer Avatar</span>
             </TabsTrigger>
@@ -218,9 +285,13 @@ export default function ProjectWorkspace() {
             >
               <div className="flex items-center gap-2">
                 <Target className="h-4 w-4" />
-                {getTabStatus('offer').icon && (
-                  <getTabStatus('offer').icon className={`h-3 w-3 ${getTabStatus('offer').color}`} />
-                )}
+                {(() => {
+                  const status = getTabStatus('offer')
+                  const IconComponent = status.icon
+                  return IconComponent ? (
+                    <IconComponent className={`h-3 w-3 ${status.color}`} />
+                  ) : null
+                })()}
               </div>
               <span>Main Offer</span>
             </TabsTrigger>
@@ -231,9 +302,13 @@ export default function ProjectWorkspace() {
             >
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4" />
-                {getTabStatus('upsells').icon && (
-                  <getTabStatus('upsells').icon className={`h-3 w-3 ${getTabStatus('upsells').color}`} />
-                )}
+                {(() => {
+                  const status = getTabStatus('upsells')
+                  const IconComponent = status.icon
+                  return IconComponent ? (
+                    <IconComponent className={`h-3 w-3 ${status.color}`} />
+                  ) : null
+                })()}
               </div>
               <span>Upsells</span>
             </TabsTrigger>
@@ -244,9 +319,13 @@ export default function ProjectWorkspace() {
             >
               <div className="flex items-center gap-2">
                 <FileText className="h-4 w-4" />
-                {getTabStatus('copy').icon && (
-                  <getTabStatus('copy').icon className={`h-3 w-3 ${getTabStatus('copy').color}`} />
-                )}
+                {(() => {
+                  const status = getTabStatus('copy')
+                  const IconComponent = status.icon
+                  return IconComponent ? (
+                    <IconComponent className={`h-3 w-3 ${status.color}`} />
+                  ) : null
+                })()}
               </div>
               <span>Sales Copy</span>
             </TabsTrigger>
@@ -280,7 +359,6 @@ export default function ProjectWorkspace() {
                 </CardHeader>
                 <CardContent>
                   <CustomerAvatarForm 
-                    projectId={project.id}
                     existingAvatar={project.customer_avatar}
                     onAvatarGenerated={(avatar) => {
                       setProject(prev => prev ? { ...prev, customer_avatar: avatar } : null)
@@ -323,8 +401,7 @@ export default function ProjectWorkspace() {
                     </div>
                   ) : (
                     <OfferGenerationForm 
-                      projectId={project.id}
-                      customerAvatar={project.customer_avatar}
+                      customerAvatar={project.customer_avatar!}
                       existingOffer={project.main_offer}
                       onOfferGenerated={(offer) => {
                         setProject(prev => prev ? { ...prev, main_offer: offer } : null)
@@ -437,9 +514,8 @@ export default function ProjectWorkspace() {
                       </div>
                     ) : (
                       <CopyGenerationForm 
-                        projectId={project.id}
-                        customerAvatar={project.customer_avatar}
-                        mainOffer={project.main_offer}
+                        customerAvatar={project.customer_avatar!}
+                        mainOffer={project.main_offer!}
                         existingContent={project.generated_content}
                         onContentGenerated={(content) => {
                           setProject(prev => prev ? { 
@@ -472,9 +548,9 @@ export default function ProjectWorkspace() {
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
                     Email Strategy Coming Soon
                   </h3>
-                  <p className="text-gray-600 mb-4">
-                    We're working on advanced email sequence generation and automation features.
-                  </p>
+                                      <p className="text-gray-600 mb-4">
+                      We&apos;re working on advanced email sequence generation and automation features.
+                    </p>
                   <Badge variant="secondary">Phase 2 Feature</Badge>
                 </CardContent>
               </Card>

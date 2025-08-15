@@ -36,7 +36,6 @@ export function GenerationProgress({
       <Progress 
         value={progress} 
         className="h-3"
-        indicatorClassName={getProgressColor(progress)}
       />
       
       {showPercentage && (
