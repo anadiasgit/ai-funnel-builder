@@ -662,33 +662,46 @@ export default function ProjectWorkspace() {
                         </Card>
                       )}
 
-                      {/* Main Form */}
-                      <OrderBumpForm 
-                        customerAvatar={project.customer_avatar || {
-                          id: 'demo',
-                          businessName: 'Your Business',
-                          industry: 'Your Industry',
-                          targetAudience: 'Your Target Audience'
-                        }}
-                        mainOffer={project.main_offer || {
-                          id: 'demo',
-                          productName: 'Your Product',
-                          price: '0'
-                        }}
-                        existingOrderBump={project.generated_content?.order_bump}
-                        onOrderBumpGenerated={(orderBump) => {
-                          setProject(prev => prev ? { 
-                            ...prev, 
-                            generated_content: { 
-                              ...prev.generated_content, 
-                              id: prev.generated_content?.id || Date.now().toString(),
-                              generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
-                              order_bump: orderBump
-                            }
-                          } : null)
-                          setGenerationStatus(prev => ({ ...prev, order_bump: 'completed' }))
-                        }}
-                      />
+                      {/* Main Form - Order Bump Generation */}
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <ShoppingCart className="h-5 w-5" />
+                            Generate Order Bump
+                          </CardTitle>
+                          <CardDescription>
+                            Fill out the details below to generate your order bump offer
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <OrderBumpForm 
+                            customerAvatar={project.customer_avatar || {
+                              id: 'demo',
+                              businessName: 'Your Business',
+                              industry: 'Your Industry',
+                              targetAudience: 'Your Target Audience'
+                            }}
+                            mainOffer={project.main_offer || {
+                              id: 'demo',
+                              productName: 'Your Product',
+                              price: '0'
+                            }}
+                            existingOrderBump={project.generated_content?.order_bump}
+                            onOrderBumpGenerated={(orderBump) => {
+                              setProject(prev => prev ? { 
+                                ...prev, 
+                                generated_content: { 
+                                  ...prev.generated_content, 
+                                  id: prev.generated_content?.id || Date.now().toString(),
+                                  generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                                  order_bump: orderBump
+                                }
+                              } : null)
+                              setGenerationStatus(prev => ({ ...prev, order_bump: 'completed' }))
+                            }}
+                          />
+                        </CardContent>
+                      </Card>
                     </div>
                   </div>
                 </CardContent>
@@ -813,33 +826,46 @@ export default function ProjectWorkspace() {
                         </Card>
                       )}
 
-                      {/* Main Form */}
-                      <UpsellsForm 
-                        customerAvatar={project.customer_avatar || {
-                          id: 'demo',
-                          businessName: 'Your Business',
-                          industry: 'Your Industry',
-                          targetAudience: 'Your Target Audience'
-                        }}
-                        mainOffer={project.main_offer || {
-                          id: 'demo',
-                          productName: 'Your Product',
-                          price: '0'
-                        }}
-                        existingUpsells={project.generated_content?.upsells}
-                        onUpsellsGenerated={(upsells) => {
-                          setProject(prev => prev ? { 
-                            ...prev, 
-                            generated_content: { 
-                              ...prev.generated_content, 
-                              id: prev.generated_content?.id || Date.now().toString(),
-                              generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
-                              upsells: upsells
-                          }
-                        } : null)
-                        setGenerationStatus(prev => ({ ...prev, upsells: 'completed' }))
-                      }}
-                    />
+                      {/* Main Form - Upsells Generation */}
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <TrendingUp className="h-5 w-5" />
+                            Generate Upsells
+                          </CardTitle>
+                          <CardDescription>
+                            Fill out the details below to generate your upsell offers
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <UpsellsForm 
+                            customerAvatar={project.customer_avatar || {
+                              id: 'demo',
+                              businessName: 'Your Business',
+                              industry: 'Your Industry',
+                              targetAudience: 'Your Target Audience'
+                            }}
+                            mainOffer={project.main_offer || {
+                              id: 'demo',
+                              productName: 'Your Product',
+                              price: '0'
+                            }}
+                            existingUpsells={project.generated_content?.upsells}
+                            onUpsellsGenerated={(upsells) => {
+                              setProject(prev => prev ? { 
+                                ...prev, 
+                                generated_content: { 
+                                  ...prev.generated_content, 
+                                  id: prev.generated_content?.id || Date.now().toString(),
+                                  generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                                  upsells: upsells
+                              }
+                            } : null)
+                            setGenerationStatus(prev => ({ ...prev, upsells: 'completed' }))
+                          }}
+                        />
+                      </CardContent>
+                    </Card>
                   </div>
                   </div>
                 </CardContent>
@@ -964,33 +990,46 @@ export default function ProjectWorkspace() {
                         </Card>
                       )}
 
-                      {/* Main Form */}
-                      <OrderPageForm 
-                        customerAvatar={project.customer_avatar || {
-                          id: 'demo',
-                          businessName: 'Your Business',
-                          industry: 'Your Industry',
-                          targetAudience: 'Your Target Audience'
-                        }}
-                        mainOffer={project.main_offer || {
-                          id: 'demo',
-                          productName: 'Your Product',
-                          price: '0'
-                        }}
-                        existingOrderPage={project.generated_content?.order_page}
-                        onOrderPageGenerated={(orderPage) => {
-                          setProject(prev => prev ? { 
-                            ...prev, 
-                            generated_content: { 
-                              ...prev.generated_content, 
-                              id: prev.generated_content?.id || Date.now().toString(),
-                              generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
-                              order_page: orderPage
-                            }
-                          } : null)
-                          setGenerationStatus(prev => ({ ...prev, order_page: 'completed' }))
-                        }}
-                      />
+                      {/* Main Form - Order Page Generation */}
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <FileText className="h-5 w-5" />
+                            Generate Order Page Copy
+                          </CardTitle>
+                          <CardDescription>
+                            Fill out the details below to generate your order page copy
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <OrderPageForm 
+                            customerAvatar={project.customer_avatar || {
+                              id: 'demo',
+                              businessName: 'Your Business',
+                              industry: 'Your Industry',
+                              targetAudience: 'Your Target Audience'
+                            }}
+                            mainOffer={project.main_offer || {
+                              id: 'demo',
+                              productName: 'Your Product',
+                              price: '0'
+                            }}
+                            existingOrderPage={project.generated_content?.order_page}
+                            onOrderPageGenerated={(orderPage) => {
+                              setProject(prev => prev ? { 
+                                ...prev, 
+                                generated_content: { 
+                                  ...prev.generated_content, 
+                                  id: prev.generated_content?.id || Date.now().toString(),
+                                  generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                                  order_page: orderPage
+                                }
+                              } : null)
+                              setGenerationStatus(prev => ({ ...prev, order_page: 'completed' }))
+                            }}
+                          />
+                        </CardContent>
+                      </Card>
                     </div>
                   </div>
                 </CardContent>
@@ -1115,33 +1154,46 @@ export default function ProjectWorkspace() {
                         </Card>
                       )}
 
-                      {/* Main Form */}
-                      <ThankYouPageForm 
-                        customerAvatar={project.customer_avatar || {
-                          id: 'demo',
-                          businessName: 'Your Business',
-                          industry: 'Your Industry',
-                          targetAudience: 'Your Target Audience'
-                        }}
-                        mainOffer={project.main_offer || {
-                          id: 'demo',
-                          productName: 'Your Product',
-                          price: '0'
-                        }}
-                        existingThankYou={project.generated_content?.thank_you}
-                        onThankYouGenerated={(thankYou) => {
-                          setProject(prev => prev ? { 
-                            ...prev, 
-                            generated_content: { 
-                              ...prev.generated_content, 
-                              id: prev.generated_content?.id || Date.now().toString(),
-                              generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
-                              thank_you: thankYou
+                      {/* Main Form - Thank You Page Generation */}
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <CheckCircle2 className="h-5 w-5" />
+                            Generate Thank You Page Content
+                          </CardTitle>
+                          <CardDescription>
+                            Fill out the details below to generate your thank you page content
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <ThankYouPageForm 
+                            customerAvatar={project.customer_avatar || {
+                              id: 'demo',
+                              businessName: 'Your Business',
+                              industry: 'Your Industry',
+                              targetAudience: 'Your Target Audience'
+                            }}
+                            mainOffer={project.main_offer || {
+                              id: 'demo',
+                              productName: 'Your Product',
+                              price: '0'
+                            }}
+                            existingThankYou={project.generated_content?.thank_you}
+                            onThankYouGenerated={(thankYou) => {
+                              setProject(prev => prev ? { 
+                                ...prev, 
+                                generated_content: { 
+                                  ...prev.generated_content, 
+                                  id: prev.generated_content?.id || Date.now().toString(),
+                                  generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                                  thank_you: thankYou
                             }
                           } : null)
                           setGenerationStatus(prev => ({ ...prev, thank_you: 'completed' }))
                         }}
                       />
+                    </CardContent>
+                  </Card>
                     </div>
                   </div>
                 </CardContent>
@@ -1266,33 +1318,46 @@ export default function ProjectWorkspace() {
                         </Card>
                       )}
 
-                      {/* Main Form */}
-                      <MainVSLForm 
-                        customerAvatar={project.customer_avatar || {
-                          id: 'demo',
-                          businessName: 'Your Business',
-                          industry: 'Your Industry',
-                          targetAudience: 'Your Target Audience'
-                        }}
-                        mainOffer={project.main_offer || {
-                          id: 'demo',
-                          productName: 'Your Product',
-                          price: '0'
-                        }}
-                        existingVSL={project.generated_content?.main_vsl}
-                        onVSLGenerated={(vsl) => {
-                          setProject(prev => prev ? { 
-                            ...prev, 
-                            generated_content: { 
-                              ...prev.generated_content, 
-                              id: prev.generated_content?.id || Date.now().toString(),
-                              generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
-                              main_vsl: vsl
-                            }
-                          } : null)
-                          setGenerationStatus(prev => ({ ...prev, main_vsl: 'completed' }))
-                        }}
-                      />
+                      {/* Main Form - Main VSL Generation */}
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <Video className="h-5 w-5" />
+                            Generate Main VSL Script
+                          </CardTitle>
+                          <CardDescription>
+                            Fill out the details below to generate your main video sales letter script
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <MainVSLForm 
+                            customerAvatar={project.customer_avatar || {
+                              id: 'demo',
+                              businessName: 'Your Business',
+                              industry: 'Your Industry',
+                              targetAudience: 'Your Target Audience'
+                            }}
+                            mainOffer={project.main_offer || {
+                              id: 'demo',
+                              productName: 'Your Product',
+                              price: '0'
+                            }}
+                            existingVSL={project.generated_content?.main_vsl}
+                            onVSLGenerated={(vsl) => {
+                              setProject(prev => prev ? { 
+                                ...prev, 
+                                generated_content: { 
+                                  ...prev.generated_content, 
+                                  id: prev.generated_content?.id || Date.now().toString(),
+                                  generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                                  main_vsl: vsl
+                                }
+                              } : null)
+                              setGenerationStatus(prev => ({ ...prev, main_vsl: 'completed' }))
+                            }}
+                          />
+                        </CardContent>
+                      </Card>
                     </div>
                   </div>
                 </CardContent>
@@ -1417,33 +1482,46 @@ export default function ProjectWorkspace() {
                         </Card>
                       )}
 
-                      {/* Main Form */}
-                      <UpsellVSLForm 
-                        customerAvatar={project.customer_avatar || {
-                          id: 'demo',
-                          businessName: 'Your Business',
-                          industry: 'Your Industry',
-                          targetAudience: 'Your Target Audience'
-                        }}
-                        mainOffer={project.main_offer || {
-                          id: 'demo',
-                          productName: 'Your Product',
-                          price: '0'
-                        }}
-                        existingVSL={project.generated_content?.upsell_vsl}
-                        onVSLGenerated={(vsl) => {
-                          setProject(prev => prev ? { 
-                            ...prev, 
-                            generated_content: { 
-                              ...prev.generated_content, 
-                              id: prev.generated_content?.id || Date.now().toString(),
-                              generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
-                              upsell_vsl: vsl
-                            }
-                          } : null)
-                          setGenerationStatus(prev => ({ ...prev, upsell_vsl: 'completed' }))
-                        }}
-                      />
+                      {/* Main Form - Upsell VSL Generation */}
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <Video className="h-5 w-5" />
+                            Generate Upsell VSL Script
+                          </CardTitle>
+                          <CardDescription>
+                            Fill out the details below to generate your upsell video sales letter script
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <UpsellVSLForm 
+                            customerAvatar={project.customer_avatar || {
+                              id: 'demo',
+                              businessName: 'Your Business',
+                              industry: 'Your Industry',
+                              targetAudience: 'Your Target Audience'
+                            }}
+                            mainOffer={project.main_offer || {
+                              id: 'demo',
+                              productName: 'Your Product',
+                              price: '0'
+                            }}
+                            existingVSL={project.generated_content?.upsell_vsl}
+                            onVSLGenerated={(vsl) => {
+                              setProject(prev => prev ? { 
+                                ...prev, 
+                                generated_content: { 
+                                  ...prev.generated_content, 
+                                  id: prev.generated_content?.id || Date.now().toString(),
+                                  generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                                  upsell_vsl: vsl
+                                }
+                              } : null)
+                              setGenerationStatus(prev => ({ ...prev, upsell_vsl: 'completed' }))
+                            }}
+                          />
+                        </CardContent>
+                      </Card>
                     </div>
                   </div>
                 </CardContent>
@@ -1568,33 +1646,46 @@ export default function ProjectWorkspace() {
                         </Card>
                       )}
 
-                      {/* Main Form */}
-                      <EmailStrategyForm 
-                        customerAvatar={project.customer_avatar || {
-                          id: 'demo',
-                          businessName: 'Your Business',
-                          industry: 'Your Industry',
-                          targetAudience: 'Your Target Audience'
-                        }}
-                        mainOffer={project.main_offer || {
-                          id: 'demo',
-                          productName: 'Your Product',
-                          price: '0'
-                        }}
-                        existingStrategy={project.generated_content?.email_strategy}
-                        onStrategyGenerated={(strategy) => {
-                          setProject(prev => prev ? { 
-                            ...prev, 
-                            generated_content: { 
-                              ...prev.generated_content, 
-                              id: prev.generated_content?.id || Date.now().toString(),
-                              generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
-                              email_strategy: strategy
-                            }
-                          } : null)
-                          setGenerationStatus(prev => ({ ...prev, email_strategy: 'completed' }))
-                        }}
-                      />
+                      {/* Main Form - Email Strategy Generation */}
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <Mail className="h-5 w-5" />
+                            Generate Email Strategy
+                          </CardTitle>
+                          <CardDescription>
+                            Fill out the details below to generate your complete email marketing strategy
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <EmailStrategyForm 
+                            customerAvatar={project.customer_avatar || {
+                              id: 'demo',
+                              businessName: 'Your Business',
+                              industry: 'Your Industry',
+                              targetAudience: 'Your Target Audience'
+                            }}
+                            mainOffer={project.main_offer || {
+                              id: 'demo',
+                              productName: 'Your Product',
+                              price: '0'
+                            }}
+                            existingStrategy={project.generated_content?.email_strategy}
+                            onStrategyGenerated={(strategy) => {
+                              setProject(prev => prev ? { 
+                                ...prev, 
+                                generated_content: { 
+                                  ...prev.generated_content, 
+                                  id: prev.generated_content?.id || Date.now().toString(),
+                                  generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                                  email_strategy: strategy
+                                }
+                              } : null)
+                              setGenerationStatus(prev => ({ ...prev, email_strategy: 'completed' }))
+                            }}
+                          />
+                        </CardContent>
+                      </Card>
                     </div>
                   </div>
                 </CardContent>
