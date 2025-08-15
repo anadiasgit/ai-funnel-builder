@@ -44,12 +44,24 @@ export default function SignupPage() {
   useEffect(() => {
     const calculatePasswordStrength = (password: string) => {
       let strength = 0
-      if (password.length >= 6) strength += 25
-      if (password.length >= 8) strength += 25
-      if (/[a-z]/.test(password)) strength += 25
-      if (/[A-Z]/.test(password)) strength += 25
-      if (/[0-9]/.test(password)) strength += 25
-      if (/[^A-Za-z0-9]/.test(password)) strength += 25
+      
+      // Length checks
+      if (password.length >= 6) strength += 15
+      if (password.length >= 8) strength += 15
+      if (password.length >= 12) strength += 10
+      
+      // Character variety checks
+      if (/[a-z]/.test(password)) strength += 20
+      if (/[A-Z]/.test(password)) strength += 20
+      if (/[0-9]/.test(password)) strength += 20
+      if (/[^A-Za-z0-9]/.test(password)) strength += 20
+      
+      // Penalty for common patterns
+      if (/^[0-9]+$/.test(password)) strength = Math.min(strength, 30) // Only numbers
+      if (/^[a-z]+$/.test(password)) strength = Math.min(strength, 40) // Only lowercase
+      if (/^[A-Z]+$/.test(password)) strength = Math.min(strength, 40) // Only uppercase
+      if (/123|abc|qwe/i.test(password)) strength = Math.min(strength, 50) // Common sequences
+      
       return Math.min(strength, 100)
     }
     setPasswordStrength(calculatePasswordStrength(formData.password))

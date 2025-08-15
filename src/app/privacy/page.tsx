@@ -1,21 +1,24 @@
 'use client'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 
 export default function PrivacyPage() {
+  const router = useRouter()
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
       <div className="container mx-auto max-w-4xl">
         <div className="mb-6">
-          <Link 
-            href="/signup" 
+          <button 
+            onClick={() => router.back()}
             className="inline-flex items-center text-blue-600 hover:underline transition-colors"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to signup
-          </Link>
+            Go Back
+          </button>
         </div>
 
         <Card className="shadow-xl">

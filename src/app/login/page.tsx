@@ -186,8 +186,8 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <Alert variant="destructive" className="animate-in slide-in-from-top-2">
-                <AlertDescription>{error}</AlertDescription>
+              <Alert variant="destructive" className="animate-in slide-in-from-top-2 border-red-500 bg-red-100">
+                <AlertDescription className="text-red-800 font-medium">{error}</AlertDescription>
               </Alert>
             )}
 

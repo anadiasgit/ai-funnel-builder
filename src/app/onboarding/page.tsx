@@ -47,6 +47,8 @@ export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showSkipConfirm, setShowSkipConfirm] = useState(false)
+  const [skipStepNumber, setSkipStepNumber] = useState<number | null>(null)
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -113,6 +115,19 @@ export default function OnboardingPage() {
     }
   }
 
+  const confirmSkip = (step: number) => {
+    setSkipStepNumber(step)
+    setShowSkipConfirm(true)
+  }
+
+  const handleSkipConfirm = () => {
+    if (skipStepNumber) {
+      skipStep()
+      setShowSkipConfirm(false)
+      setSkipStepNumber(null)
+    }
+  }
+
   const canSkipStep = () => {
     if (currentStep === 1) return formData.full_name.length > 0
     if (currentStep === 2) return true
@@ -124,8 +139,13 @@ export default function OnboardingPage() {
     setLoading(true)
     setError(null)
     
+    console.log('🚀 Starting onboarding completion...')
+    console.log('📝 Form data:', formData)
+    console.log('👤 User:', user)
+    
     try {
       // Update profile with onboarding data
+      console.log('📝 Updating profile...')
       const profileResult = await updateProfile({
         ...formData,
         onboarding_completed: true,
@@ -133,11 +153,15 @@ export default function OnboardingPage() {
       })
 
       if (profileResult.error) {
+        console.error('❌ Profile update failed:', profileResult.error)
         throw new Error(profileResult.error.message || 'Failed to update profile')
       }
 
+      console.log('✅ Profile updated successfully')
+
       // Create first project
       if (user) {
+        console.log('📁 Creating first project...')
         const projectResult = await supabase.from('projects').insert({
           user_id: user.id,
           name: `${formData.company_name || 'My'} Funnel`,
@@ -147,17 +171,25 @@ export default function OnboardingPage() {
         })
 
         if (projectResult.error) {
-          console.warn('Project creation failed:', projectResult.error)
+          console.warn('⚠️ Project creation failed:', projectResult.error)
           // Don't fail onboarding if project creation fails
+        } else {
+          console.log('✅ First project created successfully')
         }
       }
 
+      console.log('🎉 Onboarding completed, redirecting to dashboard...')
+      
       // Clear saved progress
       localStorage.removeItem('onboarding-progress')
       
-      router.push('/dashboard')
+      // Force redirect with a small delay to ensure state updates
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 500)
+      
     } catch (error) {
-      console.error('Onboarding error:', error)
+      console.error('❌ Onboarding error:', error)
       setError(error instanceof Error ? error.message : 'An unexpected error occurred')
     } finally {
       setLoading(false)
@@ -255,10 +287,10 @@ export default function OnboardingPage() {
                 <div>
                   <Label htmlFor="business_type">Business Type</Label>
                   <Select value={formData.business_type} onValueChange={(value: string) => handleInputChange('business_type', value)}>
-                    <SelectTrigger className="transition-all duration-200 focus:scale-[1.02]">
+                    <SelectTrigger className="transition-all duration-200 focus:scale-[1.02] bg-white">
                       <SelectValue placeholder="Select your business type" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
                       {BUSINESS_TYPES.map(type => (
                         <SelectItem key={type} value={type}>{type}</SelectItem>
                       ))}
@@ -269,10 +301,10 @@ export default function OnboardingPage() {
                 <div>
                   <Label htmlFor="industry">Industry</Label>
                   <Select value={formData.industry} onValueChange={(value: string) => handleInputChange('industry', value)}>
-                    <SelectTrigger className="transition-all duration-200 focus:scale-[1.02]">
+                    <SelectTrigger className="transition-all duration-200 focus:scale-[1.02] bg-white">
                       <SelectValue placeholder="Select your industry" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
                       {INDUSTRIES.map(industry => (
                         <SelectItem key={industry} value={industry}>{industry}</SelectItem>
                       ))}
@@ -283,10 +315,10 @@ export default function OnboardingPage() {
                 <div>
                   <Label htmlFor="experience_level">Experience with Funnel Building</Label>
                   <Select value={formData.experience_level} onValueChange={(value: string) => handleInputChange('experience_level', value)}>
-                    <SelectTrigger className="transition-all duration-200 focus:scale-[1.02]">
+                    <SelectTrigger className="transition-all duration-200 focus:scale-[1.02] bg-white">
                       <SelectValue placeholder="Select your experience level" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
                       <SelectItem value="beginner">Beginner - Just getting started</SelectItem>
                       <SelectItem value="intermediate">Intermediate - Built a few funnels</SelectItem>
                       <SelectItem value="advanced">Advanced - Very experienced</SelectItem>
@@ -301,7 +333,7 @@ export default function OnboardingPage() {
                   <div className="flex gap-2">
                     <Button 
                       variant="ghost" 
-                      onClick={skipStep} 
+                      onClick={() => confirmSkip(currentStep)} 
                       className="text-gray-500 hover:text-gray-700 transition-all duration-200"
                     >
                       <SkipForward className="w-4 h-4 mr-2" />
@@ -357,7 +389,7 @@ export default function OnboardingPage() {
                   <div className="flex gap-2">
                     <Button 
                       variant="ghost" 
-                      onClick={skipStep} 
+                      onClick={() => confirmSkip(currentStep)} 
                       className="text-gray-500 hover:text-gray-700 transition-all duration-200"
                     >
                       <SkipForward className="w-4 h-4 mr-2" />
@@ -407,17 +439,45 @@ export default function OnboardingPage() {
                     onClick={completeOnboarding} 
                     disabled={loading} 
                     size="lg" 
-                    className="ml-auto transition-all duration-200 hover:scale-105"
+                    className="ml-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 text-lg transition-all duration-200 hover:scale-105 shadow-lg"
                   >
                     {loading ? (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                         Setting up...
                       </>
                     ) : (
-                      'Get Started'
+                      '🚀 Get Started Now!'
                     )}
                   </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Skip Confirmation Dialog */}
+            {showSkipConfirm && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Skip this step?</h3>
+                  <p className="text-gray-600 mb-4">
+                    Skipping this step means we won&apos;t be able to personalize your experience as much. 
+                    Your experience might be less tailored to your needs.
+                  </p>
+                  <div className="flex gap-3 justify-end">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowSkipConfirm(false)}
+                      className="text-gray-600"
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      onClick={handleSkipConfirm}
+                      className="bg-orange-500 hover:bg-orange-600 text-white"
+                    >
+                      Yes, Skip
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
