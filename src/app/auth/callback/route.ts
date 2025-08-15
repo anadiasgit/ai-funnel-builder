@@ -46,25 +46,95 @@ export async function GET(request: NextRequest) {
     }
     
     console.log('✅ Session created successfully for user:', data.user?.email)
+    console.log('🔍 User metadata:', data.user?.user_metadata)
+    console.log('🔍 User ID:', data.user?.id)
+    console.log('🔍 User created at:', data.user?.created_at)
+    console.log('🔍 Is new user?', data.user?.created_at === data.user?.last_sign_in_at)
+    
+    // Wait a moment for database triggers to create the profile
+    console.log('⏳ Waiting for profile creation...')
+    await new Promise(resolve => setTimeout(resolve, 2000))
     
     // Check if user needs to complete onboarding
     try {
-      const { data: profile } = await supabase
+      let { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('onboarding_completed')
         .eq('id', data.user?.id)
         .single()
 
-      if (!profile?.onboarding_completed) {
+      // If profile doesn't exist, create it
+      if (profileError && profileError.code === 'PGRST116') {
+        console.log('📝 Profile not found, creating new profile...')
+        
+        // Try to create profile with retry logic
+        let newProfile = null
+        let createError = null
+        
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          console.log(`📝 Profile creation attempt ${attempt}/3...`)
+          
+          const { data: profileData, error: attemptError } = await supabase
+            .from('profiles')
+            .insert({
+              id: data.user?.id,
+              email: data.user?.email,
+              full_name: data.user?.user_metadata?.full_name || data.user?.user_metadata?.name || 'New User',
+              company_name: data.user?.user_metadata?.company_name || '',
+              onboarding_completed: false,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            })
+            .select()
+            .single()
+
+          if (attemptError) {
+            console.error(`❌ Profile creation attempt ${attempt} failed:`, attemptError)
+            createError = attemptError
+            
+            if (attempt < 3) {
+              console.log(`⏳ Waiting before retry...`)
+              await new Promise(resolve => setTimeout(resolve, 1000))
+            }
+          } else {
+            console.log(`✅ Profile created successfully on attempt ${attempt}:`, profileData)
+            newProfile = profileData
+            createError = null
+            break
+          }
+        }
+
+        if (createError) {
+          console.error('❌ All profile creation attempts failed:', createError)
+          console.error('❌ Profile creation details:', {
+            user_id: data.user?.id,
+            email: data.user?.email,
+            metadata: data.user?.user_metadata
+          })
+          // Continue with onboarding even if profile creation fails
+          profile = null
+        } else {
+          profile = newProfile
+        }
+      } else if (profileError) {
+        console.error('❌ Error fetching profile:', profileError)
+        console.error('❌ Profile fetch error details:', profileError)
+        // If there's another error, redirect to onboarding to be safe
+        return NextResponse.redirect(requestUrl.origin + '/onboarding')
+      }
+
+      // Always redirect to onboarding if no profile or onboarding not completed
+      if (!profile || !profile.onboarding_completed) {
         console.log('📝 User needs onboarding, redirecting...')
+        console.log('📝 Profile state:', { profile, onboarding_completed: profile?.onboarding_completed })
         return NextResponse.redirect(requestUrl.origin + '/onboarding')
       } else {
         console.log('🚀 User completed onboarding, redirecting to dashboard...')
         return NextResponse.redirect(requestUrl.origin + '/dashboard')
       }
     } catch (profileError) {
-      console.error('❌ Error checking profile:', profileError)
-      // If profile check fails, redirect to onboarding to be safe
+      console.error('❌ Unexpected error in profile handling:', profileError)
+      // If anything goes wrong, redirect to onboarding to be safe
       return NextResponse.redirect(requestUrl.origin + '/onboarding')
     }
     
