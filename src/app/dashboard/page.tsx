@@ -30,6 +30,24 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
+interface Avatar {
+  id: string
+  name: string
+  description: string
+}
+
+interface Offer {
+  id: string
+  title: string
+  description: string
+}
+
+interface GeneratedContent {
+  id: string
+  type: string
+  content: string
+}
+
 interface Project {
   id: string
   name: string
@@ -37,9 +55,9 @@ interface Project {
   status: 'draft' | 'active' | 'completed'
   created_at: string
   updated_at: string
-  avatars?: any[]
-  offers?: any[]
-  generated_content?: any[]
+  avatars?: Avatar[]
+  offers?: Offer[]
+  generated_content?: GeneratedContent[]
 }
 
 interface Profile {
