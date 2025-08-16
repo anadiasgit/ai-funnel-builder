@@ -8,12 +8,19 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { Badge } from '@/components/ui/badge'
+import { useAIStream } from '@/components/ui/use-ai-stream'
 import { 
   User, 
   Sparkles,
   CheckCircle2,
   Download,
-  HelpCircle
+  HelpCircle,
+  Wand2,
+  Copy,
+  RefreshCw,
+  Brain,
+  Target
 } from 'lucide-react'
 import { Tooltip } from '@/components/ui/help-system'
 
@@ -63,6 +70,24 @@ export function CustomerAvatarForm({
   
   const [isGenerating, setIsGenerating] = useState(false)
   const [avatar, setAvatar] = useState(existingAvatar)
+  const [aiSuggestions, setAiSuggestions] = useState<Partial<AvatarFormData>>({})
+  const [activeField, setActiveField] = useState<keyof typeof formData | null>(null)
+  const [aiInsights, setAiInsights] = useState<string[]>([])
+  const [aiRecommendations, setAiRecommendations] = useState<string[]>([])
+
+  // AI Stream hook for real-time generation
+  const { isStreaming, content, error, startStream, reset: resetAI } = useAIStream({
+    onStart: () => console.log('AI generation started'),
+    onChunk: (chunk) => console.log('AI chunk received:', chunk),
+    onComplete: (fullText) => {
+      console.log('AI generation completed:', fullText)
+      if (activeField) {
+        setAiSuggestions(prev => ({ ...prev, [activeField]: fullText }))
+        setActiveField(null)
+      }
+    },
+    onError: (error) => console.error('AI generation error:', error)
+  })
 
   // Smart suggestions based on industry selection
   useEffect(() => {
@@ -127,6 +152,80 @@ export function CustomerAvatarForm({
     onFormChange?.()
   }
 
+  const generateAIField = async (field: keyof typeof formData) => {
+    setActiveField(field)
+    
+    const context = `Business: ${formData.businessName || 'Business'}, Industry: ${formData.industry || 'General'}, Location: ${formData.location || 'Global'}`
+    
+    const fieldPrompts = {
+      targetAudience: `Create a detailed description of the ideal target audience for a business in the ${formData.industry || 'general'} industry. Include demographics, job titles, characteristics, and behaviors. Make it specific and actionable.`,
+      painPoints: `Identify the most common and compelling pain points that customers in the ${formData.industry || 'general'} industry face. Focus on emotional and practical challenges that drive purchasing decisions.`,
+      goals: `Describe the primary goals and aspirations that customers in the ${formData.industry || 'general'} industry are trying to achieve. Include both short-term and long-term objectives.`,
+      budget: `Suggest typical budget ranges and pricing expectations for customers in the ${formData.industry || 'general'} industry. Consider different customer segments and their willingness to pay.`
+    }
+
+    await startStream(
+      `${fieldPrompts[field]}\n\nContext: ${context}`,
+      'customerAvatar',
+      { model: 'gpt-4o-mini', maxTokens: 200, temperature: 0.8 }
+    )
+  }
+
+  const generateAIInsights = async () => {
+    setActiveField('insights')
+    
+    const context = `Business: ${formData.businessName || 'Business'}, Industry: ${formData.industry || 'General'}, Target Audience: ${formData.targetAudience || 'General'}, Pain Points: ${formData.painPoints || 'Various'}, Goals: ${formData.goals || 'Growth'}`
+    
+    await startStream(
+      `Generate 5-7 specific insights about customers in the ${formData.industry || 'general'} industry. Focus on behavioral patterns, decision-making factors, and market trends. Make each insight actionable and specific.\n\nContext: ${context}`,
+      'customerAvatar',
+      { model: 'gpt-4o', maxTokens: 400, temperature: 0.7 }
+    )
+  }
+
+  const generateAIRecommendations = async () => {
+    setActiveField('recommendations')
+    
+    const context = `Business: ${formData.businessName || 'Business'}, Industry: ${formData.industry || 'General'}, Target Audience: ${formData.targetAudience || 'General'}, Pain Points: ${formData.painPoints || 'Various'}, Goals: ${formData.goals || 'Growth'}`
+    
+    await startStream(
+      `Generate 5-7 strategic recommendations for marketing and sales to customers in the ${formData.industry || 'general'} industry. Focus on messaging, channels, offers, and positioning. Make each recommendation specific and actionable.\n\nContext: ${context}`,
+      'customerAvatar',
+      { model: 'gpt-4o', maxTokens: 400, temperature: 0.7 }
+    )
+  }
+
+  const applyAISuggestion = (field: keyof typeof formData) => {
+    if (aiSuggestions[field]) {
+      setFormData(prev => ({ ...prev, [field]: aiSuggestions[field] as string }))
+      setAiSuggestions(prev => ({ ...prev, [field]: undefined }))
+    }
+  }
+
+  const applyAIInsights = () => {
+    if (content && activeField === 'insights') {
+      // Parse the AI response into bullet points
+      const insights = content.split('\n')
+        .filter(line => line.trim().length > 0)
+        .map(line => line.replace(/^[-•*]\s*/, '').trim())
+        .filter(line => line.length > 10)
+      setAiInsights(insights)
+      setActiveField(null)
+    }
+  }
+
+  const applyAIRecommendations = () => {
+    if (content && activeField === 'recommendations') {
+      // Parse the AI response into bullet points
+      const recommendations = content.split('\n')
+        .filter(line => line.trim().length > 0)
+        .map(line => line.replace(/^[-•*]\s*/, '').trim())
+        .filter(line => line.length > 10)
+      setAiRecommendations(recommendations)
+      setActiveField(null)
+    }
+  }
+
   // Helper function to handle avatar download
   const handleDownload = (avatarData: CustomerAvatar) => {
     try {
@@ -166,25 +265,27 @@ export function CustomerAvatarForm({
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const generateFullAvatar = async () => {
     setIsGenerating(true)
     
     try {
-      // Simulate AI generation - replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 3000))
+      const context = `Business: ${formData.businessName || 'Business'}, Industry: ${formData.industry || 'General'}, Location: ${formData.location || 'Global'}`
+      
+      // Generate insights and recommendations
+      await generateAIInsights()
+      await generateAIRecommendations()
       
       const generatedAvatar = {
         ...formData,
         id: Date.now().toString(),
         generatedAt: new Date().toISOString(),
-        insights: [
+        insights: aiInsights.length > 0 ? aiInsights : [
           'Primary audience: Small business owners aged 30-50',
           'Main pain point: Limited marketing budget and time',
           'Preferred communication: Email and social media',
           'Decision making: Research-driven, value-conscious'
         ],
-        recommendations: [
+        recommendations: aiRecommendations.length > 0 ? aiRecommendations : [
           'Focus on ROI and time-saving benefits',
           'Use case studies and testimonials',
           'Offer flexible pricing options',
@@ -306,187 +407,358 @@ export function CustomerAvatarForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Business Information */}
-        <div className="space-y-4">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Label htmlFor="businessName" className="text-sm font-medium">
-                Business Name
-              </Label>
-              <Tooltip content="Your business name helps personalize the avatar and makes it easier to reference in your funnel building process">
-                <HelpCircle className="w-4 h-4 text-gray-400 hover:text-blue-500 cursor-help transition-colors" />
-              </Tooltip>
+    <div className="space-y-6">
+      {/* AI Status Bar */}
+      {isStreaming && (
+        <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-3">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+              <span className="text-blue-800 font-medium">
+                AI is generating content for: {activeField === 'insights' ? 'AI Insights' : activeField === 'recommendations' ? 'AI Recommendations' : activeField ? activeField.charAt(0).toUpperCase() + activeField.slice(1) : 'Customer Avatar'}
+              </span>
+              {activeField && activeField !== 'insights' && activeField !== 'recommendations' && (
+                <Badge variant="outline" className="ml-auto">
+                  {content.length} characters
+                </Badge>
+              )}
             </div>
-            <Input
-              id="businessName"
-              value={formData.businessName}
-              onChange={(e) => handleInputChange('businessName', e.target.value)}
-              placeholder="Your business name"
-              required
-            />
-            
-            {/* Example Content */}
-            <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-700">
-              <strong>💡 Examples:</strong> &quot;Acme Corp&quot;, &quot;Smith Consulting&quot;, &quot;TechFlow Solutions&quot;
+          </CardContent>
+        </Card>
+      )}
+
+      {/* AI Suggestions Panel */}
+      {Object.keys(aiSuggestions).some(key => aiSuggestions[key as keyof typeof aiSuggestions]) && (
+        <Card className="bg-green-50 border-green-200">
+          <CardHeader>
+            <CardTitle className="text-sm text-green-900 flex items-center gap-2">
+              <Wand2 className="h-4 w-4" />
+              AI Suggestions
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {Object.entries(aiSuggestions).map(([field, suggestion]) => 
+              suggestion ? (
+                <div key={field} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium text-green-800 capitalize">
+                      {field.replace(/([A-Z])/g, ' $1').trim()}
+                    </Label>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => applyAISuggestion(field as keyof typeof formData)}
+                        className="h-7 px-2 text-xs"
+                      >
+                        <Copy className="h-3 w-3 mr-1" />
+                        Apply
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setAiSuggestions(prev => ({ ...prev, [field]: undefined }))}
+                        className="h-7 px-2 text-xs"
+                      >
+                        <RefreshCw className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="p-3 bg-white rounded border border-green-200">
+                    <p className="text-sm text-green-900">{suggestion}</p>
+                  </div>
+                </div>
+              ) : null
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* AI Insights & Recommendations Panel */}
+      {(activeField === 'insights' || activeField === 'recommendations') && content && (
+        <Card className="bg-purple-50 border-purple-200">
+          <CardHeader>
+            <CardTitle className="text-sm text-purple-900 flex items-center gap-2">
+              {activeField === 'insights' ? <Brain className="h-4 w-4" /> : <Target className="h-4 w-4" />}
+              AI {activeField === 'insights' ? 'Insights' : 'Recommendations'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="p-3 bg-white rounded border border-purple-200">
+              <pre className="text-sm text-purple-900 whitespace-pre-wrap">{content}</pre>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={activeField === 'insights' ? applyAIInsights : applyAIRecommendations}
+                className="h-7 px-2 text-xs"
+              >
+                <Copy className="h-3 w-3 mr-1" />
+                Apply {activeField === 'insights' ? 'Insights' : 'Recommendations'}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setActiveField(null)}
+                className="h-7 px-2 text-xs"
+              >
+                <RefreshCw className="h-3 w-3" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <form onSubmit={(e) => { e.preventDefault(); generateFullAvatar(); }} className="space-y-6">
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Business Information */}
+          <div className="space-y-4">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Label htmlFor="businessName" className="text-sm font-medium">
+                  Business Name
+                </Label>
+                <Tooltip content="Your business name helps personalize the avatar and makes it easier to reference in your funnel building process">
+                  <HelpCircle className="w-4 h-4 text-gray-400 hover:text-blue-500 cursor-help transition-colors" />
+                </Tooltip>
+              </div>
+              <Input
+                id="businessName"
+                value={formData.businessName}
+                onChange={(e) => handleInputChange('businessName', e.target.value)}
+                placeholder="Your business name"
+                required
+              />
+              
+              {/* Example Content */}
+              <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-700">
+                <strong>💡 Examples:</strong> &quot;Acme Corp&quot;, &quot;Smith Consulting&quot;, &quot;TechFlow Solutions&quot;
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Label htmlFor="industry" className="text-sm font-medium">
+                  Industry
+                </Label>
+                <Tooltip content="Your industry helps us provide relevant examples and industry-specific insights for your customer avatar">
+                  <HelpCircle className="w-4 h-4 text-gray-400 hover:text-blue-500 cursor-help transition-colors" />
+                </Tooltip>
+              </div>
+              <Input
+                id="industry"
+                value={formData.industry}
+                onChange={(e) => handleInputChange('industry', e.target.value)}
+                placeholder="e.g., E-commerce, SaaS, Consulting"
+                required
+              />
+              
+              {/* Example Content */}
+              <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-xs text-green-700">
+                <strong>💡 Examples:</strong> &quot;E-commerce&quot;, &quot;SaaS&quot;, &quot;Consulting&quot;, &quot;Real Estate&quot;, &quot;Health &amp; Wellness&quot;
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label htmlFor="targetAudience" className="text-sm font-medium">
+                  Target Audience
+                </Label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => generateAIField('targetAudience')}
+                  disabled={isStreaming}
+                  className="h-7 px-2 text-xs"
+                >
+                  <Wand2 className="h-3 w-3 mr-1" />
+                  AI Generate
+                </Button>
+              </div>
+              <Input
+                id="targetAudience"
+                value={formData.targetAudience}
+                onChange={(e) => handleInputChange('targetAudience', e.target.value)}
+                placeholder="e.g., Small business owners, 30-50 years old"
+                required
+              />
+              
+              {/* Example Content */}
+              <div className="mt-2 p-2 bg-purple-50 border border-purple-200 rounded text-xs text-purple-700">
+                <strong>💡 Examples:</strong> &quot;Small business owners, 30-50 years old&quot;, &quot;Marketing managers at companies with 10-100 employees&quot;, &quot;Entrepreneurs in the tech industry&quot;
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="location" className="text-sm font-medium">
+                Primary Location
+              </Label>
+              <Input
+                id="location"
+                value={formData.location}
+                onChange={(e) => handleInputChange('location', e.target.value)}
+                placeholder="e.g., United States, Global"
+                required
+              />
             </div>
           </div>
 
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Label htmlFor="industry" className="text-sm font-medium">
-                Industry
-              </Label>
-              <Tooltip content="Your industry helps us provide relevant examples and industry-specific insights for your customer avatar">
-                <HelpCircle className="w-4 h-4 text-gray-400 hover:text-blue-500 cursor-help transition-colors" />
-              </Tooltip>
+          {/* Business Details */}
+          <div className="space-y-4">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label htmlFor="budget" className="text-sm font-medium">
+                  Typical Customer Budget
+                </Label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => generateAIField('budget')}
+                  disabled={isStreaming}
+                  className="h-7 px-2 text-xs"
+                >
+                  <Wand2 className="h-3 w-3 mr-1" />
+                  AI Generate
+                </Button>
+              </div>
+              <Input
+                id="budget"
+                value={formData.budget}
+                onChange={(e) => handleInputChange('budget', e.target.value)}
+                placeholder="e.g., $500-$2000, $50-200/month"
+                required
+              />
             </div>
-            <Input
-              id="industry"
-              value={formData.industry}
-              onChange={(e) => handleInputChange('industry', e.target.value)}
-              placeholder="e.g., E-commerce, SaaS, Consulting"
-              required
-            />
-            
-            {/* Example Content */}
-            <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-xs text-green-700">
-              <strong>💡 Examples:</strong> &quot;E-commerce&quot;, &quot;SaaS&quot;, &quot;Consulting&quot;, &quot;Real Estate&quot;, &quot;Health &amp; Wellness&quot;
-            </div>
-          </div>
 
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Label htmlFor="targetAudience" className="text-sm font-medium">
-                Target Audience
-              </Label>
-              <Tooltip content="Be specific about who your ideal customer is. Include demographics, job titles, and characteristics that define your target market">
-                <HelpCircle className="w-4 h-4 text-gray-400 hover:text-blue-500 cursor-help transition-colors" />
-              </Tooltip>
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label htmlFor="painPoints" className="text-sm font-medium">
+                  Main Pain Points
+                </Label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => generateAIField('painPoints')}
+                  disabled={isStreaming}
+                  className="h-7 px-2 text-xs"
+                >
+                  <Wand2 className="h-3 w-3 mr-1" />
+                  AI Generate
+                </Button>
+              </div>
+              <Textarea
+                id="painPoints"
+                value={formData.painPoints}
+                onChange={(e) => handleInputChange('painPoints', e.target.value)}
+                placeholder="What problems do your customers face?"
+                rows={3}
+                required
+              />
+              
+              {/* Example Content */}
+              <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded text-xs text-orange-700">
+                <strong>💡 Examples:</strong> &quot;High customer acquisition costs, difficulty scaling, inconsistent revenue, lack of time for marketing, competition challenges&quot;
+              </div>
             </div>
-            <Input
-              id="targetAudience"
-              value={formData.targetAudience}
-              onChange={(e) => handleInputChange('targetAudience', e.target.value)}
-              placeholder="e.g., Small business owners, 30-50 years old"
-              required
-            />
-            
-            {/* Example Content */}
-            <div className="mt-2 p-2 bg-purple-50 border border-purple-200 rounded text-xs text-purple-700">
-              <strong>💡 Examples:</strong> &quot;Small business owners, 30-50 years old&quot;, &quot;Marketing managers at companies with 10-100 employees&quot;, &quot;Entrepreneurs in the tech industry&quot;
-            </div>
-          </div>
 
-          <div>
-            <Label htmlFor="location" className="text-sm font-medium">
-              Primary Location
-            </Label>
-            <Input
-              id="location"
-              value={formData.location}
-              onChange={(e) => handleInputChange('location', e.target.value)}
-              placeholder="e.g., United States, Global"
-              required
-            />
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label htmlFor="goals" className="text-sm font-medium">
+                  Customer Goals
+                </Label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => generateAIField('goals')}
+                  disabled={isStreaming}
+                  className="h-7 px-2 text-xs"
+                >
+                  <Wand2 className="h-3 w-3 mr-1" />
+                  AI Generate
+                </Button>
+              </div>
+              <Textarea
+                id="goals"
+                value={formData.goals}
+                onChange={(e) => handleInputChange('goals', e.target.value)}
+                placeholder="What are your customers trying to achieve?"
+                rows={3}
+                required
+              />
+            </div>
           </div>
         </div>
 
-        {/* Business Details */}
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="budget" className="text-sm font-medium">
-              Typical Customer Budget
-            </Label>
-            <Input
-              id="budget"
-              value={formData.budget}
-              onChange={(e) => handleInputChange('budget', e.target.value)}
-              placeholder="e.g., $500-$2000, $50-200/month"
-              required
-            />
-          </div>
+        <Separator />
 
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Label htmlFor="painPoints" className="text-sm font-medium">
-                Main Pain Points
-              </Label>
-              <Tooltip content="Describe the specific problems, frustrations, and challenges your target customers experience. This helps create more compelling offers and messaging">
-                <HelpCircle className="w-4 h-4 text-gray-400 hover:text-blue-500 cursor-help transition-colors" />
-              </Tooltip>
-            </div>
-            <Textarea
-              id="painPoints"
-              value={formData.painPoints}
-              onChange={(e) => handleInputChange('painPoints', e.target.value)}
-              placeholder="What problems do your customers face?"
-              rows={3}
-              required
-            />
-            
-            {/* Example Content */}
-            <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded text-xs text-orange-700">
-              <strong>💡 Examples:</strong> &quot;High customer acquisition costs, difficulty scaling, inconsistent revenue, lack of time for marketing, competition challenges&quot;
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="goals" className="text-sm font-medium">
-              Customer Goals
-            </Label>
-            <Textarea
-              id="goals"
-              value={formData.goals}
-              onChange={(e) => handleInputChange('goals', e.target.value)}
-              placeholder="What are your customers trying to achieve?"
-              rows={3}
-              required
-            />
-          </div>
-        </div>
-      </div>
-
-      <Separator />
-
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Sparkles className="h-4 w-4" />
-          <span>AI will analyze this information to create a detailed customer avatar</span>
-        </div>
-        
-        <div className="flex gap-2">
-          {existingAvatar && (
-            <Button 
-              variant="outline"
-              onClick={() => handleDownload(existingAvatar)}
-              className="flex items-center gap-2"
-            >
-              <Download className="h-4 w-4" />
-              Download Existing Avatar
-            </Button>
-          )}
-          
-          <Button 
-            type="submit" 
-            disabled={isGenerating}
+        {/* AI Generation Buttons */}
+        <div className="grid gap-4 md:grid-cols-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={generateAIInsights}
+            disabled={isStreaming || !formData.industry}
             className="flex items-center gap-2"
           >
-            {isGenerating ? (
-              <>
-                <LoadingSpinner size="sm" />
-                Generating Avatar...
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-4 w-4" />
-                Generate Customer Avatar
-              </>
-            )}
+            <Brain className="h-4 w-4" />
+            Generate AI Insights
+          </Button>
+          
+          <Button
+            type="button"
+            variant="outline"
+            onClick={generateAIRecommendations}
+            disabled={isStreaming || !formData.industry}
+            className="flex items-center gap-2"
+          >
+            <Target className="h-4 w-4" />
+            Generate AI Recommendations
           </Button>
         </div>
-      </div>
-    </form>
+
+        <Separator />
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Sparkles className="h-4 w-4" />
+            <span>AI will analyze this information to create a detailed customer avatar</span>
+          </div>
+          
+          <div className="flex gap-2">
+            {existingAvatar && (
+              <Button 
+                variant="outline"
+                onClick={() => handleDownload(existingAvatar)}
+                className="flex items-center gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Download Existing Avatar
+              </Button>
+            )}
+            
+            <Button 
+              type="submit" 
+              disabled={isGenerating || isStreaming}
+              className="flex items-center gap-2"
+            >
+              {isGenerating ? (
+                <>
+                  <LoadingSpinner size="sm" />
+                  Generating Avatar...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  Generate Complete Avatar
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </form>
+    </div>
   )
 }

@@ -7,11 +7,17 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
+import { useAIStream } from '@/components/ui/use-ai-stream'
 import { 
   Video, 
   Sparkles,
   CheckCircle2,
-  Clock
+  Clock,
+  Wand2,
+  Copy,
+  RefreshCw
 } from 'lucide-react'
 
 interface MainVSLFormProps {
@@ -62,19 +68,70 @@ export function MainVSLForm({
   
   const [isGenerating, setIsGenerating] = useState(false)
   const [vsl, setVSL] = useState(existingVSL)
+  const [aiSuggestions, setAiSuggestions] = useState<Partial<MainVSL>>({})
+  const [activeField, setActiveField] = useState<keyof typeof formData | null>(null)
+
+  // AI Stream hook for real-time generation
+  const { isStreaming, content, error, startStream, reset: resetAI } = useAIStream({
+    onStart: () => console.log('AI generation started'),
+    onChunk: (chunk) => console.log('AI chunk received:', chunk),
+    onComplete: (fullText) => {
+      console.log('AI generation completed:', fullText)
+      if (activeField) {
+        setAiSuggestions(prev => ({ ...prev, [activeField]: fullText }))
+        setActiveField(null)
+      }
+    },
+    onError: (error) => console.error('AI generation error:', error)
+  })
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const generateAIField = async (field: keyof typeof formData) => {
+    setActiveField(field)
+    
+    const context = `Industry: ${customerAvatar.industry}, Target Audience: ${customerAvatar.targetAudience}, Product: ${mainOffer.productName}, Price: $${mainOffer.price}`
+    
+    const fieldPrompts = {
+      hook: `Create a compelling 15-second hook for a VSL about ${mainOffer.productName} in the ${customerAvatar.industry} industry. Make it attention-grabbing and emotionally compelling.`,
+      problem: `Describe the pain points and frustrations that ${customerAvatar.targetAudience} in the ${customerAvatar.industry} industry face. Make it relatable and emotionally charged.`,
+      solution: `Introduce ${mainOffer.productName} as the solution to the problems faced by ${customerAvatar.targetAudience} in the ${customerAvatar.industry} industry. Explain how it works and why it's the best solution.`,
+      proof: `Create compelling proof and social validation for ${mainOffer.productName} in the ${customerAvatar.industry} industry. Include specific results, testimonials, or case studies.`,
+      offer: `Present the offer for ${mainOffer.productName} at $${mainOffer.price}. Emphasize the value, benefits, and why this price is a great deal.`,
+      close: `Write a strong call-to-action and closing statement for the VSL about ${mainOffer.productName}. Make it urgent and compelling.`,
+      urgency: `Create an urgency message for ${mainOffer.productName} that encourages immediate action. Include scarcity, time limits, or special bonuses.`
+    }
+
+    await startStream(
+      `${fieldPrompts[field]}\n\nContext: ${context}`,
+      'mainVSL',
+      { model: 'gpt-4o-mini', maxTokens: 300, temperature: 0.8 }
+    )
+  }
+
+  const applyAISuggestion = (field: keyof typeof formData) => {
+    if (aiSuggestions[field]) {
+      setFormData(prev => ({ ...prev, [field]: aiSuggestions[field] as string }))
+      setAiSuggestions(prev => ({ ...prev, [field]: undefined }))
+    }
+  }
+
+  const generateFullVSL = async () => {
     setIsGenerating(true)
     
     try {
-      // Simulate AI generation - replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 4000))
+      const context = `Industry: ${customerAvatar.industry}, Target Audience: ${customerAvatar.targetAudience}, Product: ${mainOffer.productName}, Price: $${mainOffer.price}`
       
+      await startStream(
+        `Generate a complete VSL script for ${mainOffer.productName} in the ${customerAvatar.industry} industry. Target audience: ${customerAvatar.targetAudience}. Price: $${mainOffer.price}. Include all sections: hook, problem, solution, proof, offer, close, and urgency. Make it highly converting and emotionally compelling.`,
+        'mainVSL',
+        { model: 'gpt-4o', maxTokens: 1000, temperature: 0.7 }
+      )
+      
+      // Parse the AI response and update form
+      // This is a simplified version - you might want to enhance the parsing
       const generatedVSL = {
         hook: formData.hook || `What if I told you that you could transform your ${customerAvatar.industry} business in just 30 days?`,
         problem: formData.problem || `Most ${customerAvatar.industry} business owners are stuck in a cycle of trying different strategies, spending money, and not seeing results. They're frustrated, overwhelmed, and ready to give up.`,
@@ -169,7 +226,72 @@ export function MainVSLForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="space-y-6">
+      {/* AI Status Bar */}
+      {isStreaming && (
+        <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-3">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+              <span className="text-blue-800 font-medium">
+                AI is generating content for: {activeField ? activeField.charAt(0).toUpperCase() + activeField.slice(1) : 'VSL Script'}
+              </span>
+              {activeField && (
+                <Badge variant="outline" className="ml-auto">
+                  {content.length} characters
+                </Badge>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* AI Suggestions Panel */}
+      {Object.keys(aiSuggestions).some(key => aiSuggestions[key as keyof typeof aiSuggestions]) && (
+        <Card className="bg-green-50 border-green-200">
+          <CardHeader>
+            <CardTitle className="text-sm text-green-900 flex items-center gap-2">
+              <Wand2 className="h-4 w-4" />
+              AI Suggestions
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {Object.entries(aiSuggestions).map(([field, suggestion]) => 
+              suggestion ? (
+                <div key={field} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium text-green-800 capitalize">
+                      {field.replace(/([A-Z])/g, ' $1').trim()}
+                    </Label>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => applyAISuggestion(field as keyof typeof formData)}
+                        className="h-7 px-2 text-xs"
+                      >
+                        <Copy className="h-3 w-3 mr-1" />
+                        Apply
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setAiSuggestions(prev => ({ ...prev, [field]: undefined }))}
+                        className="h-7 px-2 text-xs"
+                      >
+                        <RefreshCw className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="p-3 bg-white rounded border border-green-200">
+                    <p className="text-sm text-green-900">{suggestion}</p>
+                  </div>
+                </div>
+              ) : null
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="bg-blue-50 border-blue-200">
@@ -209,11 +331,24 @@ export function MainVSLForm({
         </Card>
       </div>
 
-      <div className="space-y-4">
+      <form onSubmit={(e) => { e.preventDefault(); generateFullVSL(); }} className="space-y-4">
         <div>
-          <Label htmlFor="hook" className="text-sm font-medium">
-            Hook (First 15 seconds)
-          </Label>
+          <div className="flex items-center justify-between mb-2">
+            <Label htmlFor="hook" className="text-sm font-medium">
+              Hook (First 15 seconds)
+            </Label>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => generateAIField('hook')}
+              disabled={isStreaming}
+              className="h-7 px-2 text-xs"
+            >
+              <Wand2 className="h-3 w-3 mr-1" />
+              AI Generate
+            </Button>
+          </div>
           <Textarea
             id="hook"
             value={formData.hook}
@@ -225,9 +360,22 @@ export function MainVSLForm({
         </div>
 
         <div>
-          <Label htmlFor="problem" className="text-sm font-medium">
-            Problem (45 seconds)
-          </Label>
+          <div className="flex items-center justify-between mb-2">
+            <Label htmlFor="problem" className="text-sm font-medium">
+              Problem (45 seconds)
+            </Label>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => generateAIField('problem')}
+              disabled={isStreaming}
+              className="h-7 px-2 text-xs"
+            >
+              <Wand2 className="h-3 w-3 mr-1" />
+              AI Generate
+            </Button>
+          </div>
           <Textarea
             id="problem"
             value={formData.problem}
@@ -239,9 +387,22 @@ export function MainVSLForm({
         </div>
 
         <div>
-          <Label htmlFor="solution" className="text-sm font-medium">
-            Solution (1 minute)
-          </Label>
+          <div className="flex items-center justify-between mb-2">
+            <Label htmlFor="solution" className="text-sm font-medium">
+              Solution (1 minute)
+            </Label>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => generateAIField('solution')}
+              disabled={isStreaming}
+              className="h-7 px-2 text-xs"
+            >
+              <Wand2 className="h-3 w-3 mr-1" />
+              AI Generate
+            </Button>
+          </div>
           <Textarea
             id="solution"
             value={formData.solution}
@@ -253,9 +414,22 @@ export function MainVSLForm({
         </div>
 
         <div>
-          <Label htmlFor="proof" className="text-sm font-medium">
-            Proof (1 minute)
-          </Label>
+          <div className="flex items-center justify-between mb-2">
+            <Label htmlFor="proof" className="text-sm font-medium">
+              Proof (1 minute)
+            </Label>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => generateAIField('proof')}
+              disabled={isStreaming}
+              className="h-7 px-2 text-xs"
+            >
+              <Wand2 className="h-3 w-3 mr-1" />
+              AI Generate
+            </Button>
+          </div>
           <Textarea
             id="proof"
             value={formData.proof}
@@ -267,9 +441,22 @@ export function MainVSLForm({
         </div>
 
         <div>
-          <Label htmlFor="offer" className="text-sm font-medium">
-            Offer (30 seconds)
-          </Label>
+          <div className="flex items-center justify-between mb-2">
+            <Label htmlFor="offer" className="text-sm font-medium">
+              Offer (30 seconds)
+            </Label>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => generateAIField('offer')}
+              disabled={isStreaming}
+              className="h-7 px-2 text-xs"
+            >
+              <Wand2 className="h-3 w-3 mr-1" />
+              AI Generate
+            </Button>
+          </div>
           <Textarea
             id="offer"
             value={formData.offer}
@@ -281,9 +468,22 @@ export function MainVSLForm({
         </div>
 
         <div>
-          <Label htmlFor="close" className="text-sm font-medium">
-            Close (30 seconds)
-          </Label>
+          <div className="flex items-center justify-between mb-2">
+            <Label htmlFor="close" className="text-sm font-medium">
+              Close (30 seconds)
+            </Label>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => generateAIField('close')}
+              disabled={isStreaming}
+              className="h-7 px-2 text-xs"
+            >
+              <Wand2 className="h-3 w-3 mr-1" />
+              AI Generate
+            </Button>
+          </div>
           <Textarea
             id="close"
             value={formData.close}
@@ -295,9 +495,22 @@ export function MainVSLForm({
         </div>
 
         <div>
-          <Label htmlFor="urgency" className="text-sm font-medium">
-            Urgency Message
-          </Label>
+          <div className="flex items-center justify-between mb-2">
+            <Label htmlFor="urgency" className="text-sm font-medium">
+              Urgency Message
+            </Label>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => generateAIField('urgency')}
+              disabled={isStreaming}
+              className="h-7 px-2 text-xs"
+            >
+              <Wand2 className="h-3 w-3 mr-1" />
+              AI Generate
+            </Button>
+          </div>
           <Textarea
             id="urgency"
             value={formData.urgency}
@@ -307,32 +520,34 @@ export function MainVSLForm({
             required
           />
         </div>
-      </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Sparkles className="h-4 w-4" />
-          <span>AI will optimize your VSL script for maximum engagement and conversions</span>
+        <Separator />
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Sparkles className="h-4 w-4" />
+            <span>AI will optimize your VSL script for maximum engagement and conversions</span>
+          </div>
+          
+          <Button 
+            type="submit" 
+            disabled={isGenerating || isStreaming}
+            className="flex items-center gap-2"
+          >
+            {isGenerating ? (
+              <>
+                <LoadingSpinner size="sm" />
+                Generating Full VSL...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4" />
+                Generate Complete VSL Script
+              </>
+            )}
+          </Button>
         </div>
-        
-        <Button 
-          type="submit" 
-          disabled={isGenerating}
-          className="flex items-center gap-2"
-        >
-          {isGenerating ? (
-            <>
-              <LoadingSpinner size="sm" />
-              Generating VSL Script...
-            </>
-          ) : (
-            <>
-              <Sparkles className="h-4 w-4" />
-              Generate VSL Script
-            </>
-          )}
-        </Button>
-      </div>
-    </form>
+      </form>
+    </div>
   )
 }

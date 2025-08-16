@@ -9,12 +9,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { useAIStream } from '@/components/ui/use-ai-stream'
 import { 
   Target, 
   Sparkles,
   CheckCircle2,
   Star,
-  Download
+  Download,
+  Wand2,
+  Copy,
+  RefreshCw,
+  DollarSign,
+  Zap,
+  Shield,
+  TrendingUp
 } from 'lucide-react'
 
 interface OfferGenerationFormProps {
@@ -83,6 +91,59 @@ export function OfferGenerationForm({
   
   const [isGenerating, setIsGenerating] = useState(false)
   const [offer, setOffer] = useState(existingOffer)
+  const [aiSuggestions, setAiSuggestions] = useState<Partial<OfferFormData>>({})
+  const [activeField, setActiveField] = useState<keyof typeof formData | 'headlines' | 'urgency' | 'socialProof' | 'objections' | 'responses' | null>(null)
+  const [aiHeadlines, setAiHeadlines] = useState<{ headline: string; subheadline: string } | null>(null)
+  const [aiUrgency, setAiUrgency] = useState<string>('')
+  const [aiSocialProof, setAiSocialProof] = useState<string[]>([])
+  const [aiObjections, setAiObjections] = useState<string[]>([])
+  const [aiResponses, setAiResponses] = useState<string[]>([])
+
+  // AI Stream hook for real-time generation
+  const { isStreaming, content, error, startStream, reset: resetAI } = useAIStream({
+    onStart: () => console.log('AI generation started'),
+    onChunk: (chunk) => console.log('AI chunk received:', chunk),
+    onComplete: (fullText) => {
+      console.log('AI generation completed:', fullText)
+      if (activeField) {
+        if (activeField === 'headlines') {
+          // Parse headline and subheadline
+          const lines = fullText.split('\n').filter(line => line.trim())
+          setAiHeadlines({
+            headline: lines[0] || '',
+            subheadline: lines[1] || ''
+          })
+        } else if (activeField === 'urgency') {
+          setAiUrgency(fullText)
+        } else if (activeField === 'socialProof') {
+          // Parse social proof into bullet points
+          const proof = fullText.split('\n')
+            .filter(line => line.trim().length > 0)
+            .map(line => line.replace(/^[-•*]\s*/, '').trim())
+            .filter(line => line.length > 10)
+          setAiSocialProof(proof)
+        } else if (activeField === 'objections') {
+          // Parse objections into bullet points
+          const objections = fullText.split('\n')
+            .filter(line => line.trim().length > 0)
+            .map(line => line.replace(/^[-•*]\s*/, '').trim())
+            .filter(line => line.length > 10)
+          setAiObjections(objections)
+        } else if (activeField === 'responses') {
+          // Parse responses into bullet points
+          const responses = fullText.split('\n')
+            .filter(line => line.trim().length > 0)
+            .map(line => line.replace(/^[-•*]\s*/, '').trim())
+            .filter(line => line.length > 10)
+          setAiResponses(responses)
+        } else {
+          setAiSuggestions(prev => ({ ...prev, [activeField]: fullText }))
+        }
+        setActiveField(null)
+      }
+    },
+    onError: (error) => console.error('AI generation error:', error)
+  })
 
   // Smart defaults based on customer avatar
   useEffect(() => {
@@ -198,6 +259,94 @@ export function OfferGenerationForm({
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
+  const generateAIField = async (field: keyof typeof formData) => {
+    setActiveField(field)
+    
+    const context = `Industry: ${customerAvatar.industry}, Target Audience: ${customerAvatar.targetAudience}, Budget: ${customerAvatar.budget}, Pain Points: ${customerAvatar.painPoints}, Goals: ${customerAvatar.goals}`
+    
+    const fieldPrompts: Record<keyof typeof formData, string> = {
+      productName: `Create a compelling product name for a ${customerAvatar.industry} business solution. Make it memorable, benefit-focused, and industry-specific.`,
+      productDescription: `Write a compelling product description for a ${customerAvatar.industry} business solution. Focus on benefits, outcomes, and how it solves customer problems.`,
+      price: `Suggest an appropriate price for a ${customerAvatar.industry} business solution. Consider the target audience's budget and the value provided.`,
+      valueProposition: `Create a powerful value proposition for a ${customerAvatar.industry} business solution. Emphasize the main benefit and why customers should choose this over alternatives.`,
+      features: `List the key features and benefits of a ${customerAvatar.industry} business solution. Focus on what makes it unique and valuable to customers.`,
+      guarantee: `Write a compelling guarantee for a ${customerAvatar.industry} business solution. Make it risk-free and confidence-building for potential customers.`
+    }
+
+    await startStream(
+      `${fieldPrompts[field]}\n\nContext: ${context}`,
+      'offerGeneration',
+      { model: 'gpt-4o-mini', maxTokens: 200, temperature: 0.8 }
+    )
+  }
+
+  const generateAIHeadlines = async () => {
+    setActiveField('headlines')
+    
+    const context = `Industry: ${customerAvatar.industry}, Target Audience: ${customerAvatar.targetAudience}, Product: ${formData.productName || 'Business Solution'}, Price: $${formData.price || '197'}`
+    
+    await startStream(
+      `Generate a compelling headline and subheadline for a ${customerAvatar.industry} business offer. The headline should be attention-grabbing and benefit-focused. The subheadline should provide social proof and urgency.\n\nContext: ${context}`,
+      'offerGeneration',
+      { model: 'gpt-4o', maxTokens: 300, temperature: 0.7 }
+    )
+  }
+
+  const generateAIUrgency = async () => {
+    setActiveField('urgency')
+    
+    const context = `Industry: ${customerAvatar.industry}, Target Audience: ${customerAvatar.targetAudience}, Product: ${formData.productName || 'Business Solution'}, Price: $${formData.price || '197'}`
+    
+    await startStream(
+      `Create an urgency message for a ${customerAvatar.industry} business offer. Include scarcity, time limits, or special bonuses to encourage immediate action.\n\nContext: ${context}`,
+      'offerGeneration',
+      { model: 'gpt-4o-mini', maxTokens: 150, temperature: 0.8 }
+    )
+  }
+
+  const generateAISocialProof = async () => {
+    setActiveField('socialProof')
+    
+    const context = `Industry: ${customerAvatar.industry}, Target Audience: ${customerAvatar.targetAudience}, Product: ${formData.productName || 'Business Solution'}`
+    
+    await startStream(
+      `Generate 5-7 compelling social proof elements for a ${customerAvatar.industry} business offer. Include testimonials, case studies, statistics, and credibility markers.\n\nContext: ${context}`,
+      'offerGeneration',
+      { model: 'gpt-4o', maxTokens: 300, temperature: 0.7 }
+    )
+  }
+
+  const generateAIObjections = async () => {
+    setActiveField('objections')
+    
+    const context = `Industry: ${customerAvatar.industry}, Target Audience: ${customerAvatar.targetAudience}, Product: ${formData.productName || 'Business Solution'}, Price: $${formData.price || '197'}`
+    
+    await startStream(
+      `Generate 5-7 common objections that customers might have about a ${customerAvatar.industry} business offer. Focus on price, time, skepticism, and implementation concerns.\n\nContext: ${context}`,
+      'offerGeneration',
+      { model: 'gpt-4o', maxTokens: 300, temperature: 0.7 }
+    )
+  }
+
+  const generateAIResponses = async () => {
+    setActiveField('responses')
+    
+    const context = `Industry: ${customerAvatar.industry}, Target Audience: ${customerAvatar.targetAudience}, Product: ${formData.productName || 'Business Solution'}, Guarantee: ${formData.guarantee || '30-day guarantee'}`
+    
+    await startStream(
+      `Generate 5-7 compelling responses to common objections about a ${customerAvatar.industry} business offer. Address concerns about price, time, skepticism, and implementation. Use the guarantee and value proposition to overcome objections.\n\nContext: ${context}`,
+      'offerGeneration',
+      { model: 'gpt-4o', maxTokens: 400, temperature: 0.7 }
+    )
+  }
+
+  const applyAISuggestion = (field: keyof typeof formData) => {
+    if (aiSuggestions[field]) {
+      setFormData(prev => ({ ...prev, [field]: aiSuggestions[field] as string }))
+      setAiSuggestions(prev => ({ ...prev, [field]: undefined }))
+    }
+  }
+
   // Helper function to handle offer download
   const handleDownload = (offerData: MainOffer) => {
     try {
@@ -248,33 +397,38 @@ export function OfferGenerationForm({
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const generateFullOffer = async () => {
     setIsGenerating(true)
     
     try {
-      // Simulate AI generation - replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 4000))
+      const context = `Industry: ${customerAvatar.industry}, Target Audience: ${customerAvatar.targetAudience}, Budget: ${customerAvatar.budget}, Pain Points: ${customerAvatar.painPoints}, Goals: ${customerAvatar.goals}`
+      
+      // Generate all AI optimizations
+      await generateAIHeadlines()
+      await generateAIUrgency()
+      await generateAISocialProof()
+      await generateAIObjections()
+      await generateAIResponses()
       
       const generatedOffer = {
         ...formData,
         id: Date.now().toString(),
         generatedAt: new Date().toISOString(),
         aiOptimizations: {
-          headline: `Transform Your ${customerAvatar.industry} Business in 30 Days`,
-          subheadline: `The proven system that helped 500+ businesses like yours increase revenue by 300%`,
-          urgency: 'Limited Time: Only 47 spots available this month',
-          socialProof: [
+          headline: aiHeadlines?.headline || `Transform Your ${customerAvatar.industry} Business in 30 Days`,
+          subheadline: aiHeadlines?.subheadline || `The proven system that helped 500+ businesses like yours increase revenue by 300%`,
+          urgency: aiUrgency || 'Limited Time: Only 47 spots available this month',
+          socialProof: aiSocialProof.length > 0 ? aiSocialProof : [
             'Trusted by 500+ business owners',
             '4.9/5 star rating from 200+ reviews',
             'Featured in Business Insider, Forbes'
           ],
-          objections: [
+          objections: aiObjections.length > 0 ? aiObjections : [
             'What if it doesn\'t work for my business?',
             'I don\'t have time to implement this',
             'It sounds too good to be true'
           ],
-          responses: [
+          responses: aiResponses.length > 0 ? aiResponses : [
             '30-day money-back guarantee, no questions asked',
             'Done-for-you implementation included',
             'Real results from real businesses - see case studies'
@@ -424,7 +578,247 @@ export function OfferGenerationForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="space-y-6">
+      {/* AI Status Bar */}
+      {isStreaming && (
+        <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-3">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+              <span className="text-blue-800 font-medium">
+                AI is generating content for: {activeField === 'headlines' ? 'AI Headlines' : activeField === 'urgency' ? 'AI Urgency' : activeField === 'socialProof' ? 'AI Social Proof' : activeField === 'objections' ? 'AI Objections' : activeField === 'responses' ? 'AI Responses' : activeField ? activeField.charAt(0).toUpperCase() + activeField.slice(1) : 'Main Offer'}
+              </span>
+              {activeField && activeField !== 'headlines' && activeField !== 'urgency' && activeField !== 'socialProof' && activeField !== 'objections' && activeField !== 'responses' && (
+                <Badge variant="outline" className="ml-auto">
+                  {content.length} characters
+                </Badge>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* AI Suggestions Panel */}
+      {Object.keys(aiSuggestions).some(key => aiSuggestions[key as keyof typeof aiSuggestions]) && (
+        <Card className="bg-green-50 border-green-200">
+          <CardHeader>
+            <CardTitle className="text-sm text-green-900 flex items-center gap-2">
+              <Wand2 className="h-4 w-4" />
+              AI Suggestions
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {Object.entries(aiSuggestions).map(([field, suggestion]) => 
+              suggestion ? (
+                <div key={field} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium text-green-800 capitalize">
+                      {field.replace(/([A-Z])/g, ' $1').trim()}
+                    </Label>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => applyAISuggestion(field as keyof typeof formData)}
+                        className="h-7 px-2 text-xs"
+                      >
+                        <Copy className="h-3 w-3 mr-1" />
+                        Apply
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setAiSuggestions(prev => ({ ...prev, [field]: undefined }))}
+                        className="h-7 px-2 text-xs"
+                      >
+                        <RefreshCw className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="p-3 bg-white rounded border border-green-200">
+                    <p className="text-sm text-green-900">{suggestion}</p>
+                  </div>
+                </div>
+              ) : null
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* AI Headlines Panel */}
+      {aiHeadlines && (
+        <Card className="bg-purple-50 border-purple-200">
+          <CardHeader>
+            <CardTitle className="text-sm text-purple-900 flex items-center gap-2">
+              <Zap className="h-4 w-4" />
+              AI Headlines
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="p-3 bg-white rounded border border-purple-200">
+              <h4 className="font-medium text-purple-900">{aiHeadlines.headline}</h4>
+              <p className="text-sm text-purple-700 mt-1">{aiHeadlines.subheadline}</p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={() => {
+                  setFormData(prev => ({ ...prev, productName: aiHeadlines.headline }))
+                  setAiHeadlines(null)
+                }}
+                className="h-7 px-2 text-xs"
+              >
+                <Copy className="h-3 w-3 mr-1" />
+                Apply Headline
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setAiHeadlines(null)}
+                className="h-7 px-2 text-xs"
+              >
+                <RefreshCw className="h-3 w-3" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* AI Urgency Panel */}
+      {aiUrgency && (
+        <Card className="bg-orange-50 border-orange-200">
+          <CardHeader>
+            <CardTitle className="text-sm text-orange-900 flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              AI Urgency Message
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="p-3 bg-white rounded border border-orange-200">
+              <p className="text-sm text-orange-900">{aiUrgency}</p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={() => setAiUrgency('')}
+                className="h-7 px-2 text-xs"
+              >
+                <Copy className="h-3 w-3 mr-1" />
+                Copy Text
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setAiUrgency('')}
+                className="h-7 px-2 text-xs"
+              >
+                <RefreshCw className="h-3 w-3" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* AI Social Proof Panel */}
+      {aiSocialProof.length > 0 && (
+        <Card className="bg-yellow-50 border-yellow-200">
+          <CardHeader>
+            <CardTitle className="text-sm text-yellow-900 flex items-center gap-2">
+              <Star className="h-4 w-4" />
+              AI Social Proof
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="space-y-2">
+              {aiSocialProof.map((proof, index) => (
+                <div key={index} className="p-2 bg-white rounded border border-yellow-200">
+                  <p className="text-sm text-yellow-900">{proof}</p>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={() => setAiSocialProof([])}
+                className="h-7 px-2 text-xs"
+              >
+                <Copy className="h-3 w-3 mr-1" />
+                Copy All
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setAiSocialProof([])}
+                className="h-7 px-2 text-xs"
+              >
+                <RefreshCw className="h-3 w-3" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* AI Objections & Responses Panel */}
+      {(aiObjections.length > 0 || aiResponses.length > 0) && (
+        <Card className="bg-red-50 border-red-200">
+          <CardHeader>
+            <CardTitle className="text-sm text-red-900 flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              AI Objection Handling
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {aiObjections.length > 0 && (
+              <div>
+                <Label className="text-sm font-medium text-red-800">Objections</Label>
+                <div className="mt-2 space-y-2">
+                  {aiObjections.map((objection, index) => (
+                    <div key={index} className="p-2 bg-white rounded border border-red-200">
+                      <p className="text-sm text-red-900">{objection}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {aiResponses.length > 0 && (
+              <div>
+                <Label className="text-sm font-medium text-red-800">Responses</Label>
+                <div className="mt-2 space-y-2">
+                  {aiResponses.map((response, index) => (
+                    <div key={index} className="p-2 bg-white rounded border border-red-200">
+                      <p className="text-sm text-red-900">{response}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={() => {
+                  setAiObjections([])
+                  setAiResponses([])
+                }}
+                className="h-7 px-2 text-xs"
+              >
+                <Copy className="h-3 w-3 mr-1" />
+                Copy All
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setAiObjections([])
+                  setAiResponses([])
+                }}
+                className="h-7 px-2 text-xs"
+              >
+                <RefreshCw className="h-3 w-3" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Customer Avatar Summary */}
       <Card className="bg-blue-50 border-blue-200">
         <CardHeader className="pb-3">
@@ -448,137 +842,279 @@ export function OfferGenerationForm({
         </CardContent>
       </Card>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Product Information */}
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="productName" className="text-sm font-medium">
-              Product/Service Name
-            </Label>
-            <Input
-              id="productName"
-              value={formData.productName}
-              onChange={(e) => handleInputChange('productName', e.target.value)}
-              placeholder="Your main product or service"
-              required
-            />
+      <form onSubmit={(e) => { e.preventDefault(); generateFullOffer(); }} className="space-y-6">
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Product Information */}
+          <div className="space-y-4">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label htmlFor="productName" className="text-sm font-medium">
+                  Product/Service Name
+                </Label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => generateAIField('productName')}
+                  disabled={isStreaming}
+                  className="h-7 px-2 text-xs"
+                >
+                  <Wand2 className="h-3 w-3 mr-1" />
+                  AI Generate
+                </Button>
+              </div>
+              <Input
+                id="productName"
+                value={formData.productName}
+                onChange={(e) => handleInputChange('productName', e.target.value)}
+                placeholder="Your main product or service"
+                required
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label htmlFor="productDescription" className="text-sm font-medium">
+                  Product Description
+                </Label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => generateAIField('productDescription')}
+                  disabled={isStreaming}
+                  className="h-7 px-2 text-xs"
+                >
+                  <Wand2 className="h-3 w-3 mr-1" />
+                  AI Generate
+                </Button>
+              </div>
+              <Textarea
+                id="productDescription"
+                value={formData.productDescription}
+                onChange={(e) => handleInputChange('productDescription', e.target.value)}
+                placeholder="What does your product/service do?"
+                rows={3}
+                required
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label htmlFor="price" className="text-sm font-medium">
+                  Price
+                </Label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => generateAIField('price')}
+                  disabled={isStreaming}
+                  className="h-7 px-2 text-xs"
+                >
+                  <Wand2 className="h-3 w-3 mr-1" />
+                  AI Generate
+                </Button>
+              </div>
+              <Input
+                id="price"
+                type="number"
+                value={formData.price}
+                onChange={(e) => handleInputChange('price', e.target.value)}
+                placeholder="0.00"
+                step="0.01"
+                required
+              />
+            </div>
           </div>
 
-          <div>
-            <Label htmlFor="productDescription" className="text-sm font-medium">
-              Product Description
-            </Label>
-            <Textarea
-              id="productDescription"
-              value={formData.productDescription}
-              onChange={(e) => handleInputChange('productDescription', e.target.value)}
-              placeholder="What does your product/service do?"
-              rows={3}
-              required
-            />
-          </div>
+          {/* Offer Details */}
+          <div className="space-y-4">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label htmlFor="valueProposition" className="text-sm font-medium">
+                  Value Proposition
+                </Label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => generateAIField('valueProposition')}
+                  disabled={isStreaming}
+                  className="h-7 px-2 text-xs"
+                >
+                  <Wand2 className="h-3 w-3 mr-1" />
+                  AI Generate
+                </Button>
+              </div>
+              <Textarea
+                id="valueProposition"
+                value={formData.valueProposition}
+                onChange={(e) => handleInputChange('valueProposition', e.target.value)}
+                placeholder="What's the main benefit for customers?"
+                rows={3}
+                required
+              />
+            </div>
 
-          <div>
-            <Label htmlFor="price" className="text-sm font-medium">
-              Price
-            </Label>
-            <Input
-              id="price"
-              type="number"
-              value={formData.price}
-              onChange={(e) => handleInputChange('price', e.target.value)}
-              placeholder="0.00"
-              step="0.01"
-              required
-            />
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label htmlFor="features" className="text-sm font-medium">
+                  Key Features
+                </Label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => generateAIField('features')}
+                  disabled={isStreaming}
+                  className="h-7 px-2 text-xs"
+                >
+                  <Wand2 className="h-3 w-3 mr-1" />
+                  AI Generate
+                </Button>
+              </div>
+              <Textarea
+                id="features"
+                value={formData.features}
+                onChange={(e) => handleInputChange('features', e.target.value)}
+                placeholder="What features make your offer unique?"
+                rows={3}
+                required
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label htmlFor="guarantee" className="text-sm font-medium">
+                  Guarantee/Refund Policy
+                </Label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => generateAIField('guarantee')}
+                  disabled={isStreaming}
+                  className="h-7 px-2 text-xs"
+                >
+                  <Wand2 className="h-3 w-3 mr-1" />
+                  AI Generate
+                </Button>
+              </div>
+              <Textarea
+                id="guarantee"
+                value={formData.guarantee}
+                onChange={(e) => handleInputChange('guarantee', e.target.value)}
+                placeholder="What's your guarantee to customers?"
+                rows={2}
+                required
+              />
+            </div>
           </div>
         </div>
 
-        {/* Offer Details */}
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="valueProposition" className="text-sm font-medium">
-              Value Proposition
-            </Label>
-            <Textarea
-              id="valueProposition"
-              value={formData.valueProposition}
-              onChange={(e) => handleInputChange('valueProposition', e.target.value)}
-              placeholder="What's the main benefit for customers?"
-              rows={3}
-              required
-            />
-          </div>
+        <Separator />
 
-          <div>
-            <Label htmlFor="features" className="text-sm font-medium">
-              Key Features
-            </Label>
-            <Textarea
-              id="features"
-              value={formData.features}
-              onChange={(e) => handleInputChange('features', e.target.value)}
-              placeholder="What features make your offer unique?"
-              rows={3}
-              required
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="guarantee" className="text-sm font-medium">
-              Guarantee/Refund Policy
-            </Label>
-            <Textarea
-              id="guarantee"
-              value={formData.guarantee}
-              onChange={(e) => handleInputChange('guarantee', e.target.value)}
-              placeholder="What's your guarantee to customers?"
-              rows={2}
-              required
-            />
-          </div>
-        </div>
-      </div>
-
-      <Separator />
-
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Sparkles className="h-4 w-4" />
-          <span>AI will optimize your offer for maximum conversions</span>
-        </div>
-        
-        <div className="flex gap-2">
-          {existingOffer && (
-            <Button 
-              variant="outline"
-              onClick={() => handleDownload(existingOffer)}
-              className="flex items-center gap-2"
-            >
-              <Download className="h-4 w-4" />
-              Download Existing Offer
-            </Button>
-          )}
-          
-          <Button 
-            type="submit" 
-            disabled={isGenerating}
+        {/* AI Generation Buttons */}
+        <div className="grid gap-4 md:grid-cols-3">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={generateAIHeadlines}
+            disabled={isStreaming || !formData.productName}
             className="flex items-center gap-2"
           >
-            {isGenerating ? (
-              <>
-                <LoadingSpinner size="sm" />
-                Generating Offer...
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-4 w-4" />
-                Generate Optimized Offer
-              </>
-            )}
+            <Zap className="h-4 w-4" />
+            Generate Headlines
+          </Button>
+          
+          <Button
+            type="button"
+            variant="outline"
+            onClick={generateAIUrgency}
+            disabled={isStreaming || !formData.productName}
+            className="flex items-center gap-2"
+          >
+            <TrendingUp className="h-4 w-4" />
+            Generate Urgency
+          </Button>
+          
+          <Button
+            type="button"
+            variant="outline"
+            onClick={generateAISocialProof}
+            disabled={isStreaming || !formData.productName}
+            className="flex items-center gap-2"
+          >
+            <Star className="h-4 w-4" />
+            Generate Social Proof
           </Button>
         </div>
-      </div>
-    </form>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={generateAIObjections}
+            disabled={isStreaming || !formData.productName}
+            className="flex items-center gap-2"
+          >
+            <Shield className="h-4 w-4" />
+            Generate Objections
+          </Button>
+          
+          <Button
+            type="button"
+            variant="outline"
+            onClick={generateAIResponses}
+            disabled={isStreaming || !formData.productName}
+            className="flex items-center gap-2"
+          >
+            <Shield className="h-4 w-4" />
+            Generate Responses
+          </Button>
+        </div>
+
+        <Separator />
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Sparkles className="h-4 w-4" />
+            <span>AI will optimize your offer for maximum conversions</span>
+          </div>
+          
+          <div className="flex gap-2">
+            {existingOffer && (
+              <Button 
+                variant="outline"
+                onClick={() => handleDownload(existingOffer)}
+                className="flex items-center gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Download Existing Offer
+              </Button>
+            )}
+            
+            <Button 
+              type="submit" 
+              disabled={isGenerating || isStreaming}
+              className="flex items-center gap-2"
+            >
+              {isGenerating ? (
+                <>
+                  <LoadingSpinner size="sm" />
+                  Generating Offer...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  Generate Complete Offer
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </form>
+    </div>
   )
 }
