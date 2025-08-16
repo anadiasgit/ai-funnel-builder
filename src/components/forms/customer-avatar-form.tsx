@@ -26,24 +26,47 @@ interface CustomerAvatarFormProps {
 interface CustomerAvatar {
   id: string
   businessName: string
+  businessDescription: string
   industry: string
-  targetAudience: string
-  painPoints: string
-  goals: string
-  budget: string
-  location: string
+  pricePoint: 'low' | 'mid' | 'high'
+  audienceDescription: string
+  websiteUrl: string
+  existingCustomerData: string
+  competitorAnalysis: string
+  socialMediaAnalysis: string
+  knownPainPoints: string
+  previousResearch: string
+  specificQuestions: string
+  targetAge: string
+  targetLocation: string
+  targetIncome: string
   insights?: string[]
   recommendations?: string[]
 }
 
 interface AvatarFormData {
+  // Business Context
   businessName: string
+  businessDescription: string
   industry: string
-  targetAudience: string
-  painPoints: string
-  goals: string
-  budget: string
-  location: string
+  pricePoint: 'low' | 'mid' | 'high'
+  
+  // Audience Information Source
+  audienceDescription: string
+  websiteUrl: string
+  existingCustomerData: string
+  competitorAnalysis: string
+  socialMediaAnalysis: string
+  
+  // Additional Context
+  knownPainPoints: string
+  previousResearch: string
+  specificQuestions: string
+  
+  // Basic Demographics (for reference)
+  targetAge: string
+  targetLocation: string
+  targetIncome: string
 }
 
 export function CustomerAvatarForm({ 
@@ -53,12 +76,20 @@ export function CustomerAvatarForm({
 }: CustomerAvatarFormProps) {
   const [formData, setFormData] = useState<AvatarFormData>({
     businessName: existingAvatar?.businessName || '',
+    businessDescription: existingAvatar?.businessDescription || '',
     industry: existingAvatar?.industry || '',
-    targetAudience: existingAvatar?.targetAudience || '',
-    painPoints: existingAvatar?.painPoints || '',
-    goals: existingAvatar?.goals || '',
-    budget: existingAvatar?.budget || '',
-    location: existingAvatar?.location || ''
+    pricePoint: existingAvatar?.pricePoint || 'mid',
+    audienceDescription: existingAvatar?.audienceDescription || '',
+    websiteUrl: existingAvatar?.websiteUrl || '',
+    existingCustomerData: existingAvatar?.existingCustomerData || '',
+    competitorAnalysis: existingAvatar?.competitorAnalysis || '',
+    socialMediaAnalysis: existingAvatar?.socialMediaAnalysis || '',
+    knownPainPoints: existingAvatar?.knownPainPoints || '',
+    previousResearch: existingAvatar?.previousResearch || '',
+    specificQuestions: existingAvatar?.specificQuestions || '',
+    targetAge: existingAvatar?.targetAge || '',
+    targetLocation: existingAvatar?.targetLocation || '',
+    targetIncome: existingAvatar?.targetIncome || ''
   })
   
   const [isGenerating, setIsGenerating] = useState(false)
@@ -76,63 +107,7 @@ export function CustomerAvatarForm({
     onError: (error) => console.error('AI generation error:', error)
   })
 
-  // Smart suggestions based on industry selection
-  useEffect(() => {
-    if (formData.industry && !existingAvatar) {
-      const suggestions = getIndustrySuggestions(formData.industry)
-      setFormData(prev => ({
-        ...prev,
-        painPoints: prev.painPoints || suggestions.painPoints,
-        goals: prev.goals || suggestions.goals,
-        targetAudience: prev.targetAudience || suggestions.targetAudience
-      }))
-    }
-  }, [formData.industry, existingAvatar])
 
-  const getIndustrySuggestions = (industry: string) => {
-    const industryMap: Record<string, {
-      painPoints: string
-      goals: string
-      targetAudience: string
-    }> = {
-      'Technology': {
-        painPoints: 'High customer acquisition costs, complex sales cycles, rapid technology changes, competition from larger companies, difficulty explaining technical value to non-technical buyers',
-        goals: 'Increase market share, improve customer retention, develop recurring revenue streams, expand into new markets, build thought leadership',
-        targetAudience: 'Small to medium businesses, startups, enterprise companies, IT managers, business owners looking to digitize'
-      },
-      'Marketing & Advertising': {
-        painPoints: 'Inconsistent lead generation, high client acquisition costs, difficulty proving ROI, client retention challenges, seasonal fluctuations',
-        goals: 'Generate consistent leads, increase client lifetime value, improve conversion rates, build recurring revenue, expand service offerings',
-        targetAudience: 'Small businesses, e-commerce stores, local service businesses, startups, established companies looking to grow'
-      },
-      'E-commerce': {
-        painPoints: 'High customer acquisition costs, cart abandonment, inventory management, seasonal fluctuations, competition from Amazon',
-        goals: 'Increase conversion rates, reduce customer acquisition costs, improve customer retention, expand product lines, enter new markets',
-        targetAudience: 'Online shoppers, mobile users, specific demographics, international customers, repeat buyers'
-      },
-      'Health & Wellness': {
-        painPoints: 'Client acquisition challenges, inconsistent income, difficulty scaling, insurance limitations, seasonal fluctuations',
-        goals: 'Increase client base, improve client retention, develop recurring revenue, expand services, build referral system',
-        targetAudience: 'Health-conscious individuals, specific age groups, people with specific health goals, corporate wellness programs'
-      },
-      'Finance': {
-        painPoints: 'Regulatory compliance, client trust issues, market volatility, competition from robo-advisors, difficulty explaining complex products',
-        goals: 'Increase assets under management, improve client retention, develop recurring revenue, expand service offerings, build thought leadership',
-        targetAudience: 'Individuals planning for retirement, small business owners, high-net-worth individuals, millennials building wealth'
-      },
-      'Real Estate': {
-        painPoints: 'Market fluctuations, high competition, seasonal variations, client acquisition costs, difficulty standing out',
-        goals: 'Increase sales volume, improve client retention, develop referral system, expand service areas, build team',
-        targetAudience: 'First-time homebuyers, property investors, sellers, commercial clients, specific neighborhoods'
-      }
-    }
-    
-    return industryMap[industry] || {
-      painPoints: 'Difficulty generating leads, high customer acquisition costs, inconsistent revenue, competition challenges, scaling limitations',
-      goals: 'Increase revenue, improve customer retention, expand market reach, develop recurring income, build brand awareness',
-      targetAudience: 'Small to medium businesses, specific demographics, local customers, online audience, repeat buyers'
-    }
-  }
 
   const handleInputChange = (field: keyof AvatarFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -150,14 +125,25 @@ export function CustomerAvatarForm({
         `BUSINESS DETAILS:\n` +
         `Business Name: ${avatarData.businessName}\n` +
         `Industry: ${avatarData.industry}\n` +
-        `Target Audience: ${avatarData.targetAudience}\n` +
-        `Primary Location: ${avatarData.location}\n` +
-        `Typical Customer Budget: ${avatarData.budget}\n\n` +
-        `PAIN POINTS:\n${avatarData.painPoints}\n\n` +
-        `CUSTOMER GOALS:\n${avatarData.goals}\n\n` +
+        `Business Description: ${avatarData.businessDescription}\n` +
+        `Price Point: ${avatarData.pricePoint === 'low' ? 'Low Ticket ($7-$97)' : avatarData.pricePoint === 'mid' ? 'Mid Ticket ($97-$997)' : 'High Ticket ($997+)'}\n\n` +
+        `AUDIENCE INFORMATION:\n` +
+        `Audience Description: ${avatarData.audienceDescription || 'Not provided'}\n` +
+        `Target Age: ${avatarData.targetAge || 'Not specified'}\n` +
+        `Target Location: ${avatarData.targetLocation || 'Not specified'}\n` +
+        `Target Income: ${avatarData.targetIncome || 'Not specified'}\n\n` +
+        `RESEARCH DATA:\n` +
+        `Website URL: ${avatarData.websiteUrl || 'Not provided'}\n` +
+        `Existing Customer Data: ${avatarData.existingCustomerData || 'Not provided'}\n` +
+        `Competitor Analysis: ${avatarData.competitorAnalysis || 'Not provided'}\n` +
+        `Social Media Analysis: ${avatarData.socialMediaAnalysis || 'Not provided'}\n\n` +
+        `ADDITIONAL CONTEXT:\n` +
+        `Known Pain Points: ${avatarData.knownPainPoints || 'Not specified'}\n` +
+        `Previous Research: ${avatarData.previousResearch || 'Not specified'}\n` +
+        `Specific Questions: ${avatarData.specificQuestions || 'Not specified'}\n\n` +
         `AI INSIGHTS:\n${avatarData.insights?.map(insight => `• ${insight}`).join('\n') || 'No insights available'}\n\n` +
         `RECOMMENDATIONS:\n${avatarData.recommendations?.map(rec => `• ${rec}`).join('\n') || 'No recommendations available'}\n\n` +
-        `Generated by AI Funnel Builder`
+        `Generated by AI Funnel Builder using Ultimate Customer Avatar Creation Framework`
 
       const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
       const url = URL.createObjectURL(blob)
@@ -184,33 +170,79 @@ export function CustomerAvatarForm({
     setIsGenerating(true)
     
     try {
-      const context = `Business: ${formData.businessName || 'Business'}, Industry: ${formData.industry || 'General'}, Location: ${formData.location || 'Global'}`
+      const context = `Business: ${formData.businessName || 'Business'}, Industry: ${formData.industry || 'General'}`
       
-      // Generate complete avatar with AI
-      const prompt = `You are an expert marketing strategist creating a detailed customer avatar. 
+      // Generate complete avatar with AI using the Ultimate Customer Avatar Creation Framework
+      const prompt = `Ultimate Customer Avatar Creation Framework
 
-BUSINESS DETAILS:
-- Business Name: ${formData.businessName}
-- Industry: ${formData.industry}
-- Location: ${formData.location}
+You are an elite customer psychology strategist, behavioral analyst, and direct response expert with deep expertise in psychographic profiling, conversion optimization, and human decision-making psychology.
 
-CURRENT CUSTOMER INFORMATION:
-- Target Audience: ${formData.targetAudience}
-- Pain Points: ${formData.painPoints}
-- Goals: ${formData.goals}
-- Budget: ${formData.budget}
+Your mission: Create a comprehensive, multi-dimensional customer avatar that goes far beyond demographics to uncover the psychological drivers, emotional triggers, and behavioral patterns that influence purchasing decisions.
 
-TASK: Based on the EXACT information provided above, create a comprehensive customer avatar. DO NOT use generic business insights - use the specific details provided.
+AUDIENCE RESEARCH INPUT
+Business Context:
+- My Business/Offer: ${formData.businessDescription}
+- Target Market: ${formData.industry}
+- Price Point: ${formData.pricePoint === 'low' ? 'Low ticket ($7-$97)' : formData.pricePoint === 'mid' ? 'Mid ticket ($97-$997)' : 'High ticket ($997+)'}
 
-Please generate:
+Audience Information Source:
+${formData.audienceDescription ? `Option A - Audience Description: ${formData.audienceDescription}` : ''}
+${formData.websiteUrl ? `Option B - Website/Content Analysis: ${formData.websiteUrl}` : ''}
+${formData.existingCustomerData ? `Option C - Existing Customer Data: ${formData.existingCustomerData}` : ''}
+${formData.competitorAnalysis ? `Option D - Competitor Analysis: ${formData.competitorAnalysis}` : ''}
+${formData.socialMediaAnalysis ? `Option E - Social Media/Community Analysis: ${formData.socialMediaAnalysis}` : ''}
 
-1. ENHANCED TARGET AUDIENCE: Expand on "${formData.targetAudience}" with specific demographics, behaviors, and characteristics
-2. COMPREHENSIVE PAIN POINTS: Deepen "${formData.painPoints}" with emotional and practical challenges
-3. DETAILED CUSTOMER GOALS: Expand on "${formData.goals}" with short-term and long-term objectives
-4. AI INSIGHTS (5-7 points): Specific insights about customers in the ${formData.industry} industry, focusing on the target audience described
-5. STRATEGIC RECOMMENDATIONS (5-7 points): Marketing and sales strategies specifically for ${formData.industry} customers with the pain points and goals described
+Additional Context:
+- Known Pain Points: ${formData.knownPainPoints || 'Not specified'}
+- Previous Research: ${formData.previousResearch || 'Not specified'}
+- Specific Questions: ${formData.specificQuestions || 'Not specified'}
+- Basic Demographics: Age: ${formData.targetAge || 'Not specified'}, Location: ${formData.targetLocation || 'Not specified'}, Income: ${formData.targetIncome || 'Not specified'}
 
-IMPORTANT: Use the EXACT information provided. If they say "dog owners" and "dog toys", focus on dog owners, not generic business owners.`
+COMPREHENSIVE AVATAR ANALYSIS FRAMEWORK
+
+PHASE 1: FOUNDATIONAL PSYCHOLOGY
+1. Core Identity & Self-Perception
+2. Value System & Belief Architecture  
+3. Motivational Architecture
+
+PHASE 2: DECISION-MAKING PSYCHOLOGY
+4. Cognitive Processing Style
+5. Trust & Authority Patterns
+6. Objection & Resistance Patterns
+
+PHASE 3: EMOTIONAL & BEHAVIORAL PATTERNS
+7. Emotional Trigger Mapping
+8. Communication & Relationship Preferences
+9. Social & Status Psychology
+
+PHASE 4: BEHAVIORAL & LIFESTYLE PATTERNS
+10. Daily Life & Environment
+11. Information Consumption Habits
+12. Purchase Psychology & Buying Patterns
+
+PHASE 5: ADVANCED PSYCHOLOGICAL PROFILING
+13. Cognitive Bias Susceptibility
+14. Transformation Psychology
+15. Language & Messaging Resonance
+
+SYNTHESIS & APPLICATION FRAMEWORK
+- Avatar Summary Profile
+- Marketing Strategy Implications
+- Messaging Strategy
+- Offer Design Implications
+- Funnel & Communication Strategy
+- Validation & Testing Framework
+
+OUTPUT SPECIFICATIONS
+Present the complete avatar as a comprehensive marketing intelligence report with:
+1. Executive Summary
+2. Detailed Psychology Profile (all 15 framework sections)
+3. Marketing Application Guide
+4. Implementation Roadmap
+
+IMPORTANT: Base ALL insights on the actual research data provided. DO NOT use generic business insights - use the specific details provided. If they provide information about dog owners and dog toys, focus on that specific audience, not generic business owners.
+
+Create the most detailed, psychologically-driven customer avatar possible using the information provided.`
 
       // Start the AI stream
       await startStream(
@@ -223,55 +255,32 @@ IMPORTANT: Use the EXACT information provided. If they say "dog owners" and "dog
       // The content will be available in the useAIStream hook
       const aiContent = content || ''
       
-      // Parse the AI response more intelligently
-      const sections = aiContent.split(/\d+\.\s+/).filter(section => section.trim().length > 0)
+      // Extract insights and recommendations from the comprehensive framework
+      const lines = aiContent.split('\n').filter(line => line.trim().length > 0)
       
-      let enhancedTargetAudience = formData.targetAudience
-      let enhancedPainPoints = formData.painPoints
-      let enhancedGoals = formData.goals
-      let insights: string[] = []
-      let recommendations: string[] = []
+      // Look for bullet points and numbered lists that contain insights
+      const insights = lines
+        .filter(line => line.trim().length > 20 && (line.includes('•') || line.includes('-') || line.includes('*') || /^\d+\./.test(line)))
+        .map(line => line.replace(/^[•\-*\d\.]\s*/, '').trim())
+        .filter(line => line.length > 10)
+        .slice(0, 10)
       
-      // Parse each section based on the AI response structure
-      sections.forEach(section => {
-        const lines = section.split('\n').filter(line => line.trim().length > 0)
-        const firstLine = lines[0]?.toLowerCase() || ''
-        
-        if (firstLine.includes('target audience') || firstLine.includes('audience')) {
-          enhancedTargetAudience = lines.slice(1).join(' ').trim() || formData.targetAudience
-        } else if (firstLine.includes('pain points') || firstLine.includes('pain')) {
-          enhancedPainPoints = lines.slice(1).join(' ').trim() || formData.painPoints
-        } else if (firstLine.includes('goals') || firstLine.includes('objectives')) {
-          enhancedGoals = lines.slice(1).join(' ').trim() || formData.goals
-        } else if (firstLine.includes('insights')) {
-          insights = lines.slice(1).filter(line => line.trim().length > 10).slice(0, 7)
-        } else if (firstLine.includes('recommendations') || firstLine.includes('strategies')) {
-          recommendations = lines.slice(1).filter(line => line.trim().length > 10).slice(0, 7)
-        }
-      })
-      
-      // If parsing didn't work well, try to extract insights and recommendations from the full text
-      if (insights.length === 0) {
-        const insightLines = aiContent.split('\n')
-          .filter(line => line.trim().length > 20 && (line.includes('•') || line.includes('-') || line.includes('*')))
-          .map(line => line.replace(/^[•\-*]\s*/, '').trim())
-          .filter(line => line.length > 10)
-        insights = insightLines.slice(0, 7)
-      }
-      
-      if (recommendations.length === 0) {
-        const recLines = aiContent.split('\n')
-          .filter(line => line.trim().length > 20 && (line.includes('•') || line.includes('-') || line.includes('*')))
-          .map(line => line.replace(/^[•\-*]\s*/, '').trim())
-          .filter(line => line.length > 10)
-        recommendations = recLines.slice(0, 7)
-      }
+      // Look for strategic recommendations and marketing implications
+      const recommendations = lines
+        .filter(line => line.trim().length > 20 && (
+          line.toLowerCase().includes('recommend') || 
+          line.toLowerCase().includes('strategy') || 
+          line.toLowerCase().includes('approach') ||
+          line.toLowerCase().includes('marketing') ||
+          line.toLowerCase().includes('copy') ||
+          line.toLowerCase().includes('message')
+        ))
+        .map(line => line.replace(/^[•\-*\d\.]\s*/, '').trim())
+        .filter(line => line.length > 10)
+        .slice(0, 10)
       
       const generatedAvatar = {
         ...formData,
-        targetAudience: enhancedTargetAudience,
-        painPoints: enhancedPainPoints,
-        goals: enhancedGoals,
         id: Date.now().toString(),
         generatedAt: new Date().toISOString(),
         insights: insights.length > 0 ? insights : [
@@ -317,31 +326,37 @@ IMPORTANT: Use the EXACT information provided. If they say "dog owners" and "dog
                 <p className="text-sm text-gray-900 mt-1">{avatar.industry}</p>
               </div>
               <div>
-                <Label className="text-sm font-medium text-gray-700">Target Audience</Label>
-                <p className="text-sm text-gray-900 mt-1">{avatar.targetAudience}</p>
+                <Label className="text-sm font-medium text-gray-700">Price Point</Label>
+                <p className="text-sm text-gray-900 mt-1">
+                  {avatar.pricePoint === 'low' ? 'Low Ticket ($7-$97)' : 
+                   avatar.pricePoint === 'mid' ? 'Mid Ticket ($97-$997)' : 
+                   'High Ticket ($997+)'}
+                </p>
               </div>
               <div>
-                <Label className="text-sm font-medium text-gray-700">Budget Range</Label>
-                <p className="text-sm text-gray-900 mt-1">{avatar.budget}</p>
+                <Label className="text-sm font-medium text-gray-700">Target Age</Label>
+                <p className="text-sm text-gray-900 mt-1">{avatar.targetAge || 'Not specified'}</p>
               </div>
               <div>
-                <Label className="text-sm font-medium text-gray-700">Location</Label>
-                <p className="text-sm text-gray-900 mt-1">{avatar.location}</p>
+                <Label className="text-sm font-medium text-gray-700">Target Location</Label>
+                <p className="text-sm text-gray-900 mt-1">{avatar.targetLocation || 'Not specified'}</p>
               </div>
             </div>
 
             <Separator />
 
-            {/* Pain Points & Goals */}
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <Label className="text-sm font-medium text-gray-700">Pain Points</Label>
-                <p className="text-sm text-gray-900 mt-1">{avatar.painPoints}</p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-gray-700">Goals</Label>
-                <p className="text-sm text-gray-900 mt-1">{avatar.goals}</p>
-              </div>
+            {/* Business Description */}
+            <div>
+              <Label className="text-sm font-medium text-gray-700">Business Description</Label>
+              <p className="text-sm text-gray-900 mt-1">{avatar.businessDescription}</p>
+            </div>
+
+            <Separator />
+
+            {/* Audience Information */}
+            <div>
+              <Label className="text-sm font-medium text-gray-700">Audience Description</Label>
+              <p className="text-sm text-gray-900 mt-1">{avatar.audienceDescription || 'Not provided'}</p>
             </div>
 
             <Separator />
@@ -412,107 +427,236 @@ IMPORTANT: Use the EXACT information provided. If they say "dog owners" and "dog
       )}
 
       <form onSubmit={(e) => { e.preventDefault(); generateFullAvatar(); }} className="space-y-6">
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* Business Information */}
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="businessName" className="text-sm font-medium">
-                Business Name
-              </Label>
-              <Input
-                id="businessName"
-                value={formData.businessName}
-                onChange={(e) => handleInputChange('businessName', e.target.value)}
-                placeholder="Your business name"
-                required
-              />
+        {/* Business Context */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Business Context</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <Label htmlFor="businessName" className="text-sm font-medium">
+                  Business Name
+                </Label>
+                <Input
+                  id="businessName"
+                  value={formData.businessName}
+                  onChange={(e) => handleInputChange('businessName', e.target.value)}
+                  placeholder="Your business name"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="industry" className="text-sm font-medium">
+                  Industry
+                </Label>
+                <Input
+                  id="industry"
+                  value={formData.industry}
+                  onChange={(e) => handleInputChange('industry', e.target.value)}
+                  placeholder="e.g., E-commerce, SaaS, Consulting"
+                  required
+                />
+              </div>
             </div>
-
+            
             <div>
-              <Label htmlFor="industry" className="text-sm font-medium">
-                Industry
-              </Label>
-              <Input
-                id="industry"
-                value={formData.industry}
-                onChange={(e) => handleInputChange('industry', e.target.value)}
-                placeholder="e.g., E-commerce, SaaS, Consulting"
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="targetAudience" className="text-sm font-medium">
-                Target Audience
+              <Label htmlFor="businessDescription" className="text-sm font-medium">
+                Business/Offer Description
               </Label>
               <Textarea
-                id="targetAudience"
-                value={formData.targetAudience}
-                onChange={(e) => handleInputChange('targetAudience', e.target.value)}
-                placeholder="e.g., Small business owners, 30-50 years old"
+                id="businessDescription"
+                value={formData.businessDescription}
+                onChange={(e) => handleInputChange('businessDescription', e.target.value)}
+                placeholder="Brief description of your business, product, or service"
                 rows={3}
                 required
               />
             </div>
-
+            
             <div>
-              <Label htmlFor="location" className="text-sm font-medium">
-                Primary Location
+              <Label htmlFor="pricePoint" className="text-sm font-medium">
+                Price Point
               </Label>
-              <Input
-                id="location"
-                value={formData.location}
-                onChange={(e) => handleInputChange('location', e.target.value)}
-                placeholder="e.g., United States, Global"
+              <select
+                id="pricePoint"
+                value={formData.pricePoint}
+                onChange={(e) => handleInputChange('pricePoint', e.target.value as 'low' | 'mid' | 'high')}
+                className="w-full px-3 py-2 border rounded-md"
                 required
-              />
+              >
+                <option value="low">Low Ticket ($7-$97)</option>
+                <option value="mid">Mid Ticket ($97-$997)</option>
+                <option value="high">High Ticket ($997+)</option>
+              </select>
             </div>
-          </div>
+          </CardContent>
+        </Card>
 
-          {/* Business Details */}
-          <div className="space-y-4">
+        {/* Audience Information Source */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Audience Information Source</CardTitle>
+            <CardDescription>Choose one or more sources below</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="budget" className="text-sm font-medium">
-                Typical Customer Budget
-              </Label>
-              <Input
-                id="budget"
-                value={formData.budget}
-                onChange={(e) => handleInputChange('budget', e.target.value)}
-                placeholder="e.g., $500-$2000, $50-200/month"
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="painPoints" className="text-sm font-medium">
-                Main Pain Points
+              <Label htmlFor="audienceDescription" className="text-sm font-medium">
+                Option A - Audience Description
               </Label>
               <Textarea
-                id="painPoints"
-                value={formData.painPoints}
-                onChange={(e) => handleInputChange('painPoints', e.target.value)}
-                placeholder="What problems do your customers face?"
-                rows={3}
-                required
+                id="audienceDescription"
+                value={formData.audienceDescription}
+                onChange={(e) => handleInputChange('audienceDescription', e.target.value)}
+                placeholder="Detailed description of your target audience - their situation, challenges, goals, etc."
+                rows={4}
               />
             </div>
-
+            
             <div>
-              <Label htmlFor="goals" className="text-sm font-medium">
-                Customer Goals
+              <Label htmlFor="websiteUrl" className="text-sm font-medium">
+                Option B - Website/Content Analysis
+              </Label>
+              <Input
+                id="websiteUrl"
+                value={formData.websiteUrl}
+                onChange={(e) => handleInputChange('websiteUrl', e.target.value)}
+                placeholder="URL or website to analyze for audience insights"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="existingCustomerData" className="text-sm font-medium">
+                Option C - Existing Customer Data
               </Label>
               <Textarea
-                id="goals"
-                value={formData.goals}
-                onChange={(e) => handleInputChange('goals', e.target.value)}
-                placeholder="What are your customers trying to achieve?"
+                id="existingCustomerData"
+                value={formData.existingCustomerData}
+                onChange={(e) => handleInputChange('existingCustomerData', e.target.value)}
+                placeholder="Information about current customers - surveys, feedback, testimonials, etc."
                 rows={3}
-                required
               />
             </div>
-          </div>
-        </div>
+            
+            <div>
+              <Label htmlFor="competitorAnalysis" className="text-sm font-medium">
+                Option D - Competitor Analysis
+              </Label>
+              <Textarea
+                id="competitorAnalysis"
+                value={formData.competitorAnalysis}
+                onChange={(e) => handleInputChange('competitorAnalysis', e.target.value)}
+                placeholder="Competitor websites, their messaging, or customer base to analyze"
+                rows={3}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="socialMediaAnalysis" className="text-sm font-medium">
+                Option E - Social Media/Community Analysis
+              </Label>
+              <Textarea
+                id="socialMediaAnalysis"
+                value={formData.socialMediaAnalysis}
+                onChange={(e) => handleInputChange('socialMediaAnalysis', e.target.value)}
+                placeholder="Links to Facebook groups, forums, social media accounts where your audience gathers"
+                rows={3}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Additional Context */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Additional Context</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="knownPainPoints" className="text-sm font-medium">
+                Known Pain Points
+              </Label>
+              <Textarea
+                id="knownPainPoints"
+                value={formData.knownPainPoints}
+                onChange={(e) => handleInputChange('knownPainPoints', e.target.value)}
+                placeholder="Any pain points you already know about"
+                rows={3}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="previousResearch" className="text-sm font-medium">
+                Previous Research
+              </Label>
+              <Textarea
+                id="previousResearch"
+                value={formData.previousResearch}
+                onChange={(e) => handleInputChange('previousResearch', e.target.value)}
+                placeholder="Any existing avatar work, surveys, or customer insights"
+                rows={3}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="specificQuestions" className="text-sm font-medium">
+                Specific Questions
+              </Label>
+              <Textarea
+                id="specificQuestions"
+                value={formData.specificQuestions}
+                onChange={(e) => handleInputChange('specificQuestions', e.target.value)}
+                placeholder="Any particular aspects you want to understand better"
+                rows={3}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Basic Demographics (for reference) */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Basic Demographics (Reference Only)</CardTitle>
+            <CardDescription>Basic info to help AI understand your audience better</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-3">
+              <div>
+                <Label htmlFor="targetAge" className="text-sm font-medium">
+                  Target Age Range
+                </Label>
+                <Input
+                  id="targetAge"
+                  value={formData.targetAge}
+                  onChange={(e) => handleInputChange('targetAge', e.target.value)}
+                  placeholder="e.g., 25-45, 30-60"
+                />
+              </div>
+              <div>
+                <Label htmlFor="targetLocation" className="text-sm font-medium">
+                  Target Location
+                </Label>
+                <Input
+                  id="targetLocation"
+                  value={formData.targetLocation}
+                  onChange={(e) => handleInputChange('targetLocation', e.target.value)}
+                  placeholder="e.g., United States, Global, Urban areas"
+                />
+              </div>
+              <div>
+                <Label htmlFor="targetIncome" className="text-sm font-medium">
+                  Target Income Level
+                </Label>
+                <Input
+                  id="targetIncome"
+                  value={formData.targetIncome}
+                  onChange={(e) => handleInputChange('targetIncome', e.target.value)}
+                  placeholder="e.g., $50K+, $100K+, Middle class"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <Separator />
 
