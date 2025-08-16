@@ -14,7 +14,7 @@ import { funnelPrompts, models } from '@/lib/openai'
 export default function AIDemoPage() {
   const [prompt, setPrompt] = useState('')
   const [selectedPromptType, setSelectedPromptType] = useState<keyof typeof funnelPrompts>('mainVSL')
-  const [selectedModel, setSelectedModel] = useState<keyof typeof models>(models.GPT4O)
+  const [selectedModel, setSelectedModel] = useState<keyof typeof models>('GPT4O')
   const [maxTokens, setMaxTokens] = useState(2000)
   const [temperature, setTemperature] = useState(0.7)
 
@@ -71,11 +71,11 @@ export default function AIDemoPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(funnelPrompts).map(([key, value]) => (
-                      <SelectItem key={key} value={key}>
-                        {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                      </SelectItem>
-                    ))}
+                                         {Object.entries(funnelPrompts).map(([key]) => (
+                       <SelectItem key={key} value={key}>
+                         {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                       </SelectItem>
+                     ))}
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
