@@ -30,3 +30,14 @@ export { AIStatusIndicator } from './ai-status-indicator'
 export { GenerationProgress } from './generation-progress'
 export { LoadingSpinner } from './loading-spinner'
 export { FunnelFlowDiagram } from './funnel-flow-diagram'
+
+// Help System Components
+export { 
+  Tooltip, 
+  HelpIcon, 
+  ExampleContent, 
+  VideoTutorial, 
+  FAQ, 
+  LiveChat, 
+  FloatingHelpButton 
+} from './help-system'

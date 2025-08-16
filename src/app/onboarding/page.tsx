@@ -10,9 +10,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { NetworkStatusIndicator } from '@/components/ui/network-status-indicator'
+import { Tooltip } from '@/components/ui/help-system'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
-import { ArrowRight, User, Building, Target, CheckCircle, SkipForward, Loader2 } from 'lucide-react'
+import { ArrowRight, User, Building, Target, CheckCircle, SkipForward, Loader2, HelpCircle } from 'lucide-react'
 
 const BUSINESS_TYPES = [
   'E-commerce',
@@ -232,6 +233,23 @@ export default function OnboardingPage() {
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to AI Funnel Builder!</h1>
           <p className="text-gray-600">Let&apos;s get you set up in just a few steps</p>
+          
+          {/* Help Section */}
+          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg max-w-2xl mx-auto">
+            <div className="flex items-center gap-2 justify-center mb-2">
+              <HelpCircle className="w-5 h-5 text-blue-600" />
+              <span className="text-sm font-medium text-blue-800">Need Help?</span>
+            </div>
+            <p className="text-sm text-blue-700 mb-3">
+              Hover over the help icons (?) next to each field for detailed explanations and examples.
+            </p>
+            <div className="flex justify-center gap-4 text-xs text-blue-600">
+              <span>💡 Examples provided for each field</span>
+              <span>❓ Hover for tooltips</span>
+              <span>📚 Help center available anytime</span>
+            </div>
+          </div>
+          
           <div className="mt-4">
             <Progress value={progress} className="w-full h-2" />
             <p className="text-sm text-gray-500 mt-2">
@@ -278,7 +296,12 @@ export default function OnboardingPage() {
             {currentStep === 1 && (
               <div className="space-y-4 animate-in slide-in-from-right-4">
                 <div>
-                  <Label htmlFor="full_name">Full Name *</Label>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Label htmlFor="full_name">Full Name *</Label>
+                    <Tooltip content="Your full name will be displayed on your profile and used for personalization throughout the app">
+                      <HelpCircle className="w-4 h-4 text-gray-400 hover:text-blue-500 cursor-help transition-colors" />
+                    </Tooltip>
+                  </div>
                   <Input
                     id="full_name"
                     value={formData.full_name}
@@ -291,10 +314,25 @@ export default function OnboardingPage() {
                   <p id="full_name_help" className="text-sm text-gray-500 mt-1">
                     This will be displayed on your profile
                   </p>
+                  
+                  {/* Example Content */}
+                  <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm text-blue-700 mb-2">
+                      <strong>💡 Example:</strong> "John Smith" or "Sarah Johnson"
+                    </p>
+                    <p className="text-xs text-blue-600">
+                      Use your real name as it appears on official documents
+                    </p>
+                  </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="company_name">Company Name</Label>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Label htmlFor="company_name">Company Name</Label>
+                    <Tooltip content="Your company name helps us personalize your experience and provide industry-specific recommendations">
+                      <HelpCircle className="w-4 h-4 text-gray-400 hover:text-blue-500 cursor-help transition-colors" />
+                    </Tooltip>
+                  </div>
                   <Input
                     id="company_name"
                     value={formData.company_name}
@@ -302,6 +340,16 @@ export default function OnboardingPage() {
                     placeholder="Enter your company name"
                     className="transition-all duration-200 focus:scale-[1.02]"
                   />
+                  
+                  {/* Example Content */}
+                  <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-sm text-green-700 mb-2">
+                      <strong>💡 Examples:</strong> "Acme Corp", "Smith Consulting", "Your Business Name"
+                    </p>
+                    <p className="text-xs text-green-600">
+                      If you don't have a company yet, you can leave this blank or use your personal brand name
+                    </p>
+                  </div>
                 </div>
 
                 <div className="flex justify-between items-center">
@@ -319,7 +367,12 @@ export default function OnboardingPage() {
             {currentStep === 2 && (
               <div className="space-y-4 animate-in slide-in-from-right-4">
                 <div>
-                  <Label htmlFor="business_type">Business Type</Label>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Label htmlFor="business_type">Business Type</Label>
+                    <Tooltip content="Your business type helps us provide relevant examples and industry-specific guidance for building funnels">
+                      <HelpCircle className="w-4 h-4 text-gray-400 hover:text-blue-500 cursor-help transition-colors" />
+                    </Tooltip>
+                  </div>
                   <Select value={formData.business_type} onValueChange={(value: string) => handleInputChange('business_type', value)}>
                     <SelectTrigger className="transition-all duration-200 focus:scale-[1.02] bg-white">
                       <SelectValue placeholder="Select your business type" />
@@ -330,6 +383,16 @@ export default function OnboardingPage() {
                       ))}
                     </SelectContent>
                   </Select>
+                  
+                  {/* Example Content */}
+                  <div className="mt-3 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                    <p className="text-sm text-purple-700 mb-2">
+                      <strong>💡 Examples:</strong> Choose the category that best describes your business model
+                    </p>
+                    <p className="text-xs text-purple-600">
+                      E-commerce: Online stores, SaaS: Software companies, Coaching: Personal services, etc.
+                    </p>
+                  </div>
                 </div>
 
                 <div>
@@ -389,7 +452,12 @@ export default function OnboardingPage() {
             {currentStep === 3 && (
               <div className="space-y-4 animate-in slide-in-from-right-4">
                 <div>
-                  <Label>What are your main goals? (Select all that apply)</Label>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Label>What are your main goals? (Select all that apply)</Label>
+                    <Tooltip content="Your goals help us customize your experience and provide relevant content and features">
+                      <HelpCircle className="w-4 h-4 text-gray-400 hover:text-blue-500 cursor-help transition-colors" />
+                    </Tooltip>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
                     {[
                       'Increase conversions',

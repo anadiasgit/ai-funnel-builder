@@ -4,7 +4,7 @@
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { ArrowRight, Zap, Target, TrendingUp } from 'lucide-react'
+import { ArrowRight, Zap, Target, TrendingUp, HelpCircle } from 'lucide-react'
 
 export default function HomePage() {
   const { user, loading } = useAuth()
@@ -85,6 +85,51 @@ export default function HomePage() {
               </div>
             </>
           )}
+
+          {/* Help Section */}
+          <div className="mt-16 p-6 bg-blue-50 border border-blue-200 rounded-xl max-w-4xl mx-auto">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <HelpCircle className="w-8 h-8 text-blue-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Need Help Getting Started?</h2>
+              <p className="text-gray-600">We've got you covered with comprehensive help resources</p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-4 mb-6">
+              <div className="text-center p-4 bg-white rounded-lg border border-blue-200">
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-green-600 text-xl">📚</span>
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">Help Center</h3>
+                <p className="text-sm text-gray-600">Comprehensive guides, FAQs, and examples</p>
+              </div>
+              
+              <div className="text-center p-4 bg-white rounded-lg border border-blue-200">
+                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-purple-600 text-xl">🎥</span>
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">Video Tutorials</h3>
+                <p className="text-sm text-gray-600">Step-by-step video guides for every feature</p>
+              </div>
+              
+              <div className="text-center p-4 bg-white rounded-lg border border-blue-200">
+                <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <span className="text-orange-600 text-xl">💬</span>
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">Live Support</h3>
+                <p className="text-sm text-gray-600">Get help from our support team anytime</p>
+              </div>
+            </div>
+            
+            <div className="text-center">
+              <Link href="/help">
+                <Button size="lg" variant="outline" className="border-blue-300 text-blue-700 hover:bg-blue-50">
+                  Visit Help Center <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          </div>
 
           {/* Features */}
           <div className="grid md:grid-cols-3 gap-8 mt-20">

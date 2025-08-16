@@ -12,8 +12,10 @@ import {
   User, 
   Sparkles,
   CheckCircle2,
-  Download
+  Download,
+  HelpCircle
 } from 'lucide-react'
+import { Tooltip, ExampleContent } from '@/components/ui/help-system'
 
 interface CustomerAvatarFormProps {
   existingAvatar?: CustomerAvatar | null
@@ -309,9 +311,14 @@ export function CustomerAvatarForm({
         {/* Business Information */}
         <div className="space-y-4">
           <div>
-            <Label htmlFor="businessName" className="text-sm font-medium">
-              Business Name
-            </Label>
+            <div className="flex items-center gap-2 mb-2">
+              <Label htmlFor="businessName" className="text-sm font-medium">
+                Business Name
+              </Label>
+              <Tooltip content="Your business name helps personalize the avatar and makes it easier to reference in your funnel building process">
+                <HelpCircle className="w-4 h-4 text-gray-400 hover:text-blue-500 cursor-help transition-colors" />
+              </Tooltip>
+            </div>
             <Input
               id="businessName"
               value={formData.businessName}
@@ -319,12 +326,22 @@ export function CustomerAvatarForm({
               placeholder="Your business name"
               required
             />
+            
+            {/* Example Content */}
+            <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-700">
+              <strong>💡 Examples:</strong> "Acme Corp", "Smith Consulting", "TechFlow Solutions"
+            </div>
           </div>
 
           <div>
-            <Label htmlFor="industry" className="text-sm font-medium">
-              Industry
-            </Label>
+            <div className="flex items-center gap-2 mb-2">
+              <Label htmlFor="industry" className="text-sm font-medium">
+                Industry
+              </Label>
+              <Tooltip content="Your industry helps us provide relevant examples and industry-specific insights for your customer avatar">
+                <HelpCircle className="w-4 h-4 text-gray-400 hover:text-blue-500 cursor-help transition-colors" />
+              </Tooltip>
+            </div>
             <Input
               id="industry"
               value={formData.industry}
@@ -332,12 +349,22 @@ export function CustomerAvatarForm({
               placeholder="e.g., E-commerce, SaaS, Consulting"
               required
             />
+            
+            {/* Example Content */}
+            <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-xs text-green-700">
+              <strong>💡 Examples:</strong> "E-commerce", "SaaS", "Consulting", "Real Estate", "Health & Wellness"
+            </div>
           </div>
 
           <div>
-            <Label htmlFor="targetAudience" className="text-sm font-medium">
-              Target Audience
-            </Label>
+            <div className="flex items-center gap-2 mb-2">
+              <Label htmlFor="targetAudience" className="text-sm font-medium">
+                Target Audience
+              </Label>
+              <Tooltip content="Be specific about who your ideal customer is. Include demographics, job titles, and characteristics that define your target market">
+                <HelpCircle className="w-4 h-4 text-gray-400 hover:text-blue-500 cursor-help transition-colors" />
+              </Tooltip>
+            </div>
             <Input
               id="targetAudience"
               value={formData.targetAudience}
@@ -345,6 +372,11 @@ export function CustomerAvatarForm({
               placeholder="e.g., Small business owners, 30-50 years old"
               required
             />
+            
+            {/* Example Content */}
+            <div className="mt-2 p-2 bg-purple-50 border border-purple-200 rounded text-xs text-purple-700">
+              <strong>💡 Examples:</strong> "Small business owners, 30-50 years old", "Marketing managers at companies with 10-100 employees", "Entrepreneurs in the tech industry"
+            </div>
           </div>
 
           <div>
@@ -377,9 +409,14 @@ export function CustomerAvatarForm({
           </div>
 
           <div>
-            <Label htmlFor="painPoints" className="text-sm font-medium">
-              Main Pain Points
-            </Label>
+            <div className="flex items-center gap-2 mb-2">
+              <Label htmlFor="painPoints" className="text-sm font-medium">
+                Main Pain Points
+              </Label>
+              <Tooltip content="Describe the specific problems, frustrations, and challenges your target customers experience. This helps create more compelling offers and messaging">
+                <HelpCircle className="w-4 h-4 text-gray-400 hover:text-blue-500 cursor-help transition-colors" />
+              </Tooltip>
+            </div>
             <Textarea
               id="painPoints"
               value={formData.painPoints}
@@ -388,6 +425,11 @@ export function CustomerAvatarForm({
               rows={3}
               required
             />
+            
+            {/* Example Content */}
+            <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded text-xs text-orange-700">
+              <strong>💡 Examples:</strong> "High customer acquisition costs, difficulty scaling, inconsistent revenue, lack of time for marketing, competition challenges"
+            </div>
           </div>
 
           <div>

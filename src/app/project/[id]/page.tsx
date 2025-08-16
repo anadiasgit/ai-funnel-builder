@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -33,6 +33,7 @@ import { supabase } from '@/lib/supabase'
 import { exportCompleteFunnel, downloadFile, ExportContent } from '@/lib/export-utils'
 import { GenerationProgress } from '@/components/ui/generation-progress'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { FloatingHelpButton } from '@/components/ui/help-system'
 
 interface Project {
   id: string
@@ -162,6 +163,7 @@ interface GenerationStatus {
 export default function ProjectWorkspace() {
   const { id } = useParams()
   const { user } = useAuth()
+  const router = useRouter()
   const [project, setProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('avatar')
@@ -1158,6 +1160,12 @@ export default function ProjectWorkspace() {
           );
         })()}
       </div>
+      
+      {/* Floating Help Button */}
+      <FloatingHelpButton
+        onClick={() => router.push('/help')}
+        className="bottom-4 right-4"
+      />
     </div>
   )
 }
