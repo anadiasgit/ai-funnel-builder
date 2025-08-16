@@ -114,7 +114,16 @@ export function UpsellsForm({
   }
 
   const getIndustryDefaults = (industry: string) => {
-    const industryMap: Record<string, any> = {
+    const industryMap: Record<string, {
+      upsell1: {
+        title: string
+        description: string
+      }
+      upsell2: {
+        title: string
+        description: string
+      }
+    }> = {
       'Technology': {
         upsell1: {
           title: 'Implementation & Support Package',

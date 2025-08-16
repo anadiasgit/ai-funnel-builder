@@ -122,7 +122,12 @@ export function OfferGenerationForm({
   }
 
   const getIndustryDefaults = (industry: string) => {
-    const industryMap: Record<string, any> = {
+    const industryMap: Record<string, {
+      productName: string
+      productDescription: string
+      valueProposition: string
+      guarantee: string
+    }> = {
       'Technology': {
         productName: 'Complete Tech Solution Suite',
         productDescription: 'End-to-end technology solution for modern businesses',

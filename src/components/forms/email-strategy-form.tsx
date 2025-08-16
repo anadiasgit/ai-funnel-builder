@@ -99,7 +99,12 @@ export function EmailStrategyForm({
   }
 
   const getIndustryDefaults = (industry: string, avatar: CustomerAvatar, offer: MainOffer | null) => {
-    const industryMap: Record<string, any> = {
+    const industryMap: Record<string, {
+      welcomeSubject: string
+      welcomeBody: string
+      nurtureSubject: string
+      nurtureBody: string
+    }> = {
       'Technology': {
         welcomeSubject: 'Welcome to Your Tech Transformation Journey',
         welcomeBody: `Hi there!\n\nWelcome to the ${offer?.productName || 'Tech Solution'} family! I'm excited to help you transform your business with cutting-edge technology.\n\nIn the next few emails, I'll share:\n• The #1 tech mistake most businesses make\n• How to implement ${offer?.productName || 'our solution'} for maximum results\n• Advanced strategies to scale your tech success\n\nStay tuned!\n\nBest regards,\n[Your Name]`,

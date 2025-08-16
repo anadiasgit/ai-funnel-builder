@@ -76,7 +76,11 @@ export function CustomerAvatarForm({
   }, [formData.industry, existingAvatar])
 
   const getIndustrySuggestions = (industry: string) => {
-    const industryMap: Record<string, any> = {
+    const industryMap: Record<string, {
+      painPoints: string
+      goals: string
+      targetAudience: string
+    }> = {
       'Technology': {
         painPoints: 'High customer acquisition costs, complex sales cycles, rapid technology changes, competition from larger companies, difficulty explaining technical value to non-technical buyers',
         goals: 'Increase market share, improve customer retention, develop recurring revenue streams, expand into new markets, build thought leadership',

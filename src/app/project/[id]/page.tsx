@@ -3,33 +3,29 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { supabase } from '@/lib/supabase'
-import { TabsContent } from '@/components/ui/tabs'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-
+import { Separator } from '@/components/ui/separator'
 import { 
   User, 
   Target, 
   ShoppingCart, 
   TrendingUp, 
   FileText, 
+  CheckCircle2, 
+  Video, 
   Mail, 
-  Video,
   ArrowRight,
-  Sparkles,
-  Clock,
-  CheckCircle2,
-  AlertCircle
+  Download,
+  Copy as CopyIcon,
+  Trash2,
+  Edit,
+  Plus,
+  Search,
+  Filter,
+  MoreHorizontal
 } from 'lucide-react'
-
-// Import our custom components (we'll create these next)
-import { AIStatusIndicator } from '@/components/ui/ai-status-indicator'
-import { GenerationProgress } from '@/components/ui/generation-progress'
-import { FunnelFlowDiagram } from '@/components/ui/funnel-flow-diagram'
 import { CustomerAvatarForm } from '@/components/forms/customer-avatar-form'
 import { OfferGenerationForm } from '@/components/forms/offer-generation-form'
 import { OrderBumpForm } from '@/components/forms/order-bump-form'
@@ -39,6 +35,9 @@ import { ThankYouPageForm } from '@/components/forms/thank-you-page-form'
 import { MainVSLForm } from '@/components/forms/main-vsl-form'
 import { UpsellVSLForm } from '@/components/forms/upsell-vsl-form'
 import { EmailStrategyForm } from '@/components/forms/email-strategy-form'
+import { FunnelFlowDiagram } from '@/components/ui/funnel-flow-diagram'
+import { supabase } from '@/lib/supabase'
+import { GenerationProgress } from '@/components/ui/generation-progress'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 interface Project {
@@ -231,7 +230,7 @@ export default function ProjectWorkspace() {
   }
 
   const updateGenerationStatus = (projectData: Project) => {
-    setGenerationStatus({
+    const status: GenerationStatus = {
       avatar: projectData.customer_avatar ? 'completed' : 'pending',
       offer: projectData.main_offer ? 'completed' : 'pending',
       order_bump: projectData.generated_content?.order_bump ? 'completed' : 'pending',
@@ -241,25 +240,14 @@ export default function ProjectWorkspace() {
       main_vsl: projectData.generated_content?.main_vsl ? 'completed' : 'pending',
       upsell_vsl: projectData.generated_content?.upsell_vsl ? 'completed' : 'pending',
       email_strategy: projectData.generated_content?.email_strategy ? 'completed' : 'pending'
-    })
+    }
+    setGenerationStatus(status)
   }
 
   const calculateProgress = () => {
     const statuses = Object.values(generationStatus)
     const completed = statuses.filter(status => status === 'completed').length
     return (completed / statuses.length) * 100
-  }
-
-  const getTabStatus = (tabName: keyof GenerationStatus) => {
-    const status = generationStatus[tabName]
-    return {
-      icon: status === 'completed' ? CheckCircle2 : 
-            status === 'generating' ? Clock : 
-            status === 'error' ? AlertCircle : null,
-      color: status === 'completed' ? 'text-green-500' : 
-             status === 'generating' ? 'text-blue-500' : 
-             status === 'error' ? 'text-red-500' : 'text-gray-400'
-    }
   }
 
   const markAsDraft = () => {

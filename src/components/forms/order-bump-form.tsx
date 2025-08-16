@@ -97,7 +97,11 @@ export function OrderBumpForm({
   }
 
   const getIndustryDefaults = (industry: string) => {
-    const industryMap: Record<string, any> = {
+    const industryMap: Record<string, {
+      title: string
+      description: string
+      urgency: string
+    }> = {
       'Technology': {
         title: 'Complete Tech Solution Suite',
         description: 'Get the full technology stack with implementation support and training',
