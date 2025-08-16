@@ -6,7 +6,6 @@ import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import { 
   User, 
   Target, 
@@ -16,15 +15,7 @@ import {
   CheckCircle2, 
   Video, 
   Mail, 
-  ArrowRight,
-  Download,
-  Copy as CopyIcon,
-  Trash2,
-  Edit,
-  Plus,
-  Search,
-  Filter,
-  MoreHorizontal
+  ArrowRight
 } from 'lucide-react'
 import { CustomerAvatarForm } from '@/components/forms/customer-avatar-form'
 import { OfferGenerationForm } from '@/components/forms/offer-generation-form'
@@ -311,9 +302,6 @@ export default function ProjectWorkspace() {
               <Badge variant={project.status === 'completed' ? 'default' : 'secondary'}>
                 {project.status}
               </Badge>
-              <AIStatusIndicator 
-                status={project.status === 'generating' ? 'generating' : 'idle'} 
-              />
             </div>
           </div>
           
