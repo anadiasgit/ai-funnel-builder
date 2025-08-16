@@ -1,12 +1,12 @@
 import { z } from 'zod'
 
 const envSchema = z.object({
-  // Database - Make these REQUIRED, not optional
+  // Database - Remove .optional() to make them required
   NEXT_PUBLIC_SUPABASE_URL: z.string().url('Invalid Supabase URL'),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1, 'Supabase anon key is required'),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, 'Supabase service role key is required'),
   
-  // OpenAI - Make this REQUIRED
+  // OpenAI - Remove .optional()
   OPENAI_API_KEY: z.string().min(1, 'OpenAI API key is required').refine(
     (key) => key.startsWith('sk-'),
     'OpenAI API key must start with "sk-"'
@@ -14,7 +14,7 @@ const envSchema = z.object({
   
   // App
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  NEXT_PUBLIC_APP_URL: z.string().url().default('http://localhost:3000'),
+  NEXT_PUBLIC_APP_URL: z.string().url().default('https://ai-funnel-builder.vercel.app'), // Update this to your actual Vercel URL
 })
 
 // Debug: Log what we're getting from process.env
