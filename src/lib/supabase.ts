@@ -16,10 +16,9 @@ export const supabase = createBrowserClient(
 
 // Server-side Supabase client (for use in server components)
 export const createServerClient = () => {
-  // This will be imported in server-side code only
-  const { serverEnv } = require('./env-server')
+  // For now, use process.env directly to avoid import issues
   return createClient(
-    serverEnv.NEXT_PUBLIC_SUPABASE_URL,
-    serverEnv.SUPABASE_SERVICE_ROLE_KEY
+    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || ''
   )
 }
