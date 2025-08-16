@@ -10,8 +10,7 @@ import {
   VideoTutorial, 
   ExampleContent, 
   LiveChat, 
-  FloatingHelpButton,
-  HelpIcon 
+  FloatingHelpButton
 } from '@/components/ui/help-system'
 import { 
   Search, 
@@ -20,7 +19,6 @@ import {
   MessageCircle, 
   Lightbulb, 
   ArrowRight,
-  Play,
   FileText,
   Target,
   Users,

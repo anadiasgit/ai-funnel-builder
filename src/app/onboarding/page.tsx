@@ -52,23 +52,7 @@ export default function OnboardingPage() {
   const [showSkipConfirm, setShowSkipConfirm] = useState(false)
   const [skipStepNumber, setSkipStepNumber] = useState<number | null>(null)
   
-  // Enhanced error handling - simplified for now
-  const [isOnline, setIsOnline] = useState(true)
-  
-  // Network status detection
-  useEffect(() => {
-    const handleOnline = () => setIsOnline(true)
-    const handleOffline = () => setIsOnline(false)
-    
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
-    setIsOnline(navigator.onLine)
-    
-    return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
-    }
-  }, [])
+
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -99,7 +83,7 @@ export default function OnboardingPage() {
       formData,
       currentStep
     }))
-  }, [formData, currentStep])
+  }, [currentStep])
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -148,12 +132,7 @@ export default function OnboardingPage() {
     }
   }
 
-  const canSkipStep = () => {
-    if (currentStep === 1) return formData.full_name.length > 0
-    if (currentStep === 2) return true
-    if (currentStep === 3) return formData.goals.length === 0
-    return false
-  }
+
 
   const completeOnboarding = async () => {
     setLoading(true)
@@ -318,7 +297,7 @@ export default function OnboardingPage() {
                   {/* Example Content */}
                   <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                     <p className="text-sm text-blue-700 mb-2">
-                      <strong>💡 Example:</strong> "John Smith" or "Sarah Johnson"
+                      <strong>💡 Example:</strong> &quot;John Smith&quot; or &quot;Sarah Johnson&quot;
                     </p>
                     <p className="text-xs text-blue-600">
                       Use your real name as it appears on official documents
@@ -344,7 +323,7 @@ export default function OnboardingPage() {
                   {/* Example Content */}
                   <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
                     <p className="text-sm text-green-700 mb-2">
-                      <strong>💡 Examples:</strong> "Acme Corp", "Smith Consulting", "Your Business Name"
+                      <strong>💡 Examples:</strong> &quot;Acme Corp&quot;, &quot;Smith Consulting&quot;, &quot;Your Business Name&quot;
                     </p>
                     <p className="text-xs text-green-600">
                       If you don't have a company yet, you can leave this blank or use your personal brand name

@@ -4,25 +4,16 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
+import { Card, CardContent } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { 
   Plus, 
   FileText, 
-  TrendingUp, 
   Users, 
   Target, 
   MoreVertical,
-  Edit,
-  Trash2,
-  Copy,
-  Calendar,
-  BarChart3,
   DollarSign,
-  Settings,
   Sparkles
 } from 'lucide-react'
 import {
@@ -205,50 +196,7 @@ export default function DashboardPage() {
     }
   }
 
-  const deleteProject = async (projectId: string) => {
-    if (confirm('Are you sure you want to delete this project?')) {
-      try {
-        await supabase
-          .from('projects')
-          .delete()
-          .eq('id', projectId)
-
-        fetchDashboardData() // Refresh data
-      } catch (error) {
-        console.error('Error deleting project:', error)
-      }
-    }
-  }
-
-  const duplicateProject = async (project: Project) => {
-    try {
-      const { data, error } = await supabase
-        .from('projects')
-        .insert({
-          user_id: user?.id,
-          name: `${project.name} (Copy)`,
-          description: project.description,
-          status: 'draft'
-        })
-        .select()
-        .single()
-
-      if (error) throw error
-
-      fetchDashboardData()
-    } catch (error) {
-      console.error('Error duplicating project:', error)
-    }
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'draft': return 'bg-gray-100 text-gray-700'
-      case 'active': return 'bg-green-100 text-green-700'
-      case 'completed': return 'bg-blue-100 text-blue-700'
-      default: return 'bg-gray-100 text-gray-700'
-    }
-  }
+  
 
   if (loading) {
     return (

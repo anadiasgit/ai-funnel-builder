@@ -93,7 +93,7 @@ export default function HomePage() {
                 <HelpCircle className="w-8 h-8 text-blue-600" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Need Help Getting Started?</h2>
-              <p className="text-gray-600">We've got you covered with comprehensive help resources</p>
+              <p className="text-gray-600">We&apos;ve got you covered with comprehensive help resources</p>
             </div>
             
             <div className="grid md:grid-cols-3 gap-4 mb-6">

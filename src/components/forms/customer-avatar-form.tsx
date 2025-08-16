@@ -15,7 +15,7 @@ import {
   Download,
   HelpCircle
 } from 'lucide-react'
-import { Tooltip, ExampleContent } from '@/components/ui/help-system'
+import { Tooltip } from '@/components/ui/help-system'
 
 interface CustomerAvatarFormProps {
   existingAvatar?: CustomerAvatar | null
@@ -329,7 +329,7 @@ export function CustomerAvatarForm({
             
             {/* Example Content */}
             <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-700">
-              <strong>💡 Examples:</strong> "Acme Corp", "Smith Consulting", "TechFlow Solutions"
+              <strong>💡 Examples:</strong> &quot;Acme Corp&quot;, &quot;Smith Consulting&quot;, &quot;TechFlow Solutions&quot;
             </div>
           </div>
 
@@ -352,7 +352,7 @@ export function CustomerAvatarForm({
             
             {/* Example Content */}
             <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-xs text-green-700">
-              <strong>💡 Examples:</strong> "E-commerce", "SaaS", "Consulting", "Real Estate", "Health & Wellness"
+              <strong>💡 Examples:</strong> &quot;E-commerce&quot;, &quot;SaaS&quot;, &quot;Consulting&quot;, &quot;Real Estate&quot;, &quot;Health &amp; Wellness&quot;
             </div>
           </div>
 
@@ -375,7 +375,7 @@ export function CustomerAvatarForm({
             
             {/* Example Content */}
             <div className="mt-2 p-2 bg-purple-50 border border-purple-200 rounded text-xs text-purple-700">
-              <strong>💡 Examples:</strong> "Small business owners, 30-50 years old", "Marketing managers at companies with 10-100 employees", "Entrepreneurs in the tech industry"
+              <strong>💡 Examples:</strong> &quot;Small business owners, 30-50 years old&quot;, &quot;Marketing managers at companies with 10-100 employees&quot;, &quot;Entrepreneurs in the tech industry&quot;
             </div>
           </div>
 
