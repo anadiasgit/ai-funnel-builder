@@ -31,40 +31,7 @@ interface OfferGenerationFormProps {
   onOfferGenerated: (offer: MainOffer) => void
 }
 
-interface CustomerAvatar {
-  id: string
-  businessName: string
-  industry: string
-  targetAudience: string
-  painPoints: string
-  goals: string
-  budget: string
-  location: string
-}
-
-interface MainOffer {
-  id: string
-  productName: string
-  productDescription: string
-  price: string
-  valueProposition: string
-  features: string
-  guarantee: string
-  aiOptimizations?: {
-    headline: string
-    subheadline: string
-    urgency: string
-    socialProof: string[]
-    objections: string[]
-    responses: string[]
-  }
-  pricing?: {
-    originalPrice: number
-    currentPrice: number
-    savings: number
-    paymentOptions: string[]
-  }
-}
+import { CustomerAvatar, MainOffer } from '@/lib/types'
 
 interface OfferFormData {
   productName: string
@@ -174,9 +141,9 @@ export function OfferGenerationForm({
       defaults.features = industryFeatures
     }
 
-    // Budget-aware pricing suggestions
-    if (avatar.budget) {
-      defaults.price = getBudgetBasedPricing(avatar.budget)
+    // Price point-aware pricing suggestions
+    if (avatar.pricePoint) {
+      defaults.price = getPricePointBasedPricing(avatar.pricePoint)
     }
 
     return defaults
@@ -243,16 +210,14 @@ export function OfferGenerationForm({
     return featureMap[industry] || 'Core business strategies, growth tactics, operational efficiency, customer success'
   }
 
-  const getBudgetBasedPricing = (budget: string) => {
-    const budgetMap: Record<string, string> = {
-      'Under $1,000': '97',
-      '$1,000 - $5,000': '297',
-      '$5,000 - $10,000': '497',
-      '$10,000 - $25,000': '997',
-      '$25,000+': '1,997'
+  const getPricePointBasedPricing = (pricePoint: 'low' | 'mid' | 'high') => {
+    const priceMap: Record<string, string> = {
+      'low': '47',
+      'mid': '197',
+      'high': '997'
     }
     
-    return budgetMap[budget] || '197'
+    return priceMap[pricePoint] || '197'
   }
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
@@ -262,12 +227,12 @@ export function OfferGenerationForm({
   const generateAIField = async (field: keyof typeof formData) => {
     setActiveField(field)
     
-    const context = `Industry: ${customerAvatar.industry}, Target Audience: ${customerAvatar.targetAudience}, Budget: ${customerAvatar.budget}, Pain Points: ${customerAvatar.painPoints}, Goals: ${customerAvatar.goals}`
+            const context = `Industry: ${customerAvatar.industry}, Business Description: ${customerAvatar.businessDescription}, Price Point: ${customerAvatar.pricePoint === 'low' ? 'Low Ticket ($7-$97)' : customerAvatar.pricePoint === 'mid' ? 'Mid Ticket ($97-$997)' : 'High Ticket ($997+)'}, Known Pain Points: ${customerAvatar.knownPainPoints}, Audience Description: ${customerAvatar.audienceDescription}`
     
     const fieldPrompts: Record<keyof typeof formData, string> = {
       productName: `Create a compelling product name for a ${customerAvatar.industry} business solution. Make it memorable, benefit-focused, and industry-specific.`,
       productDescription: `Write a compelling product description for a ${customerAvatar.industry} business solution. Focus on benefits, outcomes, and how it solves customer problems.`,
-      price: `Suggest an appropriate price for a ${customerAvatar.industry} business solution. Consider the target audience's budget and the value provided.`,
+      price: `Suggest an appropriate price for a ${customerAvatar.industry} business solution. Consider the price point (${customerAvatar.pricePoint === 'low' ? 'Low Ticket ($7-$97)' : customerAvatar.pricePoint === 'mid' ? 'Mid Ticket ($97-$997)' : 'High Ticket ($997+)'}) and the value provided.`,
       valueProposition: `Create a powerful value proposition for a ${customerAvatar.industry} business solution. Emphasize the main benefit and why customers should choose this over alternatives.`,
       features: `List the key features and benefits of a ${customerAvatar.industry} business solution. Focus on what makes it unique and valuable to customers.`,
       guarantee: `Write a compelling guarantee for a ${customerAvatar.industry} business solution. Make it risk-free and confidence-building for potential customers.`
@@ -283,7 +248,7 @@ export function OfferGenerationForm({
   const generateAIHeadlines = async () => {
     setActiveField('headlines')
     
-    const context = `Industry: ${customerAvatar.industry}, Target Audience: ${customerAvatar.targetAudience}, Product: ${formData.productName || 'Business Solution'}, Price: $${formData.price || '197'}`
+    const context = `Industry: ${customerAvatar.industry}, Business Description: ${customerAvatar.businessDescription}, Product: ${formData.productName || 'Business Solution'}, Price: $${formData.price || '197'}`
     
     await startStream(
       `Generate a compelling headline and subheadline for a ${customerAvatar.industry} business offer. The headline should be attention-grabbing and benefit-focused. The subheadline should provide social proof and urgency.\n\nContext: ${context}`,
@@ -295,7 +260,7 @@ export function OfferGenerationForm({
   const generateAIUrgency = async () => {
     setActiveField('urgency')
     
-    const context = `Industry: ${customerAvatar.industry}, Target Audience: ${customerAvatar.targetAudience}, Product: ${formData.productName || 'Business Solution'}, Price: $${formData.price || '197'}`
+    const context = `Industry: ${customerAvatar.industry}, Business Description: ${customerAvatar.businessDescription}, Product: ${formData.productName || 'Business Solution'}, Price: $${formData.price || '197'}`
     
     await startStream(
       `Create an urgency message for a ${customerAvatar.industry} business offer. Include scarcity, time limits, or special bonuses to encourage immediate action.\n\nContext: ${context}`,
@@ -307,7 +272,7 @@ export function OfferGenerationForm({
   const generateAISocialProof = async () => {
     setActiveField('socialProof')
     
-    const context = `Industry: ${customerAvatar.industry}, Target Audience: ${customerAvatar.targetAudience}, Product: ${formData.productName || 'Business Solution'}`
+    const context = `Industry: ${customerAvatar.industry}, Business Description: ${customerAvatar.businessDescription}, Product: ${formData.productName || 'Business Solution'}`
     
     await startStream(
       `Generate 5-7 compelling social proof elements for a ${customerAvatar.industry} business offer. Include testimonials, case studies, statistics, and credibility markers.\n\nContext: ${context}`,
@@ -319,7 +284,7 @@ export function OfferGenerationForm({
   const generateAIObjections = async () => {
     setActiveField('objections')
     
-    const context = `Industry: ${customerAvatar.industry}, Target Audience: ${customerAvatar.targetAudience}, Product: ${formData.productName || 'Business Solution'}, Price: $${formData.price || '197'}`
+    const context = `Industry: ${customerAvatar.industry}, Business Description: ${customerAvatar.businessDescription}, Product: ${formData.productName || 'Business Solution'}, Price: $${formData.price || '197'}`
     
     await startStream(
       `Generate 5-7 common objections that customers might have about a ${customerAvatar.industry} business offer. Focus on price, time, skepticism, and implementation concerns.\n\nContext: ${context}`,
@@ -331,7 +296,7 @@ export function OfferGenerationForm({
   const generateAIResponses = async () => {
     setActiveField('responses')
     
-    const context = `Industry: ${customerAvatar.industry}, Target Audience: ${customerAvatar.targetAudience}, Product: ${formData.productName || 'Business Solution'}, Guarantee: ${formData.guarantee || '30-day guarantee'}`
+    const context = `Industry: ${customerAvatar.industry}, Business Description: ${customerAvatar.businessDescription}, Product: ${formData.productName || 'Business Solution'}, Guarantee: ${formData.guarantee || '30-day guarantee'}`
     
     await startStream(
       `Generate 5-7 compelling responses to common objections about a ${customerAvatar.industry} business offer. Address concerns about price, time, skepticism, and implementation. Use the guarantee and value proposition to overcome objections.\n\nContext: ${context}`,
@@ -401,7 +366,7 @@ export function OfferGenerationForm({
     setIsGenerating(true)
     
     try {
-      const context = `Industry: ${customerAvatar.industry}, Target Audience: ${customerAvatar.targetAudience}, Budget: ${customerAvatar.budget}, Pain Points: ${customerAvatar.painPoints}, Goals: ${customerAvatar.goals}`
+      const context = `Industry: ${customerAvatar.industry}, Business Description: ${customerAvatar.businessDescription}, Price Point: ${customerAvatar.pricePoint === 'low' ? 'Low Ticket ($7-$97)' : customerAvatar.pricePoint === 'mid' ? 'Mid Ticket ($97-$997)' : 'High Ticket ($997+)'}, Known Pain Points: ${customerAvatar.knownPainPoints}, Audience Description: ${customerAvatar.audienceDescription}`
       
       // Generate all AI optimizations
       await generateAIHeadlines()
@@ -831,12 +796,16 @@ export function OfferGenerationForm({
               <span className="text-blue-900 font-medium">{customerAvatar.industry}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-blue-700">Target Audience:</span>
-              <span className="text-blue-900 font-medium">{customerAvatar.targetAudience}</span>
+              <span className="text-blue-700">Audience Description:</span>
+              <span className="text-blue-900 font-medium">{customerAvatar.audienceDescription || 'Not specified'}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-blue-700">Budget Range:</span>
-              <span className="text-blue-900 font-medium">{customerAvatar.budget}</span>
+              <span className="text-blue-700">Price Point:</span>
+              <span className="text-blue-900 font-medium">
+                {customerAvatar.pricePoint === 'low' ? 'Low Ticket ($7-$97)' : 
+                 customerAvatar.pricePoint === 'mid' ? 'Mid Ticket ($97-$997)' : 
+                 'High Ticket ($997+)'}
+              </span>
             </div>
           </div>
         </CardContent>
