@@ -488,138 +488,6 @@ export default function ProjectWorkspace() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Export Panel */}
-        <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h4 className="text-lg font-semibold text-blue-900">Export Your Funnel</h4>
-              <p className="text-sm text-blue-700">
-                Download your funnel content in professional formats for easy sharing and editing
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-              <span className="text-xs text-blue-600 font-medium">Export Ready</span>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Individual Content Exports */}
-            <div className="space-y-3">
-              <h5 className="text-sm font-medium text-blue-800">Individual Content</h5>
-              <div className="flex flex-wrap gap-2">
-                {project?.customer_avatar && (
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="text-xs"
-                    onClick={() => handleIndividualExport('avatar', 'pdf')}
-                  >
-                    <FileText className="w-3 h-3 mr-1" />
-                    Avatar PDF
-                  </Button>
-                )}
-                {project?.main_offer && (
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="text-xs"
-                    onClick={() => handleIndividualExport('offer', 'pdf')}
-                  >
-                    <FileText className="w-3 h-3 mr-1" />
-                    Offer PDF
-                  </Button>
-                )}
-                {project?.generated_content?.order_bump && (
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="text-xs"
-                    onClick={() => handleIndividualExport('order-bump', 'pdf')}
-                  >
-                    <FileText className="w-3 h-3 mr-1" />
-                    Order Bump PDF
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {/* Complete Package Export */}
-            <div className="space-y-3">
-              <h5 className="text-sm font-medium text-blue-800">Complete Package</h5>
-              <div className="flex flex-wrap gap-2">
-                <Button 
-                  size="sm" 
-                  variant="default" 
-                  className="text-xs bg-blue-600 hover:bg-blue-700"
-                  onClick={() => handleCompleteExport('pdf')}
-                >
-                  <FileText className="w-3 h-3 mr-1" />
-                  Complete PDF
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="text-xs"
-                  onClick={() => handleCompleteExport('docx')}
-                >
-                  <FileText className="w-3 h-3 mr-1" />
-                  Complete Word
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="text-xs"
-                  onClick={() => handleCompleteExport('txt')}
-                >
-                  <FileText className="w-3 h-3 mr-1" />
-                  Complete Text
-                </Button>
-              </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="space-y-3">
-              <h5 className="text-sm font-medium text-blue-800">Quick Actions</h5>
-              <div className="flex flex-wrap gap-2">
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="text-xs"
-                  onClick={() => handleCopyToClipboard()}
-                >
-                  <CopyIcon className="w-3 h-3 mr-1" />
-                  Copy All
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  className="text-xs"
-                  onClick={() => handleShareFunnel()}
-                >
-                  <Share className="w-3 h-3 mr-1" />
-                  Share
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Smart Defaults Indicator */}
-        {project?.customer_avatar && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-              <div className="flex-1">
-                <h4 className="text-sm font-medium text-blue-900">Smart Defaults Active</h4>
-                <p className="text-xs text-blue-700">
-                  Forms are automatically pre-filled with intelligent suggestions based on your customer avatar and business context.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Content based on selected step */}
         <div className="space-y-6">
           
@@ -708,36 +576,46 @@ export default function ProjectWorkspace() {
                     Order Bump Generation
                   </CardTitle>
                   <CardDescription>
-                    Generate a compelling order bump offer to increase average order value.
+                    Create an irresistible order bump to increase your average order value.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <OrderBumpForm 
-                    customerAvatar={project.customer_avatar || {
-                      id: 'demo',
-                      businessName: 'Your Business',
-                      industry: 'Your Industry',
-                      targetAudience: 'Your Target Audience'
-                    }}
-                    mainOffer={project.main_offer || {
-                      id: 'demo',
-                      productName: 'Your Product',
-                      price: '0'
-                    }}
-                    existingOrderBump={project.generated_content?.order_bump}
-                    onOrderBumpGenerated={(orderBump) => {
-                      setProject(prev => prev ? { 
-                        ...prev, 
-                        generated_content: { 
-                          ...prev.generated_content, 
-                          id: prev.generated_content?.id || Date.now().toString(),
-                          generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
-                          order_bump: orderBump
-                        }
-                      } : null)
-                      setGenerationStatus(prev => ({ ...prev, order_bump: 'completed' }))
-                    }}
-                  />
+                  {generationStatus.offer !== 'completed' ? (
+                    <div className="text-center py-8">
+                      <Target className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        Main Offer Required
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        Please complete your main offer first to generate targeted order bumps.
+                      </p>
+                      <Button 
+                        onClick={() => setActiveTab('offer')}
+                        className="flex items-center gap-2"
+                      >
+                        Create Offer First
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <OrderBumpForm 
+                      customerAvatar={project.customer_avatar!}
+                      mainOffer={project.main_offer!}
+                      existingOrderBump={project.generated_content?.order_bump}
+                      onOrderBumpGenerated={(orderBump) => {
+                        setProject(prev => prev ? { 
+                          ...prev, 
+                          generated_content: { 
+                            ...prev.generated_content, 
+                            id: prev.generated_content?.id || Date.now().toString(),
+                            generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                            order_bump: orderBump
+                          }
+                        } : null)
+                        setGenerationStatus(prev => ({ ...prev, order_bump: 'completed' }))
+                      }}
+                    />
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -753,36 +631,46 @@ export default function ProjectWorkspace() {
                     Upsell Offers Generation
                   </CardTitle>
                   <CardDescription>
-                    Generate two strategic upsell offers for post-purchase optimization.
+                    Generate compelling upsell offers to maximize customer lifetime value.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <UpsellsForm 
-                    customerAvatar={project.customer_avatar || {
-                      id: 'demo',
-                      businessName: 'Your Business',
-                      industry: 'Your Industry',
-                      targetAudience: 'Your Target Audience'
-                    }}
-                    mainOffer={project.main_offer || {
-                      id: 'demo',
-                      productName: 'Your Product',
-                      price: '0'
-                    }}
-                    existingUpsells={project.generated_content?.upsells}
-                    onUpsellsGenerated={(upsells) => {
-                      setProject(prev => prev ? { 
-                        ...prev, 
-                        generated_content: { 
-                          ...prev.generated_content, 
-                          id: prev.generated_content?.id || Date.now().toString(),
-                          generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
-                          upsells: upsells
-                        }
-                      } : null)
-                      setGenerationStatus(prev => ({ ...prev, upsells: 'completed' }))
-                    }}
-                  />
+                  {generationStatus.offer !== 'completed' ? (
+                    <div className="text-center py-8">
+                      <Target className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        Main Offer Required
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        Please complete your main offer first to generate targeted upsells.
+                      </p>
+                      <Button 
+                        onClick={() => setActiveTab('offer')}
+                        className="flex items-center gap-2"
+                      >
+                        Create Offer First
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <UpsellsForm 
+                      customerAvatar={project.customer_avatar!}
+                      mainOffer={project.main_offer!}
+                      existingUpsells={project.generated_content?.upsells}
+                      onUpsellsGenerated={(upsells) => {
+                        setProject(prev => prev ? { 
+                          ...prev, 
+                          generated_content: { 
+                            ...prev.generated_content, 
+                            id: prev.generated_content?.id || Date.now().toString(),
+                            generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                            upsells: upsells
+                          }
+                        } : null)
+                        setGenerationStatus(prev => ({ ...prev, upsells: 'completed' }))
+                      }}
+                    />
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -798,36 +686,46 @@ export default function ProjectWorkspace() {
                     Order Page Copy Generation
                   </CardTitle>
                   <CardDescription>
-                    Generate high-converting copy for your order/checkout page.
+                    Generate compelling order page copy to maximize conversions.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <OrderPageForm 
-                    customerAvatar={project.customer_avatar || {
-                      id: 'demo',
-                      businessName: 'Your Business',
-                      industry: 'Your Industry',
-                      targetAudience: 'Your Target Audience'
-                    }}
-                    mainOffer={project.main_offer || {
-                      id: 'demo',
-                      productName: 'Your Product',
-                      price: '0'
-                    }}
-                    existingOrderPage={project.generated_content?.order_page}
-                    onOrderPageGenerated={(orderPage) => {
-                      setProject(prev => prev ? { 
-                        ...prev, 
-                        generated_content: { 
-                          ...prev.generated_content, 
-                          id: prev.generated_content?.id || Date.now().toString(),
-                          generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
-                          order_page: orderPage
-                        }
-                      } : null)
-                      setGenerationStatus(prev => ({ ...prev, order_page: 'completed' }))
-                    }}
-                  />
+                  {generationStatus.offer !== 'completed' ? (
+                    <div className="text-center py-8">
+                      <Target className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        Main Offer Required
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        Please complete your main offer first to generate targeted order page copy.
+                      </p>
+                      <Button 
+                        onClick={() => setActiveTab('offer')}
+                        className="flex items-center gap-2"
+                      >
+                        Create Offer First
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <OrderPageForm 
+                      customerAvatar={project.customer_avatar!}
+                      mainOffer={project.main_offer!}
+                      existingOrderPage={project.generated_content?.order_page}
+                      onOrderPageGenerated={(orderPage) => {
+                        setProject(prev => prev ? { 
+                          ...prev, 
+                          generated_content: { 
+                            ...prev.generated_content, 
+                            id: prev.generated_content?.id || Date.now().toString(),
+                            generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                            order_page: orderPage
+                          }
+                        } : null)
+                        setGenerationStatus(prev => ({ ...prev, order_page: 'completed' }))
+                      }}
+                    />
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -843,36 +741,46 @@ export default function ProjectWorkspace() {
                     Thank You Page Generation
                   </CardTitle>
                   <CardDescription>
-                    Generate engaging thank you page content with next steps and bonuses.
+                    Generate a compelling thank you page to maintain customer engagement.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ThankYouPageForm 
-                    customerAvatar={project.customer_avatar || {
-                      id: 'demo',
-                      businessName: 'Your Business',
-                      industry: 'Your Industry',
-                      targetAudience: 'Your Target Audience'
-                    }}
-                    mainOffer={project.main_offer || {
-                      id: 'demo',
-                      productName: 'Your Product',
-                      price: '0'
-                    }}
-                    existingThankYou={project.generated_content?.thank_you}
-                    onThankYouGenerated={(thankYou) => {
-                      setProject(prev => prev ? { 
-                        ...prev, 
-                        generated_content: { 
-                          ...prev.generated_content, 
-                          id: prev.generated_content?.id || Date.now().toString(),
-                          generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
-                          thank_you: thankYou
-                        }
-                      } : null)
-                      setGenerationStatus(prev => ({ ...prev, thank_you: 'completed' }))
-                    }}
-                  />
+                  {generationStatus.offer !== 'completed' ? (
+                    <div className="text-center py-8">
+                      <Target className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        Main Offer Required
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        Please complete your main offer first to generate targeted thank you page copy.
+                      </p>
+                      <Button 
+                        onClick={() => setActiveTab('offer')}
+                        className="flex items-center gap-2"
+                      >
+                        Create Offer First
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <ThankYouPageForm 
+                      customerAvatar={project.customer_avatar!}
+                      mainOffer={project.main_offer!}
+                      existingThankYou={project.generated_content?.thank_you}
+                      onThankYouGenerated={(thankYou) => {
+                        setProject(prev => prev ? { 
+                          ...prev, 
+                          generated_content: { 
+                            ...prev.generated_content, 
+                            id: prev.generated_content?.id || Date.now().toString(),
+                            generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                            thank_you: thankYou
+                          }
+                        } : null)
+                        setGenerationStatus(prev => ({ ...prev, thank_you: 'completed' }))
+                      }}
+                    />
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -892,32 +800,42 @@ export default function ProjectWorkspace() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <MainVSLForm 
-                    customerAvatar={project.customer_avatar || {
-                      id: 'demo',
-                      businessName: 'Your Business',
-                      industry: 'Your Industry',
-                      targetAudience: 'Your Target Audience'
-                    }}
-                    mainOffer={project.main_offer || {
-                      id: 'demo',
-                      productName: 'Your Product',
-                      price: '0'
-                    }}
-                    existingVSL={project.generated_content?.main_vsl}
-                    onVSLGenerated={(vsl) => {
-                      setProject(prev => prev ? { 
-                        ...prev, 
-                        generated_content: { 
-                          ...prev.generated_content, 
-                          id: prev.generated_content?.id || Date.now().toString(),
-                          generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
-                          main_vsl: vsl
-                        }
-                      } : null)
-                      setGenerationStatus(prev => ({ ...prev, main_vsl: 'completed' }))
-                    }}
-                  />
+                  {generationStatus.offer !== 'completed' ? (
+                    <div className="text-center py-8">
+                      <Target className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        Main Offer Required
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        Please complete your main offer first to generate targeted VSL scripts.
+                      </p>
+                      <Button 
+                        onClick={() => setActiveTab('offer')}
+                        className="flex items-center gap-2"
+                      >
+                        Create Offer First
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <MainVSLForm 
+                      customerAvatar={project.customer_avatar!}
+                      mainOffer={project.main_offer!}
+                      existingVSL={project.generated_content?.main_vsl}
+                      onVSLGenerated={(vsl) => {
+                        setProject(prev => prev ? { 
+                          ...prev, 
+                          generated_content: { 
+                            ...prev.generated_content, 
+                            id: prev.generated_content?.id || Date.now().toString(),
+                            generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                            main_vsl: vsl
+                          }
+                        } : null)
+                        setGenerationStatus(prev => ({ ...prev, main_vsl: 'completed' }))
+                      }}
+                    />
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -937,32 +855,42 @@ export default function ProjectWorkspace() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <UpsellVSLForm 
-                    customerAvatar={project.customer_avatar || {
-                      id: 'demo',
-                      businessName: 'Your Business',
-                      industry: 'Your Industry',
-                      targetAudience: 'Your Target Audience'
-                    }}
-                    mainOffer={project.main_offer || {
-                      id: 'demo',
-                      productName: 'Your Product',
-                      price: '0'
-                    }}
-                    existingVSL={project.generated_content?.upsell_vsl}
-                    onVSLGenerated={(vsl) => {
-                      setProject(prev => prev ? { 
-                        ...prev, 
-                        generated_content: { 
-                          ...prev.generated_content, 
-                          id: prev.generated_content?.id || Date.now().toString(),
-                          generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
-                          upsell_vsl: vsl
-                        }
-                      } : null)
-                      setGenerationStatus(prev => ({ ...prev, upsell_vsl: 'completed' }))
-                    }}
-                  />
+                  {generationStatus.offer !== 'completed' ? (
+                    <div className="text-center py-8">
+                      <Target className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        Main Offer Required
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        Please complete your main offer first to generate targeted VSL scripts.
+                      </p>
+                      <Button 
+                        onClick={() => setActiveTab('offer')}
+                        className="flex items-center gap-2"
+                      >
+                        Create Offer First
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <UpsellVSLForm 
+                      customerAvatar={project.customer_avatar!}
+                      mainOffer={project.main_offer!}
+                      existingVSL={project.generated_content?.upsell_vsl}
+                      onVSLGenerated={(vsl) => {
+                        setProject(prev => prev ? { 
+                          ...prev, 
+                          generated_content: { 
+                            ...prev.generated_content, 
+                            id: prev.generated_content?.id || Date.now().toString(),
+                            generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                            upsell_vsl: vsl
+                          }
+                        } : null)
+                        setGenerationStatus(prev => ({ ...prev, upsell_vsl: 'completed' }))
+                      }}
+                    />
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -982,38 +910,253 @@ export default function ProjectWorkspace() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <EmailStrategyForm 
-                    customerAvatar={project.customer_avatar || {
-                      id: 'demo',
-                      businessName: 'Your Business',
-                      industry: 'Your Industry',
-                      targetAudience: 'Your Target Audience'
-                    }}
-                    mainOffer={project.main_offer || {
-                      id: 'demo',
-                      productName: 'Your Product',
-                      price: '0'
-                    }}
-                    existingStrategy={project.generated_content?.email_strategy}
-                    onStrategyGenerated={(strategy) => {
-                      setProject(prev => prev ? { 
-                        ...prev, 
-                        generated_content: { 
-                          ...prev.generated_content, 
-                          id: prev.generated_content?.id || Date.now().toString(),
-                          generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
-                          email_strategy: strategy
-                        }
-                      } : null)
-                      setGenerationStatus(prev => ({ ...prev, email_strategy: 'completed' }))
-                    }}
-                  />
+                  {generationStatus.offer !== 'completed' ? (
+                    <div className="text-center py-8">
+                      <Target className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        Main Offer Required
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        Please complete your main offer first to generate targeted email strategies.
+                      </p>
+                      <Button 
+                        onClick={() => setActiveTab('offer')}
+                        className="flex items-center gap-2"
+                      >
+                        Create Offer First
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <EmailStrategyForm 
+                      customerAvatar={project.customer_avatar!}
+                      mainOffer={project.main_offer!}
+                      existingStrategy={project.generated_content?.email_strategy}
+                      onStrategyGenerated={(strategy) => {
+                        setProject(prev => prev ? { 
+                          ...prev, 
+                          generated_content: { 
+                            ...prev.generated_content, 
+                            id: prev.generated_content?.id || Date.now().toString(),
+                            generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                            email_strategy: strategy
+                          }
+                        } : null)
+                        setGenerationStatus(prev => ({ ...prev, email_strategy: 'completed' }))
+                      }}
+                    />
+                  )}
                 </CardContent>
               </Card>
             </div>
           )}
 
         </div>
+
+        {/* Export Panel - Only show when there's content to export */}
+        {(() => {
+          const hasAnyContent = project?.customer_avatar || project?.main_offer || project?.generated_content?.order_bump || project?.generated_content?.upsells || project?.generated_content?.order_page || project?.generated_content?.thank_you || project?.generated_content?.main_vsl || project?.generated_content?.upsell_vsl || project?.generated_content?.email_strategy;
+          
+          if (!hasAnyContent) return null;
+
+          const completedSteps = [
+            project?.customer_avatar,
+            project?.main_offer,
+            project?.generated_content?.order_bump,
+            project?.generated_content?.upsells,
+            project?.generated_content?.order_page,
+            project?.generated_content?.thank_you,
+            project?.generated_content?.main_vsl,
+            project?.generated_content?.upsell_vsl,
+            project?.generated_content?.email_strategy
+          ].filter(Boolean).length;
+
+          return (
+            <div className="mt-8 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h4 className="text-lg font-semibold text-blue-900">Export Your Funnel</h4>
+                  <p className="text-sm text-blue-700">
+                    Download your funnel content in professional formats for easy sharing and editing
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                  <span className="text-xs text-blue-600 font-medium">Export Ready</span>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Individual Content Exports */}
+                <div className="space-y-3">
+                  <h5 className="text-sm font-medium text-blue-800">Individual Content</h5>
+                  <div className="flex flex-wrap gap-2">
+                    {project?.customer_avatar && (
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-xs"
+                        onClick={() => handleIndividualExport('avatar', 'pdf')}
+                      >
+                        <FileText className="w-3 h-3 mr-1" />
+                        Avatar PDF
+                      </Button>
+                    )}
+                    {project?.main_offer && (
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-xs"
+                        onClick={() => handleIndividualExport('offer', 'pdf')}
+                      >
+                        <FileText className="w-3 h-3 mr-1" />
+                        Offer PDF
+                      </Button>
+                    )}
+                    {project?.generated_content?.order_bump && (
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-xs"
+                        onClick={() => handleIndividualExport('order-bump', 'pdf')}
+                      >
+                        <FileText className="w-3 h-3 mr-1" />
+                        Order Bump PDF
+                      </Button>
+                    )}
+                    {project?.generated_content?.upsells && (
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-xs"
+                        onClick={() => handleIndividualExport('upsells', 'pdf')}
+                      >
+                        <FileText className="w-3 h-3 mr-1" />
+                        Upsells PDF
+                      </Button>
+                    )}
+                    {project?.generated_content?.order_page && (
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-xs"
+                        onClick={() => handleIndividualExport('order-page', 'pdf')}
+                      >
+                        <FileText className="w-3 h-3 mr-1" />
+                        Order Page PDF
+                      </Button>
+                    )}
+                    {project?.generated_content?.thank_you && (
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-xs"
+                        onClick={() => handleIndividualExport('thank-you', 'pdf')}
+                      >
+                        <FileText className="w-3 h-3 mr-1" />
+                        Thank You PDF
+                      </Button>
+                    )}
+                    {project?.generated_content?.main_vsl && (
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-xs"
+                        onClick={() => handleIndividualExport('main-vsl', 'pdf')}
+                      >
+                        <FileText className="w-3 h-3 mr-1" />
+                        Main VSL PDF
+                      </Button>
+                    )}
+                    {project?.generated_content?.upsell_vsl && (
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-xs"
+                        onClick={() => handleIndividualExport('upsell-vsl', 'pdf')}
+                      >
+                        <FileText className="w-3 h-3 mr-1" />
+                        Upsell VSL PDF
+                      </Button>
+                    )}
+                    {project?.generated_content?.email_strategy && (
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-xs"
+                        onClick={() => handleIndividualExport('email-strategy', 'pdf')}
+                      >
+                        <FileText className="w-3 h-3 mr-1" />
+                        Email Strategy PDF
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Complete Package Export - Only show when multiple steps are completed */}
+                {completedSteps > 1 && (
+                  <div className="space-y-3">
+                    <h5 className="text-sm font-medium text-blue-800">Complete Package</h5>
+                    <div className="flex flex-wrap gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="default" 
+                        className="text-xs bg-blue-600 hover:bg-blue-700"
+                        onClick={() => handleCompleteExport('pdf')}
+                      >
+                        <FileText className="w-3 h-3 mr-1" />
+                        Complete PDF
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-xs"
+                        onClick={() => handleCompleteExport('docx')}
+                      >
+                        <FileText className="w-3 h-3 mr-1" />
+                        Complete Word
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-xs"
+                        onClick={() => handleCompleteExport('txt')}
+                      >
+                        <FileText className="w-3 h-3 mr-1" />
+                        Complete Text
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Quick Actions */}
+                <div className="space-y-3">
+                  <h5 className="text-sm font-medium text-blue-800">Quick Actions</h5>
+                  <div className="flex flex-wrap gap-2">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="text-xs"
+                      onClick={() => handleCopyToClipboard()}
+                    >
+                      <CopyIcon className="w-3 h-3 mr-1" />
+                      Copy All
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="text-xs"
+                      onClick={() => handleShareFunnel()}
+                    >
+                      <Share className="w-3 h-3 mr-1" />
+                      Share
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </div>
   )
