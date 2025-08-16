@@ -115,21 +115,21 @@ export const exportToPDF = async (content: ExportContent, options: ExportOptions
   // Helper function to add section header
   const addSectionHeader = (title: string, y: number) => {
     doc.setFontSize(16)
-    doc.setFont(undefined, 'bold')
+    doc.setFont('helvetica', 'bold')
     doc.text(title, margin, y)
-    doc.setFont(undefined, 'normal')
+    doc.setFont('helvetica', 'normal')
     return y + 10
   }
 
   // Title
   doc.setFontSize(24)
-  doc.setFont(undefined, 'bold')
+  doc.setFont('helvetica', 'bold')
   doc.text(`${options.businessName || 'Business'} - Complete Funnel Package`, pageWidth / 2, yPosition, { align: 'center' })
   yPosition += 20
 
   // Date
   doc.setFontSize(10)
-  doc.setFont(undefined, 'normal')
+  doc.setFont('helvetica', 'normal')
   doc.text(`Generated on: ${new Date().toLocaleString()}`, margin, yPosition)
   yPosition += 15
 
