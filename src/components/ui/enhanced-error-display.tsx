@@ -239,75 +239,76 @@ export function EnhancedErrorDisplay({
             <div className="flex-shrink-0 mt-1">
               {IconComponent && <IconComponent className="w-6 h-6 text-red-600" />}
             </div>
-          
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2">
-              <h4 className="font-semibold text-red-800">{getErrorTitle()}</h4>
-              {errorState.retryCount > 0 && (
-                <Badge variant="outline" className="text-xs border-red-300 text-red-700">
-                  Attempt {errorState.retryCount + 1}
-                </Badge>
-              )}
-            </div>
             
-            <p className="text-red-700 mb-3">{errorState.message}</p>
-            
-            {errorState.type === 'rate-limit' && rateLimitReset && (
-              <div className="mb-3 p-2 bg-yellow-100 border border-yellow-200 rounded-md">
-                <div className="flex items-center gap-2 text-sm text-yellow-800">
-                  <Clock className="w-4 h-4" />
-                  <span>Rate limit will reset in: {getRateLimitCountdown()}</span>
-                </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-2">
+                <h4 className="font-semibold text-red-800">{getErrorTitle()}</h4>
+                {errorState.retryCount > 0 && (
+                  <Badge variant="outline" className="text-xs border-red-300 text-red-700">
+                    Attempt {errorState.retryCount + 1}
+                  </Badge>
+                )}
               </div>
-            )}
-            
-            {errorState.type === 'network' && (
-              <div className="mb-3 p-2 bg-blue-100 border border-blue-200 rounded-md">
-                <div className="flex items-center gap-2 text-sm text-blue-800">
-                  {isOnline ? (
-                    <>
-                      <CheckCircle className="w-4 h-4" />
-                      <span>Connection restored - you can try again</span>
-                    </>
-                  ) : (
-                    <>
-                      <WifiOff className="w-4 h-4" />
-                      <span>You are currently offline</span>
-                    </>
+              
+              <p className="text-red-700 mb-3">{errorState.message}</p>
+              
+              {errorState.type === 'rate-limit' && rateLimitReset && (
+                <div className="mb-3 p-2 bg-yellow-100 border border-yellow-200 rounded-md">
+                  <div className="flex items-center gap-2 text-sm text-yellow-800">
+                    <Clock className="w-4 h-4" />
+                    <span>Rate limit will reset in: {getRateLimitCountdown()}</span>
+                  </div>
+                </div>
+              )}
+              
+              {errorState.type === 'network' && (
+                <div className="mb-3 p-2 bg-blue-100 border border-blue-200 rounded-md">
+                  <div className="flex items-center gap-2 text-sm text-blue-800">
+                    {isOnline ? (
+                      <>
+                        <CheckCircle className="w-4 h-4" />
+                        <span>Connection restored - you can try again</span>
+                      </>
+                    ) : (
+                      <>
+                        <WifiOff className="w-4 h-4" />
+                        <span>You are currently offline</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              {showActions && (
+                <div className="flex items-center gap-2">
+                  {canRetry() && onRetry && (
+                    <Button
+                      variant="outline"
+                      onClick={onRetry}
+                      className="border-red-300 text-red-700 hover:bg-red-100"
+                    >
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Retry ({errorState.retryCount + 1}/{errorState.maxRetries || 3})
+                    </Button>
+                  )}
+                  
+                  {onClear && (
+                    <Button
+                      variant="ghost"
+                      onClick={onClear}
+                      className="text-red-600 hover:bg-red-100"
+                    >
+                      Dismiss
+                    </Button>
                   )}
                 </div>
-              </div>
-            )}
-            
-            {showActions && (
-              <div className="flex items-center gap-2">
-                {canRetry() && onRetry && (
-                  <Button
-                    variant="outline"
-                    onClick={onRetry}
-                    className="border-red-300 text-red-700 hover:bg-red-100"
-                  >
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Retry ({errorState.retryCount + 1}/{errorState.maxRetries || 3})
-                  </Button>
-                )}
-                
-                {onClear && (
-                  <Button
-                    variant="ghost"
-                    onClick={onClear}
-                    className="text-red-600 hover:bg-red-100"
-                  >
-                    Dismiss
-                  </Button>
-                )}
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
+        </CardContent>
+      </Card>
+    )
+  }
 
   switch (variant) {
     case 'inline':
