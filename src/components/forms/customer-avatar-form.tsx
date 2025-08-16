@@ -157,11 +157,14 @@ export function CustomerAvatarForm({
     
     const context = `Business: ${formData.businessName || 'Business'}, Industry: ${formData.industry || 'General'}, Location: ${formData.location || 'Global'}`
     
-    const fieldPrompts = {
+    const fieldPrompts: Record<keyof typeof formData, string> = {
+      businessName: `Create a compelling business name for a company in the ${formData.industry || 'general'} industry. Make it memorable, professional, and industry-appropriate.`,
+      industry: `Suggest the most suitable industry classification for this business. Consider the target market, services offered, and business model.`,
       targetAudience: `Create a detailed description of the ideal target audience for a business in the ${formData.industry || 'general'} industry. Include demographics, job titles, characteristics, and behaviors. Make it specific and actionable.`,
       painPoints: `Identify the most common and compelling pain points that customers in the ${formData.industry || 'general'} industry face. Focus on emotional and practical challenges that drive purchasing decisions.`,
       goals: `Describe the primary goals and aspirations that customers in the ${formData.industry || 'general'} industry are trying to achieve. Include both short-term and long-term objectives.`,
-      budget: `Suggest typical budget ranges and pricing expectations for customers in the ${formData.industry || 'general'} industry. Consider different customer segments and their willingness to pay.`
+      budget: `Suggest typical budget ranges and pricing expectations for customers in the ${formData.industry || 'general'} industry. Consider different customer segments and their willingness to pay.`,
+      location: `Suggest the most suitable location or market for this business. Consider target audience, industry trends, and growth opportunities.`
     }
 
     await startStream(
