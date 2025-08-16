@@ -45,11 +45,12 @@ export function CostMonitor({
     return `$${cost.toFixed(4)}`
   }
 
-  const getBudgetColor = (usage: number) => {
-    if (usage < 50) return 'bg-green-500'
-    if (usage < 80) return 'bg-yellow-500'
-    return 'bg-red-500'
-  }
+  // Budget color utility (unused but kept for future use)
+  // const getBudgetColor = (usage: number) => {
+  //   if (usage < 50) return 'bg-green-500'
+  //   if (usage < 80) return 'bg-yellow-500'
+  //   return 'bg-red-500'
+  // }
 
   return (
     <Card className={className}>
@@ -115,7 +116,7 @@ export function CostMonitor({
 
         <div className="pt-2 border-t">
           <div className="text-xs text-muted-foreground">
-            * Costs are estimates based on OpenAI's pricing for {model}
+            * Costs are estimates based on OpenAI&apos;s pricing for {model}
           </div>
         </div>
       </CardContent>

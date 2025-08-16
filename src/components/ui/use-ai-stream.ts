@@ -111,7 +111,7 @@ export function useAIStream(options: UseAIStreamOptions = {}): UseAIStreamReturn
                   setContent(prev => prev + data.content)
                   onChunk?.(data.content)
                 }
-              } catch (parseError) {
+              } catch {
                 // Skip malformed lines
                 console.warn('Failed to parse SSE data:', line)
               }

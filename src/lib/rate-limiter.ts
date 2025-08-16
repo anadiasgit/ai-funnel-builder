@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server'
+// NextRequest import removed as it's not used
 
 interface RateLimitConfig {
   windowMs: number
