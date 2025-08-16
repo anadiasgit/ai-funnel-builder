@@ -12,10 +12,9 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { 
   ShoppingCart, 
   Sparkles,
-  CheckCircle2,
-  DollarSign,
-  Clock
+  CheckCircle2
 } from 'lucide-react'
+import { CustomerAvatar, MainOffer } from '@/lib/types'
 
 interface OrderBumpFormProps {
   customerAvatar: CustomerAvatar
@@ -24,18 +23,7 @@ interface OrderBumpFormProps {
   onOrderBumpGenerated: (orderBump: OrderBump) => void
 }
 
-interface CustomerAvatar {
-  id: string
-  businessName: string
-  industry: string
-  targetAudience: string
-}
 
-interface MainOffer {
-  id: string
-  productName: string
-  price: string
-}
 
 interface OrderBump {
   title: string
@@ -269,7 +257,7 @@ export function OrderBumpForm({
               </div>
               <div className="flex justify-between">
                 <span className="text-blue-700">Audience:</span>
-                <span className="text-blue-900 font-medium">{customerAvatar.targetAudience}</span>
+                <span className="text-blue-900 font-medium">{customerAvatar.audienceDescription || 'Not specified'}</span>
               </div>
             </div>
           </CardContent>

@@ -10,9 +10,9 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { 
   CheckCircle2, 
   Sparkles,
-  Gift,
-  ArrowRight
+  Gift
 } from 'lucide-react'
+import { CustomerAvatar, MainOffer } from '@/lib/types'
 
 interface ThankYouPageFormProps {
   customerAvatar: CustomerAvatar
@@ -21,18 +21,7 @@ interface ThankYouPageFormProps {
   onThankYouGenerated: (thankYou: ThankYouPage) => void
 }
 
-interface CustomerAvatar {
-  id: string
-  businessName: string
-  industry: string
-  targetAudience: string
-}
 
-interface MainOffer {
-  id: string
-  productName: string
-  price: string
-}
 
 interface ThankYouPage {
   headline: string
@@ -172,7 +161,7 @@ export function ThankYouPageForm({
               </div>
               <div className="flex justify-between">
                 <span className="text-blue-700">Audience:</span>
-                <span className="text-blue-900 font-medium">{customerAvatar.targetAudience}</span>
+                <span className="text-blue-900 font-medium">{customerAvatar.audienceDescription || 'Not specified'}</span>
               </div>
             </div>
           </CardContent>

@@ -14,11 +14,11 @@ import {
   Video, 
   Sparkles,
   CheckCircle2,
-  Clock,
   Wand2,
   Copy,
   RefreshCw
 } from 'lucide-react'
+import { CustomerAvatar, MainOffer } from '@/lib/types'
 
 interface MainVSLFormProps {
   customerAvatar: CustomerAvatar
@@ -27,18 +27,7 @@ interface MainVSLFormProps {
   onVSLGenerated: (vsl: MainVSL) => void
 }
 
-interface CustomerAvatar {
-  id: string
-  businessName: string
-  industry: string
-  targetAudience: string
-}
 
-interface MainOffer {
-  id: string
-  productName: string
-  price: string
-}
 
 interface MainVSL {
   hook: string
@@ -92,12 +81,12 @@ export function MainVSLForm({
   const generateAIField = async (field: keyof typeof formData) => {
     setActiveField(field)
     
-    const context = `Industry: ${customerAvatar.industry}, Target Audience: ${customerAvatar.targetAudience}, Product: ${mainOffer.productName}, Price: $${mainOffer.price}`
+    const context = `Industry: ${customerAvatar.industry}, Business Description: ${customerAvatar.businessDescription}, Product: ${mainOffer.productName}, Price: $${mainOffer.price}`
     
     const fieldPrompts = {
       hook: `Create a compelling 15-second hook for a VSL about ${mainOffer.productName} in the ${customerAvatar.industry} industry. Make it attention-grabbing and emotionally compelling.`,
-      problem: `Describe the pain points and frustrations that ${customerAvatar.targetAudience} in the ${customerAvatar.industry} industry face. Make it relatable and emotionally charged.`,
-      solution: `Introduce ${mainOffer.productName} as the solution to the problems faced by ${customerAvatar.targetAudience} in the ${customerAvatar.industry} industry. Explain how it works and why it's the best solution.`,
+      problem: `Describe the pain points and frustrations that customers in the ${customerAvatar.industry} industry face. Make it relatable and emotionally charged.`,
+      solution: `Introduce ${mainOffer.productName} as the solution to the problems faced by customers in the ${customerAvatar.industry} industry. Explain how it works and why it's the best solution.`,
       proof: `Create compelling proof and social validation for ${mainOffer.productName} in the ${customerAvatar.industry} industry. Include specific results, testimonials, or case studies.`,
       offer: `Present the offer for ${mainOffer.productName} at $${mainOffer.price}. Emphasize the value, benefits, and why this price is a great deal.`,
       close: `Write a strong call-to-action and closing statement for the VSL about ${mainOffer.productName}. Make it urgent and compelling.`,
@@ -122,10 +111,10 @@ export function MainVSLForm({
     setIsGenerating(true)
     
     try {
-      const context = `Industry: ${customerAvatar.industry}, Target Audience: ${customerAvatar.targetAudience}, Product: ${mainOffer.productName}, Price: $${mainOffer.price}`
+      const context = `Industry: ${customerAvatar.industry}, Business Description: ${customerAvatar.businessDescription}, Product: ${mainOffer.productName}, Price: $${mainOffer.price}`
       
       await startStream(
-        `Generate a complete VSL script for ${mainOffer.productName} in the ${customerAvatar.industry} industry. Target audience: ${customerAvatar.targetAudience}. Price: $${mainOffer.price}. Include all sections: hook, problem, solution, proof, offer, close, and urgency. Make it highly converting and emotionally compelling.`,
+        `Generate a complete VSL script for ${mainOffer.productName} in the ${customerAvatar.industry} industry. Business context: ${customerAvatar.businessDescription}. Price: $${mainOffer.price}. Include all sections: hook, problem, solution, proof, offer, close, and urgency. Make it highly converting and emotionally compelling.`,
         'mainVSL',
         { model: 'gpt-4o', maxTokens: 1000, temperature: 0.7 }
       )
@@ -306,7 +295,7 @@ export function MainVSLForm({
               </div>
               <div className="flex justify-between">
                 <span className="text-blue-700">Audience:</span>
-                <span className="text-blue-900 font-medium">{customerAvatar.targetAudience}</span>
+                <span className="text-blue-900 font-medium">{customerAvatar.audienceDescription || 'Not specified'}</span>
               </div>
             </div>
           </CardContent>

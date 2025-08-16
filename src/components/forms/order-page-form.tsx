@@ -13,9 +13,9 @@ import {
   FileText, 
   Sparkles,
   CheckCircle2,
-  Star,
-  Users
+  Star
 } from 'lucide-react'
+import { CustomerAvatar, MainOffer } from '@/lib/types'
 
 interface OrderPageFormProps {
   customerAvatar: CustomerAvatar
@@ -24,18 +24,7 @@ interface OrderPageFormProps {
   onOrderPageGenerated: (orderPage: OrderPage) => void
 }
 
-interface CustomerAvatar {
-  id: string
-  businessName: string
-  industry: string
-  targetAudience: string
-}
 
-interface MainOffer {
-  id: string
-  productName: string
-  price: string
-}
 
 interface OrderPage {
   headline: string
@@ -208,7 +197,7 @@ export function OrderPageForm({
               </div>
               <div className="flex justify-between">
                 <span className="text-blue-700">Audience:</span>
-                <span className="text-blue-900 font-medium">{customerAvatar.targetAudience}</span>
+                <span className="text-blue-900 font-medium">{customerAvatar.audienceDescription || 'Not specified'}</span>
               </div>
             </div>
           </CardContent>

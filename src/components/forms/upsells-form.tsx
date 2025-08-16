@@ -12,10 +12,9 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { 
   TrendingUp, 
   Sparkles,
-  CheckCircle2,
-  DollarSign,
-  ArrowRight
+  CheckCircle2
 } from 'lucide-react'
+import { CustomerAvatar, MainOffer } from '@/lib/types'
 
 interface UpsellsFormProps {
   customerAvatar: CustomerAvatar
@@ -24,18 +23,7 @@ interface UpsellsFormProps {
   onUpsellsGenerated: (upsells: Upsells) => void
 }
 
-interface CustomerAvatar {
-  id: string
-  businessName: string
-  industry: string
-  targetAudience: string
-}
 
-interface MainOffer {
-  id: string
-  productName: string
-  price: string
-}
 
 interface Upsells {
   upsell1: {
@@ -354,7 +342,7 @@ export function UpsellsForm({
               </div>
               <div className="flex justify-between">
                 <span className="text-blue-700">Audience:</span>
-                <span className="text-blue-900 font-medium">{customerAvatar.targetAudience}</span>
+                <span className="text-blue-900 font-medium">{customerAvatar.audienceDescription || 'Not specified'}</span>
               </div>
             </div>
           </CardContent>

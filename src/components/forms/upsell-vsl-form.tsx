@@ -10,9 +10,9 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { 
   Video, 
   Sparkles,
-  CheckCircle2,
-  TrendingUp
+  CheckCircle2
 } from 'lucide-react'
+import { CustomerAvatar, MainOffer } from '@/lib/types'
 
 interface UpsellVSLFormProps {
   customerAvatar: CustomerAvatar
@@ -21,18 +21,7 @@ interface UpsellVSLFormProps {
   onVSLGenerated: (vsl: UpsellVSL) => void
 }
 
-interface CustomerAvatar {
-  id: string
-  businessName: string
-  industry: string
-  targetAudience: string
-}
 
-interface MainOffer {
-  id: string
-  productName: string
-  price: string
-}
 
 interface UpsellVSL {
   hook: string
@@ -184,7 +173,7 @@ export function UpsellVSLForm({
               </div>
               <div className="flex justify-between">
                 <span className="text-blue-700">Audience:</span>
-                <span className="text-blue-900 font-medium">{customerAvatar.targetAudience}</span>
+                <span className="text-blue-900 font-medium">{customerAvatar.audienceDescription || 'Not specified'}</span>
               </div>
             </div>
           </CardContent>
