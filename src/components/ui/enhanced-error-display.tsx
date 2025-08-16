@@ -117,11 +117,13 @@ export function EnhancedErrorDisplay({
     return true
   }
 
-  const renderInline = () => (
-    <div className={cn("flex items-center gap-2 p-2 rounded-md border", getErrorColor(), className)}>
-      {getErrorIcon() && <getErrorIcon() className="w-4 h-4 flex-shrink-0" />}
-      <span className="text-sm font-medium">{getErrorTitle()}</span>
-      <span className="text-sm opacity-80">{errorState.message}</span>
+  const renderInline = () => {
+    const IconComponent = getErrorIcon()
+    return (
+      <div className={cn("flex items-center gap-2 p-2 rounded-md border", getErrorColor(), className)}>
+        {IconComponent && <IconComponent className="w-4 h-4 flex-shrink-0" />}
+        <span className="text-sm font-medium">{getErrorTitle()}</span>
+        <span className="text-sm opacity-80">{errorState.message}</span>
       
       {showActions && (
         <div className="flex items-center gap-1 ml-auto">
@@ -151,12 +153,14 @@ export function EnhancedErrorDisplay({
     </div>
   )
 
-  const renderAlert = () => (
-    <Alert variant="destructive" className={cn("border-2", className)}>
-      <div className="flex items-start gap-3 w-full">
-        <div className="flex-shrink-0 mt-0.5">
-          {getErrorIcon() && <getErrorIcon() className="w-5 h-5" />}
-        </div>
+  const renderAlert = () => {
+    const IconComponent = getErrorIcon()
+    return (
+      <Alert variant="destructive" className={cn("border-2", className)}>
+        <div className="flex items-start gap-3 w-full">
+          <div className="flex-shrink-0 mt-0.5">
+            {IconComponent && <IconComponent className="w-5 h-5" />}
+          </div>
         
         <div className="flex-1 min-w-0">
           <AlertTitle className="flex items-center gap-2">
@@ -226,13 +230,15 @@ export function EnhancedErrorDisplay({
     </Alert>
   )
 
-  const renderCard = () => (
-    <Card className={cn("border-2 border-red-200 bg-red-50", className)}>
-      <CardContent className="p-4">
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 mt-1">
-            {getErrorIcon() && <getErrorIcon() className="w-6 h-6 text-red-600" />}
-          </div>
+  const renderCard = () => {
+    const IconComponent = getErrorIcon()
+    return (
+      <Card className={cn("border-2 border-red-200 bg-red-50", className)}>
+        <CardContent className="p-4">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 mt-1">
+              {IconComponent && <IconComponent className="w-6 h-6 text-red-600" />}
+            </div>
           
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
