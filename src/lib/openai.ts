@@ -161,10 +161,11 @@ export async function createStreamingCompletion(
     return stream
   } catch (error) {
     if (error instanceof OpenAI.OpenAIError) {
+      const status = (error as any).status
       throw new OpenAIError(
         `OpenAI API error: ${error.message}`,
-        error.status,
-        error.status === 429 || error.status >= 500
+        status,
+        status === 429 || status >= 500
       )
     }
     throw new OpenAIError(`Unexpected error: ${error}`, undefined, true)
@@ -193,10 +194,11 @@ export async function createCompletion(
     return completion
   } catch (error) {
     if (error instanceof OpenAI.OpenAIError) {
+      const status = (error as any).status
       throw new OpenAIError(
         `OpenAI API error: ${error.message}`,
-        error.status,
-        error.status === 429 || error.status >= 500
+        status,
+        status === 429 || status >= 500
       )
     }
     throw new OpenAIError(`Unexpected error: ${error}`, undefined, true)
