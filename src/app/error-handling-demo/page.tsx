@@ -9,7 +9,7 @@ import { InputWithValidation } from '@/components/ui/input-with-validation'
 import { EnhancedErrorDisplay } from '@/components/ui/enhanced-error-display'
 import { NetworkStatusIndicator } from '@/components/ui/network-status-indicator'
 import { RetryMechanism } from '@/components/ui/retry-mechanism'
-import { useErrorHandler } from '@/components/ui/use-error-handler'
+import { useErrorHandler, ErrorState } from '@/components/ui/use-error-handler'
 import { 
   AlertCircle, 
   RefreshCw, 
@@ -76,7 +76,6 @@ export default function ErrorHandlingDemoPage() {
   }
 
   const triggerSuccess = async () => {
-    setDemoError(null)
     setDemoSuccess(null)
     
     try {
@@ -84,7 +83,7 @@ export default function ErrorHandlingDemoPage() {
         () => simulateSuccess(),
         5000
       )
-      setDemoSuccess(result)
+      setDemoSuccess(typeof result === 'string' ? result : 'Success!')
       errorHandler.clearError()
     } catch (error) {
       if (error instanceof Error) {
@@ -95,7 +94,7 @@ export default function ErrorHandlingDemoPage() {
 
   const simulateRateLimit = () => {
     const resetTime = new Date(Date.now() + 10000) // 10 seconds from now
-    errorHandler.handleRateLimit(resetTime)
+    errorHandler.handleRateLimit(resetTime.getTime())
   }
 
   // Validation rules for demo

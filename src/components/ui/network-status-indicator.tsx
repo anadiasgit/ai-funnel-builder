@@ -36,7 +36,14 @@ export function NetworkStatusIndicator({
 
     // Try to detect connection type
     if ('connection' in navigator) {
-      const connection = (navigator as Navigator & { connection?: { effectiveType?: string; type?: string } }).connection
+      const connection = (navigator as Navigator & { 
+        connection?: { 
+          effectiveType?: string; 
+          type?: string;
+          addEventListener?: (event: string, listener: () => void) => void;
+          removeEventListener?: (event: string, listener: () => void) => void;
+        } 
+      }).connection
       if (connection) {
         setConnectionType(connection.effectiveType || connection.type || '')
         
@@ -44,8 +51,14 @@ export function NetworkStatusIndicator({
           setConnectionType(connection.effectiveType || connection.type || '')
         }
         
-        connection.addEventListener('change', updateConnectionInfo)
-        return () => connection.removeEventListener('change', updateConnectionInfo)
+        if (connection.addEventListener) {
+          connection.addEventListener('change', updateConnectionInfo)
+          return () => {
+            if (connection.removeEventListener) {
+              connection.removeEventListener('change', updateConnectionInfo)
+            }
+          }
+        }
       }
     }
 
@@ -96,7 +109,6 @@ export function NetworkStatusIndicator({
       <div className={cn("flex items-center justify-center", className)}>
         <IconComponent 
           className={cn("w-4 h-4", config.iconClassName)} 
-          title={config.label}
         />
       </div>
     )

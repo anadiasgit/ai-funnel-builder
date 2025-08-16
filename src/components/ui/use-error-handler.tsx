@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { AlertCircle, Wifi, WifiOff, Clock, RefreshCw } from 'lucide-react'
+import { AlertCircle, Wifi, WifiOff, Clock } from 'lucide-react'
 
 export interface ErrorState {
   hasError: boolean
@@ -139,10 +139,10 @@ export function useErrorHandler(config: Partial<ErrorHandlerConfig> = {}) {
     }
   }, [])
 
-  const retry = useCallback(async <T>(
-    operation: () => Promise<T>,
+  const retry = useCallback(async (
+    operation: () => Promise<unknown>,
     retryConfig?: Partial<RetryConfig>
-  ): Promise<T> => {
+  ): Promise<unknown> => {
     const config = { ...finalConfig.retry, ...retryConfig }
     
     if (errorState.retryCount >= config.maxRetries) {
@@ -169,10 +169,10 @@ export function useErrorHandler(config: Partial<ErrorHandlerConfig> = {}) {
     })
   }, [errorState.retryCount, finalConfig.retry, clearError])
 
-  const executeWithTimeout = useCallback(async <T>(
-    operation: () => Promise<T>,
+  const executeWithTimeout = useCallback(async (
+    operation: () => Promise<unknown>,
     timeoutMs?: number
-  ): Promise<T> => {
+  ): Promise<unknown> => {
     const timeout = timeoutMs || finalConfig.timeout
     
     return Promise.race([
