@@ -15,7 +15,7 @@ interface CostMonitorProps {
 export function CostMonitor({ 
   inputText, 
   outputText, 
-  model = models.GPT4O, 
+  model = 'GPT4O', 
   budget,
   className = '' 
 }: CostMonitorProps) {
