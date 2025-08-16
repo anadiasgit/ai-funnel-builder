@@ -371,15 +371,15 @@ export default function ProjectWorkspace() {
 
     try {
       const content: ExportContent = {
-        customerAvatar: project.customer_avatar,
-        mainOffer: project.main_offer,
-        orderBump: project.generated_content?.order_bump,
-        upsells: project.generated_content?.upsells,
-        orderPage: project.generated_content?.order_page,
-        thankYou: project.generated_content?.thank_you,
-        mainVSL: project.generated_content?.main_vsl,
-        upsellVSL: project.generated_content?.upsell_vsl,
-        emailStrategy: project.generated_content?.email_strategy
+        customerAvatar: project.customer_avatar || undefined,
+        mainOffer: project.main_offer || undefined,
+        orderBump: project.generated_content?.order_bump || undefined,
+        upsells: project.generated_content?.upsells || undefined,
+        orderPage: project.generated_content?.order_page || undefined,
+        thankYou: project.generated_content?.thank_you || undefined,
+        mainVSL: project.generated_content?.main_vsl || undefined,
+        upsellVSL: project.generated_content?.upsell_vsl || undefined,
+        emailStrategy: project.generated_content?.email_strategy || undefined
       }
 
       const exportResult = await exportCompleteFunnel(content, {
