@@ -124,34 +124,35 @@ export function EnhancedErrorDisplay({
         {IconComponent && <IconComponent className="w-4 h-4 flex-shrink-0" />}
         <span className="text-sm font-medium">{getErrorTitle()}</span>
         <span className="text-sm opacity-80">{errorState.message}</span>
-      
-      {showActions && (
-        <div className="flex items-center gap-1 ml-auto">
-          {canRetry() && onRetry && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onRetry}
-              className="h-6 px-2 text-xs hover:bg-orange-100"
-            >
-              <RefreshCw className="w-3 h-3 mr-1" />
-              Retry
-            </Button>
-          )}
-          {onDismiss && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onDismiss}
-              className="h-6 px-2 text-xs hover:bg-orange-100"
-            >
-              <X className="w-3 h-3" />
-            </Button>
-          )}
-        </div>
-      )}
-    </div>
-  )
+        
+        {showActions && (
+          <div className="flex items-center gap-1 ml-auto">
+            {canRetry() && onRetry && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onRetry}
+                className="h-6 px-2 text-xs hover:bg-orange-100"
+              >
+                <RefreshCw className="w-3 h-3 mr-1" />
+                Retry
+              </Button>
+            )}
+            {onDismiss && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onDismiss}
+                className="h-6 px-2 text-xs hover:bg-orange-100"
+              >
+                <X className="w-3 h-3" />
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+    )
+  }
 
   const renderAlert = () => {
     const IconComponent = getErrorIcon()
@@ -161,74 +162,75 @@ export function EnhancedErrorDisplay({
           <div className="flex-shrink-0 mt-0.5">
             {IconComponent && <IconComponent className="w-5 h-5" />}
           </div>
-        
-        <div className="flex-1 min-w-0">
-          <AlertTitle className="flex items-center gap-2">
-            {getErrorTitle()}
-            {errorState.retryCount > 0 && (
-              <Badge variant="outline" className="text-xs">
-                Attempt {errorState.retryCount + 1}
-              </Badge>
-            )}
-          </AlertTitle>
           
-          <AlertDescription className="mt-1">
-            {errorState.message}
+          <div className="flex-1 min-w-0">
+            <AlertTitle className="flex items-center gap-2">
+              {getErrorTitle()}
+              {errorState.retryCount > 0 && (
+                <Badge variant="outline" className="text-xs">
+                  Attempt {errorState.retryCount + 1}
+                </Badge>
+              )}
+            </AlertTitle>
             
-            {errorState.type === 'rate-limit' && rateLimitReset && (
-              <div className="mt-2 flex items-center gap-2 text-sm">
-                <Clock className="w-4 h-4" />
-                <span>Reset in: {getRateLimitCountdown()}</span>
-              </div>
-            )}
+            <AlertDescription className="mt-1">
+              {errorState.message}
+              
+              {errorState.type === 'rate-limit' && rateLimitReset && (
+                <div className="mt-2 flex items-center gap-2 text-sm">
+                  <Clock className="w-4 h-4" />
+                  <span>Reset in: {getRateLimitCountdown()}</span>
+                </div>
+              )}
+              
+              {errorState.type === 'network' && (
+                <div className="mt-2 flex items-center gap-2 text-sm">
+                  {isOnline ? (
+                    <>
+                      <Wifi className="w-4 h-4 text-green-600" />
+                      <span>Connection restored</span>
+                    </>
+                  ) : (
+                    <>
+                      <WifiOff className="w-4 h-4 text-red-600" />
+                      <span>You are currently offline</span>
+                    </>
+                  )}
+                </div>
+              )}
+            </AlertDescription>
             
-            {errorState.type === 'network' && (
-              <div className="mt-2 flex items-center gap-2 text-sm">
-                {isOnline ? (
-                  <>
-                    <Wifi className="w-4 h-4 text-green-600" />
-                    <span>Connection restored</span>
-                  </>
-                ) : (
-                  <>
-                    <WifiOff className="w-4 h-4 text-red-600" />
-                    <span>You are currently offline</span>
-                  </>
+            {showActions && (
+              <div className="flex items-center gap-2 mt-3">
+                {canRetry() && onRetry && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={onRetry}
+                    className="border-red-200 text-red-700 hover:bg-red-100"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Retry ({errorState.retryCount + 1}/3)
+                  </Button>
+                )}
+                
+                {onClear && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={onClear}
+                    className="text-red-600 hover:bg-red-100"
+                  >
+                    Dismiss
+                  </Button>
                 )}
               </div>
             )}
-          </AlertDescription>
-          
-          {showActions && (
-            <div className="flex items-center gap-2 mt-3">
-              {canRetry() && onRetry && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={onRetry}
-                  className="border-red-200 text-red-700 hover:bg-red-100"
-                >
-                  <RefreshCw className="w-4 h-4 mr-1" />
-                  Retry ({errorState.retryCount + 1}/{errorState.maxRetries || 3})
-                </Button>
-              )}
-              
-              {onClear && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onClear}
-                  className="text-red-600 hover:bg-red-100"
-                >
-                  Dismiss
-                </Button>
-              )}
-            </div>
-          )}
+          </div>
         </div>
-      </div>
-    </Alert>
-  )
+      </Alert>
+    )
+  }
 
   const renderCard = () => {
     const IconComponent = getErrorIcon()
@@ -288,7 +290,7 @@ export function EnhancedErrorDisplay({
                       className="border-red-300 text-red-700 hover:bg-red-100"
                     >
                       <RefreshCw className="w-4 h-4 mr-2" />
-                      Retry ({errorState.retryCount + 1}/{errorState.maxRetries || 3})
+                      Retry ({errorState.retryCount + 1}/3)
                     </Button>
                   )}
                   
