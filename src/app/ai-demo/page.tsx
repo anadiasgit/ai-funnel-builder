@@ -8,13 +8,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { useAIStream } from '@/components/ui/use-ai-stream'
-import { CostMonitor } from '@/components/ui/cost-monitor'
-import { funnelPrompts, models } from '@/lib/openai'
+
+// Define these locally instead of importing from lib/openai
+const promptTypes = {
+  mainVSL: 'Main VSL Script',
+  customerAvatar: 'Customer Avatar',
+  salesPage: 'Sales Page Copy',
+  emailSequence: 'Email Sequence',
+  orderBump: 'Order Bump',
+  upsell: 'Upsell Offer'
+}
+
+const models = {
+  'gpt-4o': 'GPT-4o',
+  'gpt-4o-mini': 'GPT-4o Mini'
+}
 
 export default function AIDemoPage() {
   const [prompt, setPrompt] = useState('')
-  const [selectedPromptType, setSelectedPromptType] = useState<keyof typeof funnelPrompts>('mainVSL')
-  const [selectedModel, setSelectedModel] = useState<keyof typeof models>('GPT4O')
+  const [selectedPromptType, setSelectedPromptType] = useState<keyof typeof promptTypes>('mainVSL')
+  const [selectedModel, setSelectedModel] = useState<keyof typeof models>('gpt-4o-mini')
   const [maxTokens, setMaxTokens] = useState(2000)
   const [temperature, setTemperature] = useState(0.7)
 
@@ -42,11 +55,6 @@ export default function AIDemoPage() {
     })
   }
 
-  const getPromptTemplate = () => {
-    const template = funnelPrompts[selectedPromptType]
-    return template ? template.user : 'No template available'
-  }
-
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="text-center space-y-2">
@@ -66,21 +74,18 @@ export default function AIDemoPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Prompt Type</label>
-                <Select value={selectedPromptType} onValueChange={(value) => setSelectedPromptType(value as keyof typeof funnelPrompts)}>
+                <Select value={selectedPromptType} onValueChange={(value) => setSelectedPromptType(value as keyof typeof promptTypes)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                                         {Object.entries(funnelPrompts).map(([key]) => (
-                       <SelectItem key={key} value={key}>
-                         {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                       </SelectItem>
-                     ))}
+                    {Object.entries(promptTypes).map(([key, label]) => (
+                      <SelectItem key={key} value={key}>
+                        {label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-muted-foreground">
-                  Template: {getPromptTemplate()}
-                </p>
               </div>
 
               <div className="space-y-2">
@@ -90,9 +95,9 @@ export default function AIDemoPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(models).map(([key, value]) => (
+                    {Object.entries(models).map(([key, label]) => (
                       <SelectItem key={key} value={key}>
-                        {value}
+                        {label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -154,14 +159,6 @@ export default function AIDemoPage() {
               </div>
             </CardContent>
           </Card>
-
-          {/* Cost Monitor */}
-          <CostMonitor
-            inputText={prompt}
-            outputText={content}
-            model={selectedModel}
-            budget={0.10} // $0.10 budget for demo
-          />
         </div>
 
         {/* Output Section */}
@@ -214,35 +211,6 @@ export default function AIDemoPage() {
           </Card>
         </div>
       </div>
-
-      {/* API Status */}
-      <Card>
-        <CardHeader>
-          <CardTitle>API Status</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <div>
-              <span className="text-muted-foreground">Status: </span>
-              <Badge variant={isStreaming ? "default" : "secondary"}>
-                {isStreaming ? "Active" : "Idle"}
-              </Badge>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Model: </span>
-              <Badge variant="outline">{selectedModel}</Badge>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Max Tokens: </span>
-              <span className="font-mono">{maxTokens}</span>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Temperature: </span>
-              <span className="font-mono">{temperature}</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   )
 }

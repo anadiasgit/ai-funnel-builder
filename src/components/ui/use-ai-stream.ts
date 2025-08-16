@@ -1,5 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
-import { funnelPrompts } from '@/lib/openai'
+import { useState, useCallback } from 'react'
 
 interface UseAIStreamOptions {
   onStart?: () => void
@@ -8,50 +7,29 @@ interface UseAIStreamOptions {
   onError?: (error: string) => void
 }
 
-interface UseAIStreamReturn {
-  isStreaming: boolean
-  content: string
-  error: string | null
-  startStream: (prompt: string, promptType: keyof typeof funnelPrompts, options?: {
-    model?: string
-    maxTokens?: number
-    temperature?: number
-  }) => Promise<void>
-  stopStream: () => void
-  reset: () => void
+interface StreamOptions {
+  model?: string
+  maxTokens?: number
+  temperature?: number
 }
 
-export function useAIStream(options: UseAIStreamOptions = {}): UseAIStreamReturn {
+export function useAIStream(options: UseAIStreamOptions = {}) {
   const [isStreaming, setIsStreaming] = useState(false)
   const [content, setContent] = useState('')
   const [error, setError] = useState<string | null>(null)
-  
-  const abortControllerRef = useRef<AbortController | null>(null)
-  const { onStart, onChunk, onComplete, onError } = options
 
   const startStream = useCallback(async (
-    prompt: string,
-    promptType: keyof typeof funnelPrompts,
-    streamOptions: {
-      model?: string
-      maxTokens?: number
-      temperature?: number
-    } = {}
+    prompt: string, 
+    promptType: string, 
+    streamOptions: StreamOptions = {}
   ) => {
+    setIsStreaming(true)
+    setError(null)
+    setContent('')
+    options.onStart?.()
+
     try {
-      // Reset state
-      setError(null)
-      setContent('')
-      setIsStreaming(true)
-      
-      // Call onStart callback
-      onStart?.()
-      
-      // Create abort controller for this request
-      abortControllerRef.current = new AbortController()
-      
-      // Make API request
-      const response = await fetch('/api/ai/stream', {
+      const response = await fetch('/api/ai-stream', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -59,88 +37,60 @@ export function useAIStream(options: UseAIStreamOptions = {}): UseAIStreamReturn
         body: JSON.stringify({
           prompt,
           promptType,
-          model: streamOptions.model || 'gpt-4o',
-          maxTokens: streamOptions.maxTokens || 2000,
-          temperature: streamOptions.temperature || 0.7,
+          ...streamOptions,
         }),
-        signal: abortControllerRef.current.signal,
       })
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      // Set up SSE reader
       const reader = response.body?.getReader()
+      const decoder = new TextDecoder()
+
       if (!reader) {
         throw new Error('No response body')
       }
 
-      const decoder = new TextDecoder()
-      let buffer = ''
+      let fullContent = ''
 
-      try {
-        while (true) {
-          const { done, value } = await reader.read()
-          
-          if (done) break
-          
-          buffer += decoder.decode(value, { stream: true })
-          
-          // Process complete lines
-          const lines = buffer.split('\n')
-          buffer = lines.pop() || '' // Keep incomplete line in buffer
-          
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              try {
-                const data = JSON.parse(line.slice(6))
-                
-                if (data.error) {
-                  throw new Error(data.error)
-                }
-                
-                if (data.done) {
-                  // Stream completed
-                  onComplete?.(content)
-                  return
-                }
-                
-                if (data.content) {
-                  // Update content
-                  setContent(prev => prev + data.content)
-                  onChunk?.(data.content)
-                }
-              } catch {
-                // Skip malformed lines
-                console.warn('Failed to parse SSE data:', line)
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value)
+        const lines = chunk.split('\n')
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6))
+              if (data.done) {
+                setIsStreaming(false)
+                options.onComplete?.(fullContent)
+                return fullContent
               }
+              if (data.content) {
+                fullContent += data.content
+                setContent(fullContent)
+                options.onChunk?.(data.content)
+              }
+            } catch (e) {
+              // Ignore JSON parsing errors
             }
           }
         }
-      } finally {
-        reader.releaseLock()
       }
-      
     } catch (err) {
-      if (err instanceof Error && err.name === 'AbortError') {
-        // Request was cancelled
-        return
-      }
-      
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error'
       setError(errorMessage)
-      onError?.(errorMessage)
+      options.onError?.(errorMessage)
     } finally {
       setIsStreaming(false)
-      abortControllerRef.current = null
     }
-  }, [onStart, onChunk, onComplete, onError, content])
+  }, [options])
 
   const stopStream = useCallback(() => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort()
-    }
     setIsStreaming(false)
   }, [])
 
@@ -148,10 +98,6 @@ export function useAIStream(options: UseAIStreamOptions = {}): UseAIStreamReturn
     setContent('')
     setError(null)
     setIsStreaming(false)
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort()
-      abortControllerRef.current = null
-    }
   }, [])
 
   return {
