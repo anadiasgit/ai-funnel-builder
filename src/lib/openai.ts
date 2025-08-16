@@ -22,7 +22,7 @@ export function estimateTokens(text: string): number {
 }
 
 export function calculateCost(inputTokens: number, outputTokens: number, model: keyof typeof models): number {
-  const costs = tokenCosts[model]
+  const costs = tokenCosts[models[model]]
   return (inputTokens / 1000 * costs.input) + (outputTokens / 1000 * costs.output)
 }
 
