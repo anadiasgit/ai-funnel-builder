@@ -71,7 +71,7 @@ export function CustomerAvatarForm({
   const [isGenerating, setIsGenerating] = useState(false)
   const [avatar, setAvatar] = useState(existingAvatar)
   const [aiSuggestions, setAiSuggestions] = useState<Partial<AvatarFormData>>({})
-  const [activeField, setActiveField] = useState<keyof typeof formData | null>(null)
+  const [activeField, setActiveField] = useState<keyof typeof formData | 'insights' | 'recommendations' | null>(null)
   const [aiInsights, setAiInsights] = useState<string[]>([])
   const [aiRecommendations, setAiRecommendations] = useState<string[]>([])
 
@@ -82,8 +82,13 @@ export function CustomerAvatarForm({
     onComplete: (fullText) => {
       console.log('AI generation completed:', fullText)
       if (activeField) {
-        setAiSuggestions(prev => ({ ...prev, [activeField]: fullText }))
-        setActiveField(null)
+        if (activeField === 'insights' || activeField === 'recommendations') {
+          // These are handled separately in their respective apply functions
+          setActiveField(null)
+        } else {
+          setAiSuggestions(prev => ({ ...prev, [activeField]: fullText }))
+          setActiveField(null)
+        }
       }
     },
     onError: (error) => console.error('AI generation error:', error)
