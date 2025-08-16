@@ -142,7 +142,7 @@ export interface UsageMetrics {
 export async function createStreamingCompletion(
   prompt: string,
   systemPrompt: string,
-  model: keyof typeof models = models.GPT4O,
+  model: keyof typeof models = 'GPT4O',
   maxTokens: number = 2000,
   temperature: number = 0.7
 ) {
@@ -175,7 +175,7 @@ export async function createStreamingCompletion(
 export async function createCompletion(
   prompt: string,
   systemPrompt: string,
-  model: keyof typeof models = models.GPT4O,
+  model: keyof typeof models = 'GPT4O',
   maxTokens: number = 2000,
   temperature: number = 0.7
 ) {
