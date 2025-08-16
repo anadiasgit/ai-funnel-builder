@@ -187,24 +187,30 @@ export function CustomerAvatarForm({
       const context = `Business: ${formData.businessName || 'Business'}, Industry: ${formData.industry || 'General'}, Location: ${formData.location || 'Global'}`
       
       // Generate complete avatar with AI
-      const prompt = `Create a comprehensive customer avatar for a business in the ${formData.industry || 'general'} industry.
+      const prompt = `You are an expert marketing strategist creating a detailed customer avatar. 
 
-Business Context: ${context}
+BUSINESS DETAILS:
+- Business Name: ${formData.businessName}
+- Industry: ${formData.industry}
+- Location: ${formData.location}
 
-Current Information:
-- Target Audience: ${formData.targetAudience || 'Not specified'}
-- Pain Points: ${formData.painPoints || 'Not specified'}
-- Goals: ${formData.goals || 'Not specified'}
-- Budget: ${formData.budget || 'Not specified'}
+CURRENT CUSTOMER INFORMATION:
+- Target Audience: ${formData.targetAudience}
+- Pain Points: ${formData.painPoints}
+- Goals: ${formData.goals}
+- Budget: ${formData.budget}
+
+TASK: Based on the EXACT information provided above, create a comprehensive customer avatar. DO NOT use generic business insights - use the specific details provided.
 
 Please generate:
-1. Enhanced Target Audience (detailed demographics, behaviors, characteristics)
-2. Comprehensive Pain Points (emotional and practical challenges)
-3. Detailed Customer Goals (short-term and long-term objectives)
-4. 5-7 AI Insights about customer behavior and market trends
-5. 5-7 Strategic Recommendations for marketing and sales
 
-Make everything specific, actionable, and tailored to this industry.`
+1. ENHANCED TARGET AUDIENCE: Expand on "${formData.targetAudience}" with specific demographics, behaviors, and characteristics
+2. COMPREHENSIVE PAIN POINTS: Deepen "${formData.painPoints}" with emotional and practical challenges
+3. DETAILED CUSTOMER GOALS: Expand on "${formData.goals}" with short-term and long-term objectives
+4. AI INSIGHTS (5-7 points): Specific insights about customers in the ${formData.industry} industry, focusing on the target audience described
+5. STRATEGIC RECOMMENDATIONS (5-7 points): Marketing and sales strategies specifically for ${formData.industry} customers with the pain points and goals described
+
+IMPORTANT: Use the EXACT information provided. If they say "dog owners" and "dog toys", focus on dog owners, not generic business owners.`
 
       // Start the AI stream
       await startStream(
@@ -216,27 +222,63 @@ Make everything specific, actionable, and tailored to this industry.`
       // Wait for the stream to complete and get the content
       // The content will be available in the useAIStream hook
       const aiContent = content || ''
-      const lines = aiContent.split('\n').filter(line => line.trim().length > 0)
       
-      // Extract insights and recommendations (this is a simplified approach)
-      const insights = lines.filter(line => line.includes('insight') || line.includes('behavior') || line.includes('trend')).slice(0, 7)
-      const recommendations = lines.filter(line => line.includes('recommend') || line.includes('strategy') || line.includes('approach')).slice(0, 7)
+      // Parse the AI response more intelligently
+      const sections = aiContent.split(/\d+\.\s+/).filter(section => section.trim().length > 0)
+      
+      let enhancedTargetAudience = formData.targetAudience
+      let enhancedPainPoints = formData.painPoints
+      let enhancedGoals = formData.goals
+      let insights: string[] = []
+      let recommendations: string[] = []
+      
+      // Parse each section based on the AI response structure
+      sections.forEach(section => {
+        const lines = section.split('\n').filter(line => line.trim().length > 0)
+        const firstLine = lines[0]?.toLowerCase() || ''
+        
+        if (firstLine.includes('target audience') || firstLine.includes('audience')) {
+          enhancedTargetAudience = lines.slice(1).join(' ').trim() || formData.targetAudience
+        } else if (firstLine.includes('pain points') || firstLine.includes('pain')) {
+          enhancedPainPoints = lines.slice(1).join(' ').trim() || formData.painPoints
+        } else if (firstLine.includes('goals') || firstLine.includes('objectives')) {
+          enhancedGoals = lines.slice(1).join(' ').trim() || formData.goals
+        } else if (firstLine.includes('insights')) {
+          insights = lines.slice(1).filter(line => line.trim().length > 10).slice(0, 7)
+        } else if (firstLine.includes('recommendations') || firstLine.includes('strategies')) {
+          recommendations = lines.slice(1).filter(line => line.trim().length > 10).slice(0, 7)
+        }
+      })
+      
+      // If parsing didn't work well, try to extract insights and recommendations from the full text
+      if (insights.length === 0) {
+        const insightLines = aiContent.split('\n')
+          .filter(line => line.trim().length > 20 && (line.includes('•') || line.includes('-') || line.includes('*')))
+          .map(line => line.replace(/^[•\-*]\s*/, '').trim())
+          .filter(line => line.length > 10)
+        insights = insightLines.slice(0, 7)
+      }
+      
+      if (recommendations.length === 0) {
+        const recLines = aiContent.split('\n')
+          .filter(line => line.trim().length > 20 && (line.includes('•') || line.includes('-') || line.includes('*')))
+          .map(line => line.replace(/^[•\-*]\s*/, '').trim())
+          .filter(line => line.length > 10)
+        recommendations = recLines.slice(0, 7)
+      }
       
       const generatedAvatar = {
         ...formData,
+        targetAudience: enhancedTargetAudience,
+        painPoints: enhancedPainPoints,
+        goals: enhancedGoals,
         id: Date.now().toString(),
         generatedAt: new Date().toISOString(),
         insights: insights.length > 0 ? insights : [
-          'Primary audience: Small business owners aged 30-50',
-          'Main pain point: Limited marketing budget and time',
-          'Preferred communication: Email and social media',
-          'Decision making: Research-driven, value-conscious'
+          'AI insights will be generated based on your specific business'
         ],
         recommendations: recommendations.length > 0 ? recommendations : [
-          'Focus on ROI and time-saving benefits',
-          'Use case studies and testimonials',
-          'Offer flexible pricing options',
-          'Provide educational content'
+          'AI recommendations will be generated based on your specific business'
         ]
       }
       
