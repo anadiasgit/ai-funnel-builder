@@ -161,7 +161,7 @@ export async function createStreamingCompletion(
     return stream
   } catch (error) {
     if (error instanceof OpenAI.OpenAIError) {
-      const status = (error as OpenAI.OpenAIError & { status?: number }).status
+      const status = (error as any).status
       throw new OpenAIError(
         `OpenAI API error: ${error.message}`,
         status,
@@ -194,7 +194,7 @@ export async function createCompletion(
     return completion
   } catch (error) {
     if (error instanceof OpenAI.OpenAIError) {
-      const status = (error as OpenAI.OpenAIError & { status?: number }).status
+      const status = (error as any).status
       throw new OpenAIError(
         `OpenAI API error: ${error.message}`,
         status,
