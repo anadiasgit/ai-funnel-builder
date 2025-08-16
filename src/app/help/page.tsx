@@ -160,7 +160,12 @@ const exampleContent = {
 export default function HelpCenter() {
   const [searchTerm, setSearchTerm] = useState('')
   const [isChatOpen, setIsChatOpen] = useState(false)
-  const [chatMessages, setChatMessages] = useState([
+  const [chatMessages, setChatMessages] = useState<Array<{
+    id: string
+    text: string
+    sender: 'user' | 'support'
+    timestamp: Date
+  }>>([
     {
       id: '1',
       text: "Hi! I'm here to help you with any questions about building funnels. How can I assist you today?",
