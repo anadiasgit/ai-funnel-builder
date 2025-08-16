@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Badge } from '@/components/ui/badge'
-import { Wifi, WifiOff, AlertTriangle, CheckCircle } from 'lucide-react'
+import { Wifi, WifiOff, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface NetworkStatusIndicatorProps {
@@ -36,7 +36,7 @@ export function NetworkStatusIndicator({
 
     // Try to detect connection type
     if ('connection' in navigator) {
-      const connection = (navigator as any).connection
+      const connection = (navigator as Navigator & { connection?: { effectiveType?: string; type?: string } }).connection
       if (connection) {
         setConnectionType(connection.effectiveType || connection.type || '')
         

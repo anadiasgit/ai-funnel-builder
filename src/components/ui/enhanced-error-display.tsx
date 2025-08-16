@@ -12,7 +12,6 @@ import {
   Clock, 
   RefreshCw, 
   X,
-  Info,
   CheckCircle
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -43,7 +42,6 @@ export function EnhancedErrorDisplay({
   showActions = true,
   variant = 'alert'
 }: EnhancedErrorDisplayProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
 
   if (!errorState.hasError) return null
 

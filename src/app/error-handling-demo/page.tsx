@@ -10,14 +10,10 @@ import { EnhancedErrorDisplay } from '@/components/ui/enhanced-error-display'
 import { NetworkStatusIndicator } from '@/components/ui/network-status-indicator'
 import { RetryMechanism } from '@/components/ui/retry-mechanism'
 import { useErrorHandler } from '@/components/ui/use-error-handler'
-import { ErrorBoundary } from '@/components/ui/error-boundary'
 import { 
   AlertCircle, 
-  Wifi, 
-  Clock, 
   RefreshCw, 
   Play, 
-  Stop,
   Zap,
   Bug,
   Shield,
@@ -25,7 +21,7 @@ import {
 } from 'lucide-react'
 
 // Simulated API functions for demo purposes
-const simulateAPIError = async (type: string): Promise<any> => {
+const simulateAPIError = async (type: string): Promise<unknown> => {
   await new Promise(resolve => setTimeout(resolve, 1000))
   
   switch (type) {
@@ -53,7 +49,6 @@ const simulateSuccess = async (): Promise<string> => {
 
 export default function ErrorHandlingDemoPage() {
   const [activeTab, setActiveTab] = useState('overview')
-  const [demoError, setDemoError] = useState<string | null>(null)
   const [demoSuccess, setDemoSuccess] = useState<string | null>(null)
 
   // Error handler hook
@@ -66,7 +61,6 @@ export default function ErrorHandlingDemoPage() {
 
   // Demo functions
   const triggerError = async (type: string) => {
-    setDemoError(null)
     setDemoSuccess(null)
     
     try {
@@ -76,7 +70,7 @@ export default function ErrorHandlingDemoPage() {
       )
     } catch (error) {
       if (error instanceof Error) {
-        errorHandler.setError(error, type as any)
+        errorHandler.setError(error, type as ErrorState['type'])
       }
     }
   }

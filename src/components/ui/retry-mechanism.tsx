@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
@@ -33,9 +33,9 @@ interface RetryState {
 }
 
 interface RetryMechanismProps {
-  onRetry: () => Promise<any>
+  onRetry: () => Promise<unknown>
   config?: Partial<RetryConfig>
-  onSuccess?: (result: any) => void
+  onSuccess?: (result: unknown) => void
   onFailure?: (error: Error, attempt: number) => void
   onMaxRetriesExceeded?: () => void
   className?: string
@@ -65,7 +65,7 @@ export function RetryMechanism({
   autoRetry = false,
   children
 }: RetryMechanismProps) {
-  const finalConfig = { ...DEFAULT_CONFIG, ...config }
+  const finalConfig = useMemo(() => ({ ...DEFAULT_CONFIG, ...config }), [config])
   const [retryState, setRetryState] = useState<RetryState>({
     attempt: 0,
     isRetrying: false,

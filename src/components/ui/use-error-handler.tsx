@@ -187,7 +187,7 @@ export function useErrorHandler(config: Partial<ErrorHandlerConfig> = {}) {
     ])
   }, [finalConfig.timeout, setError])
 
-  const validateInput = useCallback((input: any, validationRules: Record<string, (value: any) => boolean | string>) => {
+  const validateInput = useCallback((input: Record<string, unknown>, validationRules: Record<string, (value: unknown) => boolean | string>) => {
     const errors: string[] = []
     
     Object.entries(validationRules).forEach(([field, validator]) => {
@@ -215,6 +215,8 @@ export function useErrorHandler(config: Partial<ErrorHandlerConfig> = {}) {
       case 'timeout':
         return Clock
       case 'validation':
+        return AlertCircle
+      case 'api':
         return AlertCircle
       default:
         return AlertCircle

@@ -109,12 +109,12 @@ export const InputWithValidation = forwardRef<HTMLInputElement, InputWithValidat
       props.onBlur?.(e)
     }
 
-    // Validate on mount if there's a default value
-    useEffect(() => {
-      if (props.defaultValue && validationRules.length > 0) {
-        validateInput(props.defaultValue as string)
-      }
-    }, [props.defaultValue, validationRules])
+      // Validate on mount if there's a default value
+  useEffect(() => {
+    if (props.defaultValue && validationRules.length > 0) {
+      validateInput(props.defaultValue as string)
+    }
+  }, [props.defaultValue, validationRules, validateInput])
 
     // Update internal value when external value changes
     useEffect(() => {
