@@ -1,7 +1,23 @@
 import OpenAI from 'openai'
 
+// Import server environment for API key
+let serverEnv: any = null
+
+// Lazy load server environment to avoid client-side issues
+const getServerEnv = () => {
+  if (!serverEnv) {
+    try {
+      serverEnv = require('./env-server').serverEnv
+    } catch (error) {
+      // Fallback for development
+      serverEnv = { OPENAI_API_KEY: process.env.OPENAI_API_KEY }
+    }
+  }
+  return serverEnv
+}
+
 export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: getServerEnv().OPENAI_API_KEY,
 })
 
 export const models = {
