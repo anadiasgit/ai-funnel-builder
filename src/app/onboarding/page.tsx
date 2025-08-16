@@ -71,7 +71,7 @@ export default function OnboardingPage() {
         const parsed = JSON.parse(savedData)
         setFormData(parsed.formData || formData)
         setCurrentStep(parsed.currentStep || 1)
-      } catch (e) {
+      } catch {
         console.warn('Failed to parse saved onboarding data')
       }
     }
@@ -83,7 +83,7 @@ export default function OnboardingPage() {
       formData,
       currentStep
     }))
-  }, [currentStep])
+  }, [formData, currentStep])
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -326,7 +326,7 @@ export default function OnboardingPage() {
                       <strong>💡 Examples:</strong> &quot;Acme Corp&quot;, &quot;Smith Consulting&quot;, &quot;Your Business Name&quot;
                     </p>
                     <p className="text-xs text-green-600">
-                      If you don't have a company yet, you can leave this blank or use your personal brand name
+                      If you don&apos;t have a company yet, you can leave this blank or use your personal brand name
                     </p>
                   </div>
                 </div>

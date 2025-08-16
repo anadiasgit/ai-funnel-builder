@@ -428,7 +428,7 @@ export function CustomerAvatarForm({
             
             {/* Example Content */}
             <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded text-xs text-orange-700">
-              <strong>💡 Examples:</strong> "High customer acquisition costs, difficulty scaling, inconsistent revenue, lack of time for marketing, competition challenges"
+              <strong>💡 Examples:</strong> &quot;High customer acquisition costs, difficulty scaling, inconsistent revenue, lack of time for marketing, competition challenges&quot;
             </div>
           </div>
 
