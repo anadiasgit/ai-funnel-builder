@@ -15,7 +15,9 @@ import {
   CheckCircle2, 
   Video, 
   Mail, 
-  ArrowRight
+  ArrowRight,
+  CopyIcon,
+  Share
 } from 'lucide-react'
 import { CustomerAvatarForm } from '@/components/forms/customer-avatar-form'
 import { OfferGenerationForm } from '@/components/forms/offer-generation-form'
@@ -28,6 +30,7 @@ import { UpsellVSLForm } from '@/components/forms/upsell-vsl-form'
 import { EmailStrategyForm } from '@/components/forms/email-strategy-form'
 import { FunnelFlowDiagram } from '@/components/ui/funnel-flow-diagram'
 import { supabase } from '@/lib/supabase'
+import { exportCompleteFunnel, downloadFile, ExportContent } from '@/lib/export-utils'
 import { GenerationProgress } from '@/components/ui/generation-progress'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
@@ -282,6 +285,150 @@ export default function ProjectWorkspace() {
     )
   }
 
+  const handleIndividualExport = async (step: string, format: 'pdf' | 'docx' | 'txt') => {
+    if (!project) return
+
+    try {
+      let content: ExportContent = {}
+      let fileName = ''
+
+      switch (step) {
+        case 'avatar':
+          if (project.customer_avatar) {
+            content = { customerAvatar: project.customer_avatar }
+            fileName = `${project.name || 'Business'}_Customer_Avatar`
+          }
+          break
+        case 'offer':
+          if (project.main_offer) {
+            content = { mainOffer: project.main_offer }
+            fileName = `${project.name || 'Business'}_Main_Offer`
+          }
+          break
+        case 'order-bump':
+          if (project.generated_content?.order_bump) {
+            content = { orderBump: project.generated_content.order_bump }
+            fileName = `${project.name || 'Business'}_Order_Bump`
+          }
+          break
+        case 'upsells':
+          if (project.generated_content?.upsells) {
+            content = { upsells: project.generated_content.upsells }
+            fileName = `${project.name || 'Business'}_Upsells`
+          }
+          break
+        case 'order-page':
+          if (project.generated_content?.order_page) {
+            content = { orderPage: project.generated_content.order_page }
+            fileName = `${project.name || 'Business'}_Order_Page`
+          }
+          break
+        case 'thank-you':
+          if (project.generated_content?.thank_you) {
+            content = { thankYou: project.generated_content.thank_you }
+            fileName = `${project.name || 'Business'}_Thank_You_Page`
+          }
+          break
+        case 'main-vsl':
+          if (project.generated_content?.main_vsl) {
+            content = { mainVSL: project.generated_content.main_vsl }
+            fileName = `${project.name || 'Business'}_Main_VSL`
+          }
+          break
+        case 'upsell-vsl':
+          if (project.generated_content?.upsell_vsl) {
+            content = { upsellVSL: project.generated_content.upsell_vsl }
+            fileName = `${project.name || 'Business'}_Upsell_VSL`
+          }
+          break
+        case 'email-strategy':
+          if (project.generated_content?.email_strategy) {
+            content = { emailStrategy: project.generated_content.email_strategy }
+            fileName = `${project.name || 'Business'}_Email_Strategy`
+          }
+          break
+      }
+
+      if (Object.keys(content).length > 0) {
+        const exportResult = await exportCompleteFunnel(content, {
+          format,
+          businessName: project.name || 'Business'
+        })
+        
+        const timestamp = new Date().toISOString().split('T')[0]
+        const finalFileName = `${fileName}_${timestamp}.${format}`
+        
+        downloadFile(exportResult, finalFileName)
+      }
+    } catch (error) {
+      console.error('Export failed:', error)
+      alert('Export failed. Please try again.')
+    }
+  }
+
+  const handleCompleteExport = async (format: 'pdf' | 'docx' | 'txt') => {
+    if (!project) return
+
+    try {
+      const content: ExportContent = {
+        customerAvatar: project.customer_avatar,
+        mainOffer: project.main_offer,
+        orderBump: project.generated_content?.order_bump,
+        upsells: project.generated_content?.upsells,
+        orderPage: project.generated_content?.order_page,
+        thankYou: project.generated_content?.thank_you,
+        mainVSL: project.generated_content?.main_vsl,
+        upsellVSL: project.generated_content?.upsell_vsl,
+        emailStrategy: project.generated_content?.email_strategy
+      }
+
+      const exportResult = await exportCompleteFunnel(content, {
+        format,
+        businessName: project.name || 'Business'
+      })
+      
+      const timestamp = new Date().toISOString().split('T')[0]
+      const fileName = `${project.name || 'Business'}_Complete_Funnel_Package_${timestamp}.${format}`
+      
+      downloadFile(exportResult, fileName)
+    } catch (error) {
+      console.error('Export failed:', error)
+      alert('Export failed. Please try again.')
+    }
+  }
+
+  const handleCopyToClipboard = () => {
+    const contentToCopy = JSON.stringify(project, null, 2);
+    navigator.clipboard.writeText(contentToCopy).then(() => {
+      alert('Project data copied to clipboard!');
+    }).catch(err => {
+      console.error('Failed to copy project data:', err);
+    });
+  };
+
+  const handleShareFunnel = () => {
+    const contentToShare = JSON.stringify(project, null, 2);
+    const shareData = {
+      title: project.name,
+      text: `Check out my sales funnel: ${project.name}`,
+      url: window.location.href, // Or a specific project URL
+    };
+
+    if (navigator.share) {
+      navigator.share(shareData)
+        .then(() => console.log('Project shared successfully'))
+        .catch((error) => console.error('Error sharing project:', error));
+    } else {
+      alert('Web Share API not supported in your browser. You can manually copy the link.');
+      // Fallback for manual copy if not supported
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        alert('Project URL copied to clipboard!');
+      }).catch(err => {
+        console.error('Failed to copy project URL:', err);
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -341,6 +488,123 @@ export default function ProjectWorkspace() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Export Panel */}
+        <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h4 className="text-lg font-semibold text-blue-900">Export Your Funnel</h4>
+              <p className="text-sm text-blue-700">
+                Download your funnel content in professional formats for easy sharing and editing
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+              <span className="text-xs text-blue-600 font-medium">Export Ready</span>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Individual Content Exports */}
+            <div className="space-y-3">
+              <h5 className="text-sm font-medium text-blue-800">Individual Content</h5>
+              <div className="flex flex-wrap gap-2">
+                {project?.customer_avatar && (
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="text-xs"
+                    onClick={() => handleIndividualExport('avatar', 'pdf')}
+                  >
+                    <FileText className="w-3 h-3 mr-1" />
+                    Avatar PDF
+                  </Button>
+                )}
+                {project?.main_offer && (
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="text-xs"
+                    onClick={() => handleIndividualExport('offer', 'pdf')}
+                  >
+                    <FileText className="w-3 h-3 mr-1" />
+                    Offer PDF
+                  </Button>
+                )}
+                {project?.generated_content?.order_bump && (
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="text-xs"
+                    onClick={() => handleIndividualExport('order-bump', 'pdf')}
+                  >
+                    <FileText className="w-3 h-3 mr-1" />
+                    Order Bump PDF
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Complete Package Export */}
+            <div className="space-y-3">
+              <h5 className="text-sm font-medium text-blue-800">Complete Package</h5>
+              <div className="flex flex-wrap gap-2">
+                <Button 
+                  size="sm" 
+                  variant="default" 
+                  className="text-xs bg-blue-600 hover:bg-blue-700"
+                  onClick={() => handleCompleteExport('pdf')}
+                >
+                  <FileText className="w-3 h-3 mr-1" />
+                  Complete PDF
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="text-xs"
+                  onClick={() => handleCompleteExport('docx')}
+                >
+                  <FileText className="w-3 h-3 mr-1" />
+                  Complete Word
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="text-xs"
+                  onClick={() => handleCompleteExport('txt')}
+                >
+                  <FileText className="w-3 h-3 mr-1" />
+                  Complete Text
+                </Button>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="space-y-3">
+              <h5 className="text-sm font-medium text-blue-800">Quick Actions</h5>
+              <div className="flex flex-wrap gap-2">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="text-xs"
+                  onClick={() => handleCopyToClipboard()}
+                >
+                  <CopyIcon className="w-3 h-3 mr-1" />
+                  Copy All
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="text-xs"
+                  onClick={() => handleShareFunnel()}
+                >
+                  <Share className="w-3 h-3 mr-1" />
+                  Share
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Smart Defaults Indicator */}
         {project?.customer_avatar && (
           <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
