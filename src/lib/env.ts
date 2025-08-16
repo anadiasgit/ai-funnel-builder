@@ -1,39 +1,33 @@
 import { z } from 'zod'
 
 const envSchema = z.object({
-  // Database
-  NEXT_PUBLIC_SUPABASE_URL: z.string().url().optional(),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1).optional(),
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
+  // Database - Make these REQUIRED, not optional
+  NEXT_PUBLIC_SUPABASE_URL: z.string().url('Invalid Supabase URL'),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1, 'Supabase anon key is required'),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, 'Supabase service role key is required'),
   
-  // OpenAI
-  OPENAI_API_KEY: z.string().min(1).optional(),
+  // OpenAI - Make this REQUIRED
+  OPENAI_API_KEY: z.string().min(1, 'OpenAI API key is required').refine(
+    (key) => key.startsWith('sk-'),
+    'OpenAI API key must start with "sk-"'
+  ),
   
   // App
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   NEXT_PUBLIC_APP_URL: z.string().url().default('http://localhost:3000'),
 })
 
-// Debug: Log what we're getting
-console.log('🔍 Environment variables received:', {
-  NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'SET' : 'NOT SET',
-  SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'NOT SET',
-  OPENAI_API_KEY: process.env.OPENAI_API_KEY ? 'SET' : 'NOT SET',
-  NODE_ENV: process.env.NODE_ENV,
-  NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL
-})
+// Debug: Log what we're getting from process.env
+console.log('🔍 Raw environment variables:')
+console.log('  NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'SET' : 'NOT SET')
+console.log('  NEXT_PUBLIC_SUPABASE_ANON_KEY:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'SET' : 'NOT SET')
+console.log('  SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'NOT SET')
+console.log('  OPENAI_API_KEY:', process.env.OPENAI_API_KEY ? 'SET' : 'NOT SET')
 
-// More detailed debugging
-console.log('🔍 Raw OPENAI_API_KEY:', process.env.OPENAI_API_KEY)
-console.log('🔍 All process.env keys:', Object.keys(process.env).filter(key => key.includes('OPENAI')))
-
+// Parse and validate - this will throw an error if any required env vars are missing
 export const env = envSchema.parse(process.env)
 
-// Validate OpenAI API key format (starts with 'sk-') if it exists
-if (env.OPENAI_API_KEY && !env.OPENAI_API_KEY.startsWith('sk-')) {
-  throw new Error('Invalid OpenAI API key format. Must start with "sk-"')
-}
+console.log('✅ Environment variables validated successfully!')
 
 // Export individual environment variables for convenience
 export const {
