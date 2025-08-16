@@ -24,6 +24,10 @@ console.log('🔍 Environment variables received:', {
   NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL
 })
 
+// More detailed debugging
+console.log('🔍 Raw OPENAI_API_KEY:', process.env.OPENAI_API_KEY)
+console.log('🔍 All process.env keys:', Object.keys(process.env).filter(key => key.includes('OPENAI')))
+
 export const env = envSchema.parse(process.env)
 
 // Validate OpenAI API key format (starts with 'sk-') if it exists
