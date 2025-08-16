@@ -161,6 +161,7 @@ export async function createStreamingCompletion(
     return stream
   } catch (error) {
     if (error instanceof OpenAI.OpenAIError) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const status = (error as any).status
       throw new OpenAIError(
         `OpenAI API error: ${error.message}`,
@@ -194,6 +195,7 @@ export async function createCompletion(
     return completion
   } catch (error) {
     if (error instanceof OpenAI.OpenAIError) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const status = (error as any).status
       throw new OpenAIError(
         `OpenAI API error: ${error.message}`,
