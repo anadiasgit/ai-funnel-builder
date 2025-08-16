@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
+import { NetworkStatusIndicator } from '@/components/ui/network-status-indicator'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { ArrowRight, User, Building, Target, CheckCircle, SkipForward, Loader2 } from 'lucide-react'
@@ -49,6 +50,24 @@ export default function OnboardingPage() {
   const [error, setError] = useState<string | null>(null)
   const [showSkipConfirm, setShowSkipConfirm] = useState(false)
   const [skipStepNumber, setSkipStepNumber] = useState<number | null>(null)
+  
+  // Enhanced error handling - simplified for now
+  const [isOnline, setIsOnline] = useState(true)
+  
+  // Network status detection
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true)
+    const handleOffline = () => setIsOnline(false)
+    
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+    setIsOnline(navigator.onLine)
+    
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [])
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -221,6 +240,12 @@ export default function OnboardingPage() {
           </div>
         </div>
 
+        {/* Network Status */}
+        <div className="mb-4 flex justify-center">
+          <NetworkStatusIndicator variant="badge" />
+        </div>
+        
+        {/* Error Display */}
         {error && (
           <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg animate-in slide-in-from-top-2">
             <p className="text-red-700 text-sm">{error}</p>
