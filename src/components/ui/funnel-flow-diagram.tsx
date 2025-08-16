@@ -51,7 +51,7 @@ export function FunnelFlowDiagram({
 
   const getStepColor = (step: FunnelStep) => {
     if (step.id === currentStep) {
-      return 'bg-blue-50 border-blue-200 text-blue-700'
+      return 'bg-green-100 border-green-400 text-green-700 shadow-lg ring-2 ring-green-300'
     }
     if (step.status === 'completed') {
       return 'bg-green-50 border-green-200 text-green-700'
@@ -78,23 +78,26 @@ export function FunnelFlowDiagram({
         {/* Connection Lines */}
         <div className="absolute top-1/2 left-0 right-0 h-px bg-gray-200 -translate-y-1/2 z-0" />
         
+        {/* Progress Line - Green up to completed steps */}
+        <div className="absolute top-1/2 left-0 h-px bg-green-400 -translate-y-1/2 z-0 transition-all duration-500"
+             style={{
+               width: `${(steps.filter(s => s.status === 'completed').length / (steps.length - 1)) * 100}%`
+             }} />
+        
         {/* Steps */}
         <div className="relative z-10 flex items-center justify-between">
           {steps.map((step, index) => {
             const IconComponent = step.icon || getStatusIcon(step.status)
-            const isClickable = onStepClick && step.status !== 'pending'
             
             return (
               <div key={step.id} className="flex flex-col items-center">
                 {/* Step Circle */}
                 <button
-                  onClick={() => isClickable && onStepClick(step.id)}
-                  disabled={!isClickable}
+                  onClick={() => onStepClick?.(step.id)}
                   className={cn(
                     "w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all duration-200",
                     getStepColor(step),
-                    isClickable && "hover:scale-110 cursor-pointer",
-                    !isClickable && "cursor-default"
+                    "hover:scale-110 cursor-pointer"
                   )}
                 >
                   <IconComponent className={cn("w-5 h-5", getStatusColor(step.status))} />

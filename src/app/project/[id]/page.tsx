@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { TabsContent } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -365,171 +365,16 @@ export default function ProjectWorkspace() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          {/* Tab Navigation */}
-          <TabsList className="grid w-full grid-cols-9 lg:grid-cols-9 h-auto p-1">
-            <TabsTrigger 
-              value="avatar" 
-              className="flex flex-col items-center gap-2 py-3 px-2 text-xs sm:text-sm"
-            >
-              <div className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                {(() => {
-                  const status = getTabStatus('avatar')
-                  const IconComponent = status.icon
-                  return IconComponent ? (
-                    <IconComponent className={`h-3 w-3 ${status.color}`} />
-                  ) : null
-                })()}
-              </div>
-              <span>Avatar</span>
-            </TabsTrigger>
-            
-            <TabsTrigger 
-              value="offer" 
-              className="flex flex-col items-center gap-2 py-3 px-2 text-xs sm:text-sm"
-            >
-              <div className="flex items-center gap-2">
-                <Target className="h-4 w-4" />
-                {(() => {
-                  const status = getTabStatus('offer')
-                  const IconComponent = status.icon
-                  return IconComponent ? (
-                    <IconComponent className={`h-3 w-3 ${status.color}`} />
-                  ) : null
-                })()}
-              </div>
-              <span>Main Offer</span>
-            </TabsTrigger>
-            
-            <TabsTrigger 
-              value="order-bump" 
-              className="flex flex-col items-center gap-2 py-3 px-2 text-xs sm:text-sm"
-            >
-              <div className="flex items-center gap-2">
-                <ShoppingCart className="h-4 w-4" />
-                {(() => {
-                  const status = getTabStatus('order_bump')
-                  const IconComponent = status.icon
-                  return IconComponent ? (
-                    <IconComponent className={`h-3 w-3 ${status.color}`} />
-                  ) : null
-                })()}
-              </div>
-              <span>Order Bump</span>
-            </TabsTrigger>
-            
-            <TabsTrigger 
-              value="upsells" 
-              className="flex flex-col items-center gap-2 py-3 px-2 text-xs sm:text-sm"
-            >
-              <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4" />
-                {(() => {
-                  const status = getTabStatus('upsells')
-                  const IconComponent = status.icon
-                  return IconComponent ? (
-                    <IconComponent className={`h-3 w-3 ${status.color}`} />
-                  ) : null
-                })()}
-              </div>
-              <span>Upsells x2</span>
-            </TabsTrigger>
-            
-            <TabsTrigger 
-              value="order-page" 
-              className="flex flex-col items-center gap-2 py-3 px-2 text-xs sm:text-sm"
-            >
-              <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                {(() => {
-                  const status = getTabStatus('order_page')
-                  const IconComponent = status.icon
-                  return IconComponent ? (
-                    <IconComponent className={`h-3 w-3 ${status.color}`} />
-                  ) : null
-                })()}
-              </div>
-              <span>Order Page</span>
-            </TabsTrigger>
-            
-            <TabsTrigger 
-              value="thank-you" 
-              className="flex flex-col items-center gap-2 py-3 px-2 text-xs sm:text-sm"
-            >
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4" />
-                {(() => {
-                  const status = getTabStatus('thank_you')
-                  const IconComponent = status.icon
-                  return IconComponent ? (
-                    <IconComponent className={`h-3 w-3 ${status.color}`} />
-                  ) : null
-                })()}
-              </div>
-              <span>Thank You</span>
-            </TabsTrigger>
-            
-            <TabsTrigger 
-              value="main-vsl" 
-              className="flex flex-col items-center gap-2 py-3 px-2 text-xs sm:text-sm"
-            >
-              <div className="flex items-center gap-2">
-                <Video className="h-4 w-4" />
-                {(() => {
-                  const status = getTabStatus('main_vsl')
-                  const IconComponent = status.icon
-                  return IconComponent ? (
-                    <IconComponent className={`h-3 w-3 ${status.color}`} />
-                  ) : null
-                })()}
-              </div>
-              <span>Main VSL</span>
-            </TabsTrigger>
-            
-            <TabsTrigger 
-              value="upsell-vsl" 
-              className="flex flex-col items-center gap-2 py-3 px-2 text-xs sm:text-sm"
-            >
-              <div className="flex items-center gap-2">
-                <Video className="h-4 w-4" />
-                {(() => {
-                  const status = getTabStatus('upsell_vsl')
-                  const IconComponent = status.icon
-                  return IconComponent ? (
-                    <IconComponent className={`h-3 w-3 ${status.color}`} />
-                  ) : null
-                })()}
-              </div>
-              <span>Upsell VSL</span>
-            </TabsTrigger>
-            
-            <TabsTrigger 
-              value="email-strategy" 
-              className="flex flex-col items-center gap-2 py-3 px-2 text-xs sm:text-sm"
-            >
-              <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4" />
-                {(() => {
-                  const status = getTabStatus('email_strategy')
-                  const IconComponent = status.icon
-                  return IconComponent ? (
-                    <IconComponent className={`h-3 w-3 ${status.color}`} />
-                  ) : null
-                })()}
-              </div>
-              <span>Email Strategy</span>
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Tab Content */}
-          <div className="space-y-6">
-            {/* Customer Avatar Tab */}
-            <TabsContent value="avatar" className="space-y-6">
+        {/* Content based on selected step */}
+        <div className="space-y-6">
+          
+          {/* Customer Avatar Step */}
+          {activeTab === 'avatar' && (
+            <div className="space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <User className="h-5 w-5" />
+                    <User className="h-5 h-5" />
                     Customer Avatar Generation
                   </CardTitle>
                   <CardDescription>
@@ -549,10 +394,12 @@ export default function ProjectWorkspace() {
                   />
                 </CardContent>
               </Card>
-            </TabsContent>
+            </div>
+          )}
 
-            {/* Main Offer Tab */}
-            <TabsContent value="offer" className="space-y-6">
+          {/* Main Offer Step */}
+          {activeTab === 'offer' && (
+            <div className="space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -593,10 +440,12 @@ export default function ProjectWorkspace() {
                   )}
                 </CardContent>
               </Card>
-            </TabsContent>
+            </div>
+          )}
 
-            {/* Order Bump Tab */}
-            <TabsContent value="order-bump" className="space-y-6">
+          {/* Order Bump Step */}
+          {activeTab === 'order-bump' && (
+            <div className="space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -608,159 +457,40 @@ export default function ProjectWorkspace() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-6">
-                    {generationStatus.offer !== 'completed' && (
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-                        <ShoppingCart className="h-12 w-12 text-blue-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-blue-900 mb-2">
-                          Recommended: Complete Main Offer First
-                        </h3>
-                        <p className="text-blue-700 mb-4">
-                          For best results, complete your main offer to generate targeted order bumps.
-                        </p>
-                        <Button 
-                          onClick={() => setActiveTab('offer')}
-                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
-                        >
-                          Complete Main Offer First
-                          <ArrowRight className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )}
-                    
-                    <div className="text-center">
-                      <div className="inline-flex items-center gap-2 text-gray-500 mb-4">
-                        <div className="w-8 h-px bg-gray-300"></div>
-                        <span className="text-sm font-medium">OR</span>
-                        <div className="w-8 h-px bg-gray-300"></div>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-6">
-                        Input your own content to proceed without dependencies
-                      </p>
-                    </div>
-
-                    <div className="space-y-6">
-                      {/* Dependency Input Section */}
-                      {!project.customer_avatar && (
-                        <Card className="bg-blue-50 border-blue-200">
-                          <CardHeader>
-                            <CardTitle className="text-sm text-blue-900">Customer Avatar (Required)</CardTitle>
-                            <CardDescription className="text-blue-700">
-                              Input your business details to generate targeted order bumps
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-2">
-                              <div>
-                                <Label htmlFor="demoIndustry" className="text-sm font-medium text-blue-800">
-                                  Industry
-                                </Label>
-                                <Input
-                                  id="demoIndustry"
-                                  placeholder="e.g., E-commerce, SaaS, Consulting"
-                                  className="border-blue-300"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="demoAudience" className="text-sm font-medium text-blue-800">
-                                  Target Audience
-                                </Label>
-                                <Input
-                                  id="demoAudience"
-                                  placeholder="e.g., Small business owners, Entrepreneurs"
-                                  className="border-blue-300"
-                                />
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
-
-                      {!project.main_offer && (
-                        <Card className="bg-green-50 border-green-200">
-                          <CardHeader>
-                            <CardTitle className="text-sm text-green-900">Main Offer (Required)</CardTitle>
-                            <CardDescription className="text-green-700">
-                              Input your main product details to generate targeted order bumps
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-2">
-                              <div>
-                                <Label htmlFor="demoProduct" className="text-sm font-medium text-green-800">
-                                  Product Name
-                                </Label>
-                                <Input
-                                  id="demoProduct"
-                                  placeholder="e.g., Complete Business System"
-                                  className="border-green-300"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="demoPrice" className="text-sm font-medium text-green-800">
-                                  Price
-                                </Label>
-                                <Input
-                                  id="demoPrice"
-                                  type="number"
-                                  placeholder="0.00"
-                                  step="0.01"
-                                  className="border-green-300"
-                                />
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
-
-                      {/* Main Form - Order Bump Generation */}
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <ShoppingCart className="h-5 w-5" />
-                            Generate Order Bump
-                          </CardTitle>
-                          <CardDescription>
-                            Fill out the details below to generate your order bump offer
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <OrderBumpForm 
-                            customerAvatar={project.customer_avatar || {
-                              id: 'demo',
-                              businessName: 'Your Business',
-                              industry: 'Your Industry',
-                              targetAudience: 'Your Target Audience'
-                            }}
-                            mainOffer={project.main_offer || {
-                              id: 'demo',
-                              productName: 'Your Product',
-                              price: '0'
-                            }}
-                            existingOrderBump={project.generated_content?.order_bump}
-                            onOrderBumpGenerated={(orderBump) => {
-                              setProject(prev => prev ? { 
-                                ...prev, 
-                                generated_content: { 
-                                  ...prev.generated_content, 
-                                  id: prev.generated_content?.id || Date.now().toString(),
-                                  generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
-                                  order_bump: orderBump
-                                }
-                              } : null)
-                              setGenerationStatus(prev => ({ ...prev, order_bump: 'completed' }))
-                            }}
-                          />
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </div>
+                  <OrderBumpForm 
+                    customerAvatar={project.customer_avatar || {
+                      id: 'demo',
+                      businessName: 'Your Business',
+                      industry: 'Your Industry',
+                      targetAudience: 'Your Target Audience'
+                    }}
+                    mainOffer={project.main_offer || {
+                      id: 'demo',
+                      productName: 'Your Product',
+                      price: '0'
+                    }}
+                    existingOrderBump={project.generated_content?.order_bump}
+                    onOrderBumpGenerated={(orderBump) => {
+                      setProject(prev => prev ? { 
+                        ...prev, 
+                        generated_content: { 
+                          ...prev.generated_content, 
+                          id: prev.generated_content?.id || Date.now().toString(),
+                          generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                          order_bump: orderBump
+                        }
+                      } : null)
+                      setGenerationStatus(prev => ({ ...prev, order_bump: 'completed' }))
+                    }}
+                  />
                 </CardContent>
               </Card>
-            </TabsContent>
+            </div>
+          )}
 
-            {/* Upsells Tab */}
-            <TabsContent value="upsells" className="space-y-6">
+          {/* Upsells Step */}
+          {activeTab === 'upsells' && (
+            <div className="space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -772,159 +502,40 @@ export default function ProjectWorkspace() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-6">
-                    {generationStatus.offer !== 'completed' && (
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-                        <TrendingUp className="h-12 w-12 text-blue-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-blue-900 mb-2">
-                          Recommended: Complete Main Offer First
-                        </h3>
-                        <p className="text-blue-700 mb-4">
-                          For best results, complete your main offer to generate targeted upsells.
-                        </p>
-                        <Button 
-                          onClick={() => setActiveTab('offer')}
-                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
-                        >
-                          Complete Main Offer First
-                          <ArrowRight className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )}
-                    
-                    <div className="text-center">
-                      <div className="inline-flex items-center gap-2 text-gray-500 mb-4">
-                        <div className="w-8 h-px bg-gray-300"></div>
-                        <span className="text-sm font-medium">OR</span>
-                        <div className="w-8 h-px bg-gray-300"></div>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-6">
-                        Input your own content to proceed without dependencies
-                      </p>
-                    </div>
-
-                    <div className="space-y-6">
-                      {/* Dependency Input Section */}
-                      {!project.customer_avatar && (
-                        <Card className="bg-blue-50 border-blue-200">
-                          <CardHeader>
-                            <CardTitle className="text-sm text-blue-900">Customer Avatar (Required)</CardTitle>
-                            <CardDescription className="text-blue-700">
-                              Input your business details to generate targeted upsells
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-2">
-                              <div>
-                                <Label htmlFor="demoIndustry2" className="text-sm font-medium text-blue-800">
-                                  Industry
-                                </Label>
-                                <Input
-                                  id="demoIndustry2"
-                                  placeholder="e.g., E-commerce, SaaS, Consulting"
-                                  className="border-blue-300"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="demoAudience2" className="text-sm font-medium text-blue-800">
-                                  Target Audience
-                                </Label>
-                                <Input
-                                  id="demoAudience2"
-                                  placeholder="e.g., Small business owners, Entrepreneurs"
-                                  className="border-blue-300"
-                                />
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
-
-                      {!project.main_offer && (
-                        <Card className="bg-green-50 border-green-200">
-                          <CardHeader>
-                            <CardTitle className="text-sm text-green-900">Main Offer (Required)</CardTitle>
-                            <CardDescription className="text-green-700">
-                              Input your main product details to generate targeted upsells
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-2">
-                              <div>
-                                <Label htmlFor="demoProduct2" className="text-sm font-medium text-green-800">
-                                  Product Name
-                                </Label>
-                                <Input
-                                  id="demoProduct2"
-                                  placeholder="e.g., Complete Business System"
-                                  className="border-green-300"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="demoPrice2" className="text-sm font-medium text-green-800">
-                                  Price
-                                </Label>
-                                <Input
-                                  id="demoPrice2"
-                                  type="number"
-                                  placeholder="0.00"
-                                  step="0.01"
-                                  className="border-green-300"
-                                />
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
-
-                      {/* Main Form - Upsells Generation */}
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <TrendingUp className="h-5 w-5" />
-                            Generate Upsells
-                          </CardTitle>
-                          <CardDescription>
-                            Fill out the details below to generate your upsell offers
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <UpsellsForm 
-                            customerAvatar={project.customer_avatar || {
-                              id: 'demo',
-                              businessName: 'Your Business',
-                              industry: 'Your Industry',
-                              targetAudience: 'Your Target Audience'
-                            }}
-                            mainOffer={project.main_offer || {
-                              id: 'demo',
-                              productName: 'Your Product',
-                              price: '0'
-                            }}
-                            existingUpsells={project.generated_content?.upsells}
-                            onUpsellsGenerated={(upsells) => {
-                              setProject(prev => prev ? { 
-                                ...prev, 
-                                generated_content: { 
-                                  ...prev.generated_content, 
-                                  id: prev.generated_content?.id || Date.now().toString(),
-                                  generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
-                                  upsells: upsells
-                              }
-                            } : null)
-                            setGenerationStatus(prev => ({ ...prev, upsells: 'completed' }))
-                          }}
-                        />
-                      </CardContent>
-                    </Card>
-                  </div>
-                  </div>
+                  <UpsellsForm 
+                    customerAvatar={project.customer_avatar || {
+                      id: 'demo',
+                      businessName: 'Your Business',
+                      industry: 'Your Industry',
+                      targetAudience: 'Your Target Audience'
+                    }}
+                    mainOffer={project.main_offer || {
+                      id: 'demo',
+                      productName: 'Your Product',
+                      price: '0'
+                    }}
+                    existingUpsells={project.generated_content?.upsells}
+                    onUpsellsGenerated={(upsells) => {
+                      setProject(prev => prev ? { 
+                        ...prev, 
+                        generated_content: { 
+                          ...prev.generated_content, 
+                          id: prev.generated_content?.id || Date.now().toString(),
+                          generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                          upsells: upsells
+                        }
+                      } : null)
+                      setGenerationStatus(prev => ({ ...prev, upsells: 'completed' }))
+                    }}
+                  />
                 </CardContent>
               </Card>
-            </TabsContent>
+            </div>
+          )}
 
-            {/* Order Page Tab */}
-            <TabsContent value="order-page" className="space-y-6">
+          {/* Order Page Step */}
+          {activeTab === 'order-page' && (
+            <div className="space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -936,159 +547,40 @@ export default function ProjectWorkspace() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-6">
-                    {generationStatus.offer !== 'completed' && (
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-                        <FileText className="h-12 w-12 text-blue-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-blue-900 mb-2">
-                          Recommended: Complete Main Offer First
-                        </h3>
-                        <p className="text-blue-700 mb-4">
-                          For best results, complete your main offer to generate targeted order page copy.
-                        </p>
-                        <Button 
-                          onClick={() => setActiveTab('offer')}
-                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
-                        >
-                          Complete Main Offer First
-                          <ArrowRight className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )}
-                    
-                    <div className="text-center">
-                      <div className="inline-flex items-center gap-2 text-gray-500 mb-4">
-                        <div className="w-8 h-px bg-gray-300"></div>
-                        <span className="text-sm font-medium">OR</span>
-                        <div className="w-8 h-px bg-gray-300"></div>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-6">
-                        Input your own content to proceed without dependencies
-                      </p>
-                    </div>
-
-                    <div className="space-y-6">
-                      {/* Dependency Input Section */}
-                      {!project.customer_avatar && (
-                        <Card className="bg-blue-50 border-blue-200">
-                          <CardHeader>
-                            <CardTitle className="text-sm text-blue-900">Customer Avatar (Required)</CardTitle>
-                            <CardDescription className="text-blue-700">
-                              Input your business details to generate targeted order page copy
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-2">
-                              <div>
-                                <Label htmlFor="demoIndustry3" className="text-sm font-medium text-blue-800">
-                                  Industry
-                                </Label>
-                                <Input
-                                  id="demoIndustry3"
-                                  placeholder="e.g., E-commerce, SaaS, Consulting"
-                                  className="border-blue-300"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="demoAudience3" className="text-sm font-medium text-blue-800">
-                                  Target Audience
-                                </Label>
-                                <Input
-                                  id="demoAudience3"
-                                  placeholder="e.g., Small business owners, Entrepreneurs"
-                                  className="border-blue-300"
-                                />
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
-
-                      {!project.main_offer && (
-                        <Card className="bg-green-50 border-green-200">
-                          <CardHeader>
-                            <CardTitle className="text-sm text-green-900">Main Offer (Required)</CardTitle>
-                            <CardDescription className="text-green-700">
-                              Input your main product details to generate targeted order page copy
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-2">
-                              <div>
-                                <Label htmlFor="demoProduct3" className="text-sm font-medium text-green-800">
-                                  Product Name
-                                </Label>
-                                <Input
-                                  id="demoProduct3"
-                                  placeholder="e.g., Complete Business System"
-                                  className="border-green-300"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="demoPrice3" className="text-sm font-medium text-green-800">
-                                  Price
-                                </Label>
-                                <Input
-                                  id="demoPrice3"
-                                  type="number"
-                                  placeholder="0.00"
-                                  step="0.01"
-                                  className="border-green-300"
-                                />
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
-
-                      {/* Main Form - Order Page Generation */}
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <FileText className="h-5 w-5" />
-                            Generate Order Page Copy
-                          </CardTitle>
-                          <CardDescription>
-                            Fill out the details below to generate your order page copy
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <OrderPageForm 
-                            customerAvatar={project.customer_avatar || {
-                              id: 'demo',
-                              businessName: 'Your Business',
-                              industry: 'Your Industry',
-                              targetAudience: 'Your Target Audience'
-                            }}
-                            mainOffer={project.main_offer || {
-                              id: 'demo',
-                              productName: 'Your Product',
-                              price: '0'
-                            }}
-                            existingOrderPage={project.generated_content?.order_page}
-                            onOrderPageGenerated={(orderPage) => {
-                              setProject(prev => prev ? { 
-                                ...prev, 
-                                generated_content: { 
-                                  ...prev.generated_content, 
-                                  id: prev.generated_content?.id || Date.now().toString(),
-                                  generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
-                                  order_page: orderPage
-                                }
-                              } : null)
-                              setGenerationStatus(prev => ({ ...prev, order_page: 'completed' }))
-                            }}
-                          />
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </div>
+                  <OrderPageForm 
+                    customerAvatar={project.customer_avatar || {
+                      id: 'demo',
+                      businessName: 'Your Business',
+                      industry: 'Your Industry',
+                      targetAudience: 'Your Target Audience'
+                    }}
+                    mainOffer={project.main_offer || {
+                      id: 'demo',
+                      productName: 'Your Product',
+                      price: '0'
+                    }}
+                    existingOrderPage={project.generated_content?.order_page}
+                    onOrderPageGenerated={(orderPage) => {
+                      setProject(prev => prev ? { 
+                        ...prev, 
+                        generated_content: { 
+                          ...prev.generated_content, 
+                          id: prev.generated_content?.id || Date.now().toString(),
+                          generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                          order_page: orderPage
+                        }
+                      } : null)
+                      setGenerationStatus(prev => ({ ...prev, order_page: 'completed' }))
+                    }}
+                  />
                 </CardContent>
               </Card>
-            </TabsContent>
+            </div>
+          )}
 
-                        {/* Thank You Page Tab */}
-            <TabsContent value="thank-you" className="space-y-6">
+          {/* Thank You Page Step */}
+          {activeTab === 'thank-you' && (
+            <div className="space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -1100,159 +592,40 @@ export default function ProjectWorkspace() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-6">
-                    {generationStatus.offer !== 'completed' && (
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-                        <CheckCircle2 className="h-12 w-12 text-blue-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-blue-900 mb-2">
-                          Recommended: Complete Main Offer First
-                        </h3>
-                        <p className="text-blue-700 mb-4">
-                          For best results, complete your main offer to generate targeted thank you page content.
-                        </p>
-                        <Button 
-                          onClick={() => setActiveTab('offer')}
-                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
-                        >
-                          Complete Main Offer First
-                          <ArrowRight className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )}
-                    
-                    <div className="text-center">
-                      <div className="inline-flex items-center gap-2 text-gray-500 mb-4">
-                        <div className="w-8 h-px bg-gray-300"></div>
-                        <span className="text-sm font-medium">OR</span>
-                        <div className="w-8 h-px bg-gray-300"></div>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-6">
-                        Input your own content to proceed without dependencies
-                      </p>
-                    </div>
-
-                    <div className="space-y-6">
-                      {/* Dependency Input Section */}
-                      {!project.customer_avatar && (
-                        <Card className="bg-blue-50 border-blue-200">
-                          <CardHeader>
-                            <CardTitle className="text-sm text-blue-900">Customer Avatar (Required)</CardTitle>
-                            <CardDescription className="text-blue-700">
-                              Input your business details to generate targeted thank you page content
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-2">
-                              <div>
-                                <Label htmlFor="demoIndustry4" className="text-sm font-medium text-blue-800">
-                                  Industry
-                                </Label>
-                                <Input
-                                  id="demoIndustry4"
-                                  placeholder="e.g., E-commerce, SaaS, Consulting"
-                                  className="border-blue-300"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="demoAudience4" className="text-sm font-medium text-blue-800">
-                                  Target Audience
-                                </Label>
-                                <Input
-                                  id="demoAudience4"
-                                  placeholder="e.g., Small business owners, Entrepreneurs"
-                                  className="border-blue-300"
-                                />
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
-
-                      {!project.main_offer && (
-                        <Card className="bg-green-50 border-green-200">
-                          <CardHeader>
-                            <CardTitle className="text-sm text-green-900">Main Offer (Required)</CardTitle>
-                            <CardDescription className="text-green-700">
-                              Input your main product details to generate targeted thank you page content
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-2">
-                              <div>
-                                <Label htmlFor="demoProduct4" className="text-sm font-medium text-green-800">
-                                  Product Name
-                                </Label>
-                                <Input
-                                  id="demoProduct4"
-                                  placeholder="e.g., Complete Business System"
-                                  className="border-green-300"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="demoPrice4" className="text-sm font-medium text-green-800">
-                                  Price
-                                </Label>
-                                <Input
-                                  id="demoPrice4"
-                                  type="number"
-                                  placeholder="0.00"
-                                  step="0.01"
-                                  className="border-green-300"
-                                />
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
-
-                      {/* Main Form - Thank You Page Generation */}
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <CheckCircle2 className="h-5 w-5" />
-                            Generate Thank You Page Content
-                          </CardTitle>
-                          <CardDescription>
-                            Fill out the details below to generate your thank you page content
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <ThankYouPageForm 
-                            customerAvatar={project.customer_avatar || {
-                              id: 'demo',
-                              businessName: 'Your Business',
-                              industry: 'Your Industry',
-                              targetAudience: 'Your Target Audience'
-                            }}
-                            mainOffer={project.main_offer || {
-                              id: 'demo',
-                              productName: 'Your Product',
-                              price: '0'
-                            }}
-                            existingThankYou={project.generated_content?.thank_you}
-                            onThankYouGenerated={(thankYou) => {
-                              setProject(prev => prev ? { 
-                                ...prev, 
-                                generated_content: { 
-                                  ...prev.generated_content, 
-                                  id: prev.generated_content?.id || Date.now().toString(),
-                                  generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
-                                  thank_you: thankYou
-                            }
-                          } : null)
-                          setGenerationStatus(prev => ({ ...prev, thank_you: 'completed' }))
-                        }}
-                      />
-                    </CardContent>
-                  </Card>
-                    </div>
-                  </div>
+                  <ThankYouPageForm 
+                    customerAvatar={project.customer_avatar || {
+                      id: 'demo',
+                      businessName: 'Your Business',
+                      industry: 'Your Industry',
+                      targetAudience: 'Your Target Audience'
+                    }}
+                    mainOffer={project.main_offer || {
+                      id: 'demo',
+                      productName: 'Your Product',
+                      price: '0'
+                    }}
+                    existingThankYou={project.generated_content?.thank_you}
+                    onThankYouGenerated={(thankYou) => {
+                      setProject(prev => prev ? { 
+                        ...prev, 
+                        generated_content: { 
+                          ...prev.generated_content, 
+                          id: prev.generated_content?.id || Date.now().toString(),
+                          generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                          thank_you: thankYou
+                        }
+                      } : null)
+                      setGenerationStatus(prev => ({ ...prev, thank_you: 'completed' }))
+                    }}
+                  />
                 </CardContent>
               </Card>
-            </TabsContent>
+            </div>
+          )}
 
-            {/* Main VSL Tab */}
-            <TabsContent value="main-vsl" className="space-y-6">
+          {/* Main VSL Step */}
+          {activeTab === 'main-vsl' && (
+            <div className="space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -1264,159 +637,40 @@ export default function ProjectWorkspace() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-6">
-                    {generationStatus.offer !== 'completed' && (
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-                        <Video className="h-12 w-12 text-blue-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-blue-900 mb-2">
-                          Recommended: Complete Main Offer First
-                        </h3>
-                        <p className="text-blue-700 mb-4">
-                          For best results, complete your main offer to generate targeted VSL script.
-                        </p>
-                        <Button 
-                          onClick={() => setActiveTab('offer')}
-                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
-                        >
-                          Complete Main Offer First
-                          <ArrowRight className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )}
-                    
-                    <div className="text-center">
-                      <div className="inline-flex items-center gap-2 text-gray-500 mb-4">
-                        <div className="w-8 h-px bg-gray-300"></div>
-                        <span className="text-sm font-medium">OR</span>
-                        <div className="w-8 h-px bg-gray-300"></div>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-6">
-                        Input your own content to proceed without dependencies
-                      </p>
-                    </div>
-
-                    <div className="space-y-6">
-                      {/* Dependency Input Section */}
-                      {!project.customer_avatar && (
-                        <Card className="bg-blue-50 border-blue-200">
-                          <CardHeader>
-                            <CardTitle className="text-sm text-blue-900">Customer Avatar (Required)</CardTitle>
-                            <CardDescription className="text-blue-700">
-                              Input your business details to generate targeted VSL script
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-2">
-                              <div>
-                                <Label htmlFor="demoIndustry5" className="text-sm font-medium text-blue-800">
-                                  Industry
-                                </Label>
-                                <Input
-                                  id="demoIndustry5"
-                                  placeholder="e.g., E-commerce, SaaS, Consulting"
-                                  className="border-blue-300"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="demoAudience5" className="text-sm font-medium text-blue-800">
-                                  Target Audience
-                                </Label>
-                                <Input
-                                  id="demoAudience5"
-                                  placeholder="e.g., Small business owners, Entrepreneurs"
-                                  className="border-blue-300"
-                                />
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
-
-                      {!project.main_offer && (
-                        <Card className="bg-green-50 border-green-200">
-                          <CardHeader>
-                            <CardTitle className="text-sm text-green-900">Main Offer (Required)</CardTitle>
-                            <CardDescription className="text-green-700">
-                              Input your main product details to generate targeted VSL script
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-2">
-                              <div>
-                                <Label htmlFor="demoProduct5" className="text-sm font-medium text-green-800">
-                                  Product Name
-                                </Label>
-                                <Input
-                                  id="demoProduct5"
-                                  placeholder="e.g., Complete Business System"
-                                  className="border-blue-300"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="demoPrice5" className="text-sm font-medium text-green-800">
-                                  Price
-                                </Label>
-                                <Input
-                                  id="demoPrice5"
-                                  type="number"
-                                  placeholder="0.00"
-                                  step="0.01"
-                                  className="border-green-300"
-                                />
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
-
-                      {/* Main Form - Main VSL Generation */}
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <Video className="h-5 w-5" />
-                            Generate Main VSL Script
-                          </CardTitle>
-                          <CardDescription>
-                            Fill out the details below to generate your main video sales letter script
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <MainVSLForm 
-                            customerAvatar={project.customer_avatar || {
-                              id: 'demo',
-                              businessName: 'Your Business',
-                              industry: 'Your Industry',
-                              targetAudience: 'Your Target Audience'
-                            }}
-                            mainOffer={project.main_offer || {
-                              id: 'demo',
-                              productName: 'Your Product',
-                              price: '0'
-                            }}
-                            existingVSL={project.generated_content?.main_vsl}
-                            onVSLGenerated={(vsl) => {
-                              setProject(prev => prev ? { 
-                                ...prev, 
-                                generated_content: { 
-                                  ...prev.generated_content, 
-                                  id: prev.generated_content?.id || Date.now().toString(),
-                                  generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
-                                  main_vsl: vsl
-                                }
-                              } : null)
-                              setGenerationStatus(prev => ({ ...prev, main_vsl: 'completed' }))
-                            }}
-                          />
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </div>
+                  <MainVSLForm 
+                    customerAvatar={project.customer_avatar || {
+                      id: 'demo',
+                      businessName: 'Your Business',
+                      industry: 'Your Industry',
+                      targetAudience: 'Your Target Audience'
+                    }}
+                    mainOffer={project.main_offer || {
+                      id: 'demo',
+                      productName: 'Your Product',
+                      price: '0'
+                    }}
+                    existingVSL={project.generated_content?.main_vsl}
+                    onVSLGenerated={(vsl) => {
+                      setProject(prev => prev ? { 
+                        ...prev, 
+                        generated_content: { 
+                          ...prev.generated_content, 
+                          id: prev.generated_content?.id || Date.now().toString(),
+                          generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                          main_vsl: vsl
+                        }
+                      } : null)
+                      setGenerationStatus(prev => ({ ...prev, main_vsl: 'completed' }))
+                    }}
+                  />
                 </CardContent>
               </Card>
-            </TabsContent>
+            </div>
+          )}
 
-            {/* Upsell VSL Tab */}
-            <TabsContent value="upsell-vsl" className="space-y-6">
+          {/* Upsell VSL Step */}
+          {activeTab === 'upsell-vsl' && (
+            <div className="space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -1428,159 +682,40 @@ export default function ProjectWorkspace() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-6">
-                    {generationStatus.offer !== 'completed' && (
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-                        <Video className="h-12 w-12 text-blue-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-blue-900 mb-2">
-                          Recommended: Complete Main Offer First
-                        </h3>
-                        <p className="text-blue-700 mb-4">
-                          For best results, complete your main offer to generate targeted upsell VSL script.
-                        </p>
-                        <Button 
-                          onClick={() => setActiveTab('offer')}
-                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
-                        >
-                          Complete Main Offer First
-                          <ArrowRight className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )}
-                    
-                    <div className="text-center">
-                      <div className="inline-flex items-center gap-2 text-gray-500 mb-4">
-                        <div className="w-8 h-px bg-gray-300"></div>
-                        <span className="text-sm font-medium">OR</span>
-                        <div className="w-8 h-px bg-gray-300"></div>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-6">
-                        Input your own content to proceed without dependencies
-                      </p>
-                    </div>
-
-                    <div className="space-y-6">
-                      {/* Dependency Input Section */}
-                      {!project.customer_avatar && (
-                        <Card className="bg-blue-50 border-blue-200">
-                          <CardHeader>
-                            <CardTitle className="text-sm text-blue-900">Customer Avatar (Required)</CardTitle>
-                            <CardDescription className="text-blue-700">
-                              Input your business details to generate targeted upsell VSL script
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-2">
-                              <div>
-                                <Label htmlFor="demoIndustry6" className="text-sm font-medium text-blue-800">
-                                  Industry
-                                </Label>
-                                <Input
-                                  id="demoIndustry6"
-                                  placeholder="e.g., E-commerce, SaaS, Consulting"
-                                  className="border-blue-300"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="demoAudience6" className="text-sm font-medium text-blue-800">
-                                  Target Audience
-                                </Label>
-                                <Input
-                                  id="demoAudience6"
-                                  placeholder="e.g., Small business owners, Entrepreneurs"
-                                  className="border-blue-300"
-                                />
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
-
-                      {!project.main_offer && (
-                        <Card className="bg-green-50 border-green-200">
-                          <CardHeader>
-                            <CardTitle className="text-sm text-green-900">Main Offer (Required)</CardTitle>
-                            <CardDescription className="text-green-700">
-                              Input your main product details to generate targeted upsell VSL script
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-2">
-                              <div>
-                                <Label htmlFor="demoProduct6" className="text-sm font-medium text-green-800">
-                                  Product Name
-                                </Label>
-                                <Input
-                                  id="demoProduct6"
-                                  placeholder="e.g., Complete Business System"
-                                  className="border-green-300"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="demoPrice6" className="text-sm font-medium text-green-800">
-                                  Price
-                                </Label>
-                                <Input
-                                  id="demoPrice6"
-                                  type="number"
-                                  placeholder="0.00"
-                                  step="0.01"
-                                  className="border-green-300"
-                                />
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
-
-                      {/* Main Form - Upsell VSL Generation */}
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <Video className="h-5 w-5" />
-                            Generate Upsell VSL Script
-                          </CardTitle>
-                          <CardDescription>
-                            Fill out the details below to generate your upsell video sales letter script
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <UpsellVSLForm 
-                            customerAvatar={project.customer_avatar || {
-                              id: 'demo',
-                              businessName: 'Your Business',
-                              industry: 'Your Industry',
-                              targetAudience: 'Your Target Audience'
-                            }}
-                            mainOffer={project.main_offer || {
-                              id: 'demo',
-                              productName: 'Your Product',
-                              price: '0'
-                            }}
-                            existingVSL={project.generated_content?.upsell_vsl}
-                            onVSLGenerated={(vsl) => {
-                              setProject(prev => prev ? { 
-                                ...prev, 
-                                generated_content: { 
-                                  ...prev.generated_content, 
-                                  id: prev.generated_content?.id || Date.now().toString(),
-                                  generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
-                                  upsell_vsl: vsl
-                                }
-                              } : null)
-                              setGenerationStatus(prev => ({ ...prev, upsell_vsl: 'completed' }))
-                            }}
-                          />
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </div>
+                  <UpsellVSLForm 
+                    customerAvatar={project.customer_avatar || {
+                      id: 'demo',
+                      businessName: 'Your Business',
+                      industry: 'Your Industry',
+                      targetAudience: 'Your Target Audience'
+                    }}
+                    mainOffer={project.main_offer || {
+                      id: 'demo',
+                      productName: 'Your Product',
+                      price: '0'
+                    }}
+                    existingVSL={project.generated_content?.upsell_vsl}
+                    onVSLGenerated={(vsl) => {
+                      setProject(prev => prev ? { 
+                        ...prev, 
+                        generated_content: { 
+                          ...prev.generated_content, 
+                          id: prev.generated_content?.id || Date.now().toString(),
+                          generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                          upsell_vsl: vsl
+                        }
+                      } : null)
+                      setGenerationStatus(prev => ({ ...prev, upsell_vsl: 'completed' }))
+                    }}
+                  />
                 </CardContent>
               </Card>
-            </TabsContent>
+            </div>
+          )}
 
-            {/* Email Strategy Tab */}
-            <TabsContent value="email-strategy" className="space-y-6">
+          {/* Email Strategy Step */}
+          {activeTab === 'email-strategy' && (
+            <div className="space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -1592,158 +727,38 @@ export default function ProjectWorkspace() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-6">
-                    {generationStatus.offer !== 'completed' && (
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-                        <Mail className="h-12 w-12 text-blue-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-blue-900 mb-2">
-                          Recommended: Complete Main Offer First
-                        </h3>
-                        <p className="text-blue-700 mb-4">
-                          For best results, complete your main offer to generate targeted email strategy.
-                        </p>
-                        <Button 
-                          onClick={() => setActiveTab('offer')}
-                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
-                        >
-                          Complete Main Offer First
-                          <ArrowRight className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )}
-                    
-                    <div className="text-center">
-                      <div className="inline-flex items-center gap-2 text-gray-500 mb-4">
-                        <div className="w-8 h-px bg-gray-300"></div>
-                        <span className="text-sm font-medium">OR</span>
-                        <div className="w-8 h-px bg-gray-300"></div>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-6">
-                        Input your own content to proceed without dependencies
-                      </p>
-                    </div>
-
-                    <div className="space-y-6">
-                      {/* Dependency Input Section */}
-                      {!project.customer_avatar && (
-                        <Card className="bg-blue-50 border-blue-200">
-                          <CardHeader>
-                            <CardTitle className="text-sm text-blue-900">Customer Avatar (Required)</CardTitle>
-                            <CardDescription className="text-blue-700">
-                              Input your business details to generate targeted email strategy
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-2">
-                              <div>
-                                <Label htmlFor="demoIndustry7" className="text-sm font-medium text-blue-800">
-                                  Industry
-                                </Label>
-                                <Input
-                                  id="demoIndustry7"
-                                  placeholder="e.g., E-commerce, SaaS, Consulting"
-                                  className="border-blue-300"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="demoAudience7" className="text-sm font-medium text-blue-800">
-                                  Target Audience
-                                </Label>
-                                <Input
-                                  id="demoAudience7"
-                                  placeholder="e.g., Small business owners, Entrepreneurs"
-                                  className="border-blue-300"
-                                />
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
-
-                      {!project.main_offer && (
-                        <Card className="bg-green-50 border-green-200">
-                          <CardHeader>
-                            <CardTitle className="text-sm text-green-900">Main Offer (Required)</CardTitle>
-                            <CardDescription className="text-green-700">
-                              Input your main product details to generate targeted email strategy
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-2">
-                              <div>
-                                <Label htmlFor="demoProduct7" className="text-sm font-medium text-green-800">
-                                  Product Name
-                                </Label>
-                                <Input
-                                  id="demoProduct7"
-                                  placeholder="e.g., Complete Business System"
-                                  className="border-green-300"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="demoPrice7" className="text-sm font-medium text-green-800">
-                                  Price
-                                </Label>
-                                <Input
-                                  id="demoPrice7"
-                                  type="number"
-                                  placeholder="0.00"
-                                  step="0.01"
-                                  className="border-green-300"
-                                />
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      )}
-
-                      {/* Main Form - Email Strategy Generation */}
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2">
-                            <Mail className="h-5 w-5" />
-                            Generate Email Strategy
-                          </CardTitle>
-                          <CardDescription>
-                            Fill out the details below to generate your complete email marketing strategy
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <EmailStrategyForm 
-                            customerAvatar={project.customer_avatar || {
-                              id: 'demo',
-                              businessName: 'Your Business',
-                              industry: 'Your Industry',
-                              targetAudience: 'Your Target Audience'
-                            }}
-                            mainOffer={project.main_offer || {
-                              id: 'demo',
-                              productName: 'Your Product',
-                              price: '0'
-                            }}
-                            existingStrategy={project.generated_content?.email_strategy}
-                            onStrategyGenerated={(strategy) => {
-                              setProject(prev => prev ? { 
-                                ...prev, 
-                                generated_content: { 
-                                  ...prev.generated_content, 
-                                  id: prev.generated_content?.id || Date.now().toString(),
-                                  generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
-                                  email_strategy: strategy
-                                }
-                              } : null)
-                              setGenerationStatus(prev => ({ ...prev, email_strategy: 'completed' }))
-                            }}
-                          />
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </div>
+                  <EmailStrategyForm 
+                    customerAvatar={project.customer_avatar || {
+                      id: 'demo',
+                      businessName: 'Your Business',
+                      industry: 'Your Industry',
+                      targetAudience: 'Your Target Audience'
+                    }}
+                    mainOffer={project.main_offer || {
+                      id: 'demo',
+                      productName: 'Your Product',
+                      price: '0'
+                    }}
+                    existingStrategy={project.generated_content?.email_strategy}
+                    onStrategyGenerated={(strategy) => {
+                      setProject(prev => prev ? { 
+                        ...prev, 
+                        generated_content: { 
+                          ...prev.generated_content, 
+                          id: prev.generated_content?.id || Date.now().toString(),
+                          generatedAt: prev.generated_content?.generatedAt || new Date().toISOString(),
+                          email_strategy: strategy
+                        }
+                      } : null)
+                      setGenerationStatus(prev => ({ ...prev, email_strategy: 'completed' }))
+                    }}
+                  />
                 </CardContent>
               </Card>
-            </TabsContent>
-          </div>
-        </Tabs>
+            </div>
+          )}
+
+        </div>
       </div>
     </div>
   )
