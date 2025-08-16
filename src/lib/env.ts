@@ -1,19 +1,32 @@
-export const env = {
-  NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-  NODE_ENV: process.env.NODE_ENV || 'development',
+import { z } from 'zod'
+
+const envSchema = z.object({
+  // Database
+  NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+  
+  // OpenAI
+  OPENAI_API_KEY: z.string().min(1),
+  
+  // App
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  NEXT_PUBLIC_APP_URL: z.string().url().default('http://localhost:3000'),
+})
+
+export const env = envSchema.parse(process.env)
+
+// Validate OpenAI API key format (starts with 'sk-')
+if (!env.OPENAI_API_KEY.startsWith('sk-')) {
+  throw new Error('Invalid OpenAI API key format. Must start with "sk-"')
 }
 
-// Validate environment variables
-if (!env.NEXT_PUBLIC_SUPABASE_URL) {
-  console.error('❌ NEXT_PUBLIC_SUPABASE_URL is missing!')
-}
-if (!env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-  console.error('❌ NEXT_PUBLIC_SUPABASE_ANON_KEY is missing!')
-}
-
-// Log environment variable status (for debugging)
-console.log('🔍 Environment Variables Status:')
-console.log('  NEXT_PUBLIC_SUPABASE_URL:', env.NEXT_PUBLIC_SUPABASE_URL ? '✅ Set' : '❌ Missing')
-console.log('  NEXT_PUBLIC_SUPABASE_ANON_KEY:', env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅ Set' : '❌ Missing')
-console.log('  NODE_ENV:', env.NODE_ENV)
+// Export individual environment variables for convenience
+export const {
+  NEXT_PUBLIC_SUPABASE_URL,
+  NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  SUPABASE_SERVICE_ROLE_KEY,
+  OPENAI_API_KEY,
+  NODE_ENV,
+  NEXT_PUBLIC_APP_URL,
+} = env
