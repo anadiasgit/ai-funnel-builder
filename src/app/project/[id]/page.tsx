@@ -365,6 +365,21 @@ export default function ProjectWorkspace() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Smart Defaults Indicator */}
+        {project?.customer_avatar && (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+              <div className="flex-1">
+                <h4 className="text-sm font-medium text-blue-900">Smart Defaults Active</h4>
+                <p className="text-xs text-blue-700">
+                  Forms are automatically pre-filled with intelligent suggestions based on your customer avatar and business context.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Content based on selected step */}
         <div className="space-y-6">
           

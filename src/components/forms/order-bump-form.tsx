@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -60,6 +60,88 @@ export function OrderBumpForm({
   
   const [isGenerating, setIsGenerating] = useState(false)
   const [orderBump, setOrderBump] = useState(existingOrderBump)
+
+  // Smart defaults based on customer avatar and main offer
+  useEffect(() => {
+    if ((customerAvatar || mainOffer) && !existingOrderBump) {
+      const smartDefaults = generateSmartDefaults(customerAvatar, mainOffer)
+      setFormData(prev => ({
+        ...prev,
+        ...smartDefaults
+      }))
+    }
+  }, [customerAvatar, mainOffer, existingOrderBump])
+
+  const generateSmartDefaults = (avatar: CustomerAvatar | null, offer: MainOffer | null) => {
+    const defaults: Partial<typeof formData> = {}
+    
+    // Industry-specific order bump suggestions
+    if (avatar?.industry) {
+      const industryDefaults = getIndustryDefaults(avatar.industry)
+      defaults.title = industryDefaults.title
+      defaults.description = industryDefaults.description
+      defaults.urgency = industryDefaults.urgency
+    }
+
+    // Price-based on main offer pricing
+    if (offer?.price) {
+      defaults.price = getOrderBumpPricing(offer.price)
+    }
+
+    // Enhanced description using main offer context
+    if (offer?.productName) {
+      defaults.description = defaults.description || `Complete ${offer.productName} Package - Get everything you need to succeed!`
+    }
+
+    return defaults
+  }
+
+  const getIndustryDefaults = (industry: string) => {
+    const industryMap: Record<string, any> = {
+      'Technology': {
+        title: 'Complete Tech Solution Suite',
+        description: 'Get the full technology stack with implementation support and training',
+        urgency: 'Limited Time: This upgrade expires when you leave this page'
+      },
+      'Marketing & Advertising': {
+        title: 'Marketing Mastery Complete Package',
+        description: 'Full marketing system with templates, scripts, and automation tools',
+        urgency: 'Special Offer: 50% off when ordered with main product'
+      },
+      'E-commerce': {
+        title: 'E-commerce Growth Accelerator',
+        description: 'Complete store optimization with conversion tools and scaling strategies',
+        urgency: 'Exclusive: Only available during checkout'
+      },
+      'Health & Wellness': {
+        title: 'Wellness Business Complete System',
+        description: 'Full practice management with client acquisition and retention tools',
+        urgency: 'Limited Availability: Only 50 packages remaining'
+      },
+      'Finance': {
+        title: 'Financial Freedom Complete Package',
+        description: 'Comprehensive wealth building with ongoing support and updates',
+        urgency: 'Special Launch Price: Regular price $497, today only $197'
+      }
+    }
+    
+    return industryMap[industry] || {
+      title: 'Complete Success Package',
+      description: 'Get everything you need to succeed with your business goals',
+      urgency: 'Limited Time: This offer expires when you leave this page'
+    }
+  }
+
+  const getOrderBumpPricing = (mainPrice: string) => {
+    const price = parseFloat(mainPrice.replace(/[^0-9.]/g, ''))
+    
+    if (price < 50) return '27'
+    if (price < 100) return '47'
+    if (price < 200) return '97'
+    if (price < 500) return '197'
+    if (price < 1000) return '297'
+    return '497'
+  }
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))

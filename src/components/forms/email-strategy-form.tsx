@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -64,6 +64,75 @@ export function EmailStrategyForm({
   
   const [isGenerating, setIsGenerating] = useState(false)
   const [strategy, setStrategy] = useState(existingStrategy)
+
+  // Smart defaults based on customer avatar and main offer
+  useEffect(() => {
+    if ((customerAvatar || mainOffer) && !existingStrategy) {
+      const smartDefaults = generateSmartDefaults(customerAvatar, mainOffer)
+      setFormData(prev => ({
+        ...prev,
+        ...smartDefaults
+      }))
+    }
+  }, [customerAvatar, mainOffer, existingStrategy])
+
+  const generateSmartDefaults = (avatar: CustomerAvatar | null, offer: MainOffer | null) => {
+    const defaults: Partial<typeof formData> = {}
+    
+    // Industry-specific email templates
+    if (avatar?.industry) {
+      const industryDefaults = getIndustryDefaults(avatar.industry, avatar, offer)
+      Object.assign(defaults, industryDefaults)
+    }
+
+    // Enhanced subjects using main offer context
+    if (offer?.productName) {
+      if (!defaults.welcomeSubject) {
+        defaults.welcomeSubject = `Welcome to ${offer.productName}! Here's Your First Step`
+      }
+      if (!defaults.offerSubject) {
+        defaults.offerSubject = `Your ${offer.productName} is Ready - Limited Time Access`
+      }
+    }
+
+    return defaults
+  }
+
+  const getIndustryDefaults = (industry: string, avatar: CustomerAvatar, offer: MainOffer | null) => {
+    const industryMap: Record<string, any> = {
+      'Technology': {
+        welcomeSubject: 'Welcome to Your Tech Transformation Journey',
+        welcomeBody: `Hi there!\n\nWelcome to the ${offer?.productName || 'Tech Solution'} family! I'm excited to help you transform your business with cutting-edge technology.\n\nIn the next few emails, I'll share:\n• The #1 tech mistake most businesses make\n• How to implement ${offer?.productName || 'our solution'} for maximum results\n• Advanced strategies to scale your tech success\n\nStay tuned!\n\nBest regards,\n[Your Name]`,
+        nurtureSubject: 'The #1 Tech Mistake Most Businesses Make',
+        nurtureBody: `Hi!\n\nI've been analyzing what holds most businesses back from tech success.\n\nAfter working with 500+ companies, I've identified the #1 mistake:\n\nThey implement technology without a clear strategy.\n\n${offer?.productName || 'Our solution'} solves this by giving you a proven, step-by-step system.\n\nBut here's the key - you need to implement it systematically.\n\nIn my next email, I'll show you exactly how to get started.\n\nBest regards,\n[Your Name]`
+      },
+      'Marketing & Advertising': {
+        welcomeSubject: 'Welcome to Marketing Mastery!',
+        welcomeBody: `Hi there!\n\nWelcome to the ${offer?.productName || 'Marketing Mastery'} family! I'm thrilled to help you generate consistent leads and increase conversions.\n\nIn the next few emails, I'll share:\n• The #1 marketing mistake most businesses make\n• How to implement ${offer?.productName || 'our system'} for maximum results\n• Advanced strategies to scale your marketing success\n\nStay tuned!\n\nBest regards,\n[Your Name]`,
+        nurtureSubject: 'The #1 Marketing Mistake Most Businesses Make',
+        nurtureBody: `Hi!\n\nI've been studying what holds most businesses back from marketing success.\n\nAfter working with 500+ companies, I've identified the #1 mistake:\n\nThey try to do everything at once instead of focusing on what actually works.\n\n${offer?.productName || 'Our system'} solves this by giving you a proven, step-by-step approach.\n\nBut here's the key - you need to implement it consistently.\n\nIn my next email, I'll show you exactly how to get started.\n\nBest regards,\n[Your Name]`
+      },
+      'E-commerce': {
+        welcomeSubject: 'Welcome to E-commerce Growth!',
+        welcomeBody: `Hi there!\n\nWelcome to the ${offer?.productName || 'E-commerce Growth'} family! I'm excited to help you increase sales and reduce customer acquisition costs.\n\nIn the next few emails, I'll share:\n• The #1 e-commerce mistake most store owners make\n• How to implement ${offer?.productName || 'our system'} for maximum results\n• Advanced strategies to scale your online store\n\nStay tuned!\n\nBest regards,\n[Your Name]`,
+        nurtureSubject: 'The #1 E-commerce Mistake Most Store Owners Make',
+        nurtureBody: `Hi!\n\nI've been analyzing what holds most e-commerce stores back from success.\n\nAfter working with 500+ online stores, I've identified the #1 mistake:\n\nThey focus on traffic instead of conversion optimization.\n\n${offer?.productName || 'Our system'} solves this by giving you a proven, step-by-step approach.\n\nBut here's the key - you need to implement it systematically.\n\nIn my next email, I'll show you exactly how to get started.\n\nBest regards,\n[Your Name]`
+      },
+      'Health & Wellness': {
+        welcomeSubject: 'Welcome to Wellness Business Success!',
+        welcomeBody: `Hi there!\n\nWelcome to the ${offer?.productName || 'Wellness Business'} family! I'm excited to help you help more people while building a profitable practice.\n\nIn the next few emails, I'll share:\n• The #1 mistake most wellness practitioners make\n• How to implement ${offer?.productName || 'our system'} for maximum results\n• Advanced strategies to scale your practice\n\nStay tuned!\n\nBest regards,\n[Your Name]`,
+        nurtureSubject: 'The #1 Mistake Most Wellness Practitioners Make',
+        nurtureBody: `Hi!\n\nI've been studying what holds most wellness practitioners back from success.\n\nAfter working with 500+ practitioners, I've identified the #1 mistake:\n\nThey focus on treatment instead of client acquisition and retention.\n\n${offer?.productName || 'Our system'} solves this by giving you a proven, step-by-step approach.\n\nBut here's the key - you need to implement it consistently.\n\nIn my next email, I'll show you exactly how to get started.\n\nBest regards,\n[Your Name]`
+      }
+    }
+    
+    return industryMap[industry] || {
+      welcomeSubject: 'Welcome to Business Success!',
+      welcomeBody: `Hi there!\n\nWelcome to the ${offer?.productName || 'Business Success'} family! I'm excited to help you transform your business and achieve your goals.\n\nIn the next few emails, I'll share:\n• The #1 mistake most business owners make\n• How to implement ${offer?.productName || 'our system'} for maximum results\n• Advanced strategies to scale your success\n\nStay tuned!\n\nBest regards,\n[Your Name]`,
+      nurtureSubject: 'The #1 Mistake Most Business Owners Make',
+      nurtureBody: `Hi!\n\nI've been studying what holds most business owners back from success.\n\nAfter working with 500+ businesses, I've identified the #1 mistake:\n\nThey try to do everything at once instead of focusing on what actually works.\n\n${offer?.productName || 'Our system'} solves this by giving you a proven, step-by-step approach.\n\nBut here's the key - you need to implement it consistently.\n\nIn my next email, I'll show you exactly how to get started.\n\nBest regards,\n[Your Name]`
+    }
+  }
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -72,7 +72,7 @@ export function OfferGenerationForm({
   existingOffer, 
   onOfferGenerated 
 }: OfferGenerationFormProps) {
-  const [formData, setFormData] = useState<OfferFormData>({
+  const [formData, setFormData] = useState({
     productName: existingOffer?.productName || '',
     productDescription: existingOffer?.productDescription || '',
     price: existingOffer?.price || '',
@@ -84,7 +84,112 @@ export function OfferGenerationForm({
   const [isGenerating, setIsGenerating] = useState(false)
   const [offer, setOffer] = useState(existingOffer)
 
-  const handleInputChange = (field: keyof OfferFormData, value: string) => {
+  // Smart defaults based on customer avatar
+  useEffect(() => {
+    if (customerAvatar && !existingOffer) {
+      const smartDefaults = generateSmartDefaults(customerAvatar)
+      setFormData(prev => ({
+        ...prev,
+        ...smartDefaults
+      }))
+    }
+  }, [customerAvatar, existingOffer])
+
+  const generateSmartDefaults = (avatar: CustomerAvatar) => {
+    const defaults: Partial<typeof formData> = {}
+    
+    // Industry-specific product suggestions
+    if (avatar.industry) {
+      const industryDefaults = getIndustryDefaults(avatar.industry)
+      defaults.productName = industryDefaults.productName
+      defaults.productDescription = industryDefaults.productDescription
+      defaults.valueProposition = industryDefaults.valueProposition
+      defaults.guarantee = industryDefaults.guarantee
+    }
+
+    // Industry-specific features (using industry instead of businessType)
+    if (avatar.industry) {
+      const industryFeatures = getIndustryFeatures(avatar.industry)
+      defaults.features = industryFeatures
+    }
+
+    // Budget-aware pricing suggestions
+    if (avatar.budget) {
+      defaults.price = getBudgetBasedPricing(avatar.budget)
+    }
+
+    return defaults
+  }
+
+  const getIndustryDefaults = (industry: string) => {
+    const industryMap: Record<string, any> = {
+      'Technology': {
+        productName: 'Complete Tech Solution Suite',
+        productDescription: 'End-to-end technology solution for modern businesses',
+        valueProposition: 'Transform your business with cutting-edge technology',
+        guarantee: '30-day money-back guarantee with full support'
+      },
+      'Marketing & Advertising': {
+        productName: 'Marketing Mastery System',
+        productDescription: 'Comprehensive marketing strategy and implementation guide',
+        valueProposition: 'Generate consistent leads and increase conversions',
+        guarantee: 'Double your ROI or get your money back'
+      },
+      'E-commerce': {
+        productName: 'E-commerce Growth Blueprint',
+        productDescription: 'Proven system to scale your online store',
+        valueProposition: 'Increase sales and reduce customer acquisition costs',
+        guarantee: 'See results in 90 days or full refund'
+      },
+      'Health & Wellness': {
+        productName: 'Wellness Business Builder',
+        productDescription: 'Complete system for health and wellness entrepreneurs',
+        valueProposition: 'Help more people while building a profitable business',
+        guarantee: 'Transform your practice or 100% refund'
+      },
+      'Finance': {
+        productName: 'Financial Freedom Framework',
+        productDescription: 'Step-by-step guide to building wealth',
+        valueProposition: 'Secure your financial future with proven strategies',
+        guarantee: 'Achieve your first milestone or money back'
+      }
+    }
+    
+    return industryMap[industry] || {
+      productName: 'Business Success System',
+      productDescription: 'Complete solution for your business needs',
+      valueProposition: 'Transform your business and achieve your goals',
+      guarantee: '30-day satisfaction guarantee'
+    }
+  }
+
+  const getIndustryFeatures = (industry: string) => {
+    const featureMap: Record<string, string> = {
+      'Technology': 'Cloud infrastructure, automation tools, security protocols, scalability solutions, integration capabilities',
+      'Marketing & Advertising': 'Lead generation systems, conversion optimization, customer journey mapping, analytics tools, campaign management',
+      'E-commerce': 'Product optimization, conversion tactics, customer retention, scaling strategies, inventory management',
+      'Health & Wellness': 'Client management systems, appointment scheduling, wellness tracking, outcome measurement, practice growth',
+      'Finance': 'Investment strategies, risk management, portfolio optimization, tax planning, retirement planning',
+      'Real Estate': 'Lead generation, client management, market analysis, transaction coordination, team building',
+      'Professional Services': 'Client acquisition, service delivery, pricing models, business scaling, team management'
+    }
+    
+    return featureMap[industry] || 'Core business strategies, growth tactics, operational efficiency, customer success'
+  }
+
+  const getBudgetBasedPricing = (budget: string) => {
+    const budgetMap: Record<string, string> = {
+      'Under $1,000': '97',
+      '$1,000 - $5,000': '297',
+      '$5,000 - $10,000': '497',
+      '$10,000 - $25,000': '997',
+      '$25,000+': '1,997'
+    }
+    
+    return budgetMap[budget] || '197'
+  }
+
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 

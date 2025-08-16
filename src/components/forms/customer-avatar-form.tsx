@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -61,6 +61,60 @@ export function CustomerAvatarForm({
   
   const [isGenerating, setIsGenerating] = useState(false)
   const [avatar, setAvatar] = useState(existingAvatar)
+
+  // Smart suggestions based on industry selection
+  useEffect(() => {
+    if (formData.industry && !existingAvatar) {
+      const suggestions = getIndustrySuggestions(formData.industry)
+      setFormData(prev => ({
+        ...prev,
+        painPoints: prev.painPoints || suggestions.painPoints,
+        goals: prev.goals || suggestions.goals,
+        targetAudience: prev.targetAudience || suggestions.targetAudience
+      }))
+    }
+  }, [formData.industry, existingAvatar])
+
+  const getIndustrySuggestions = (industry: string) => {
+    const industryMap: Record<string, any> = {
+      'Technology': {
+        painPoints: 'High customer acquisition costs, complex sales cycles, rapid technology changes, competition from larger companies, difficulty explaining technical value to non-technical buyers',
+        goals: 'Increase market share, improve customer retention, develop recurring revenue streams, expand into new markets, build thought leadership',
+        targetAudience: 'Small to medium businesses, startups, enterprise companies, IT managers, business owners looking to digitize'
+      },
+      'Marketing & Advertising': {
+        painPoints: 'Inconsistent lead generation, high client acquisition costs, difficulty proving ROI, client retention challenges, seasonal fluctuations',
+        goals: 'Generate consistent leads, increase client lifetime value, improve conversion rates, build recurring revenue, expand service offerings',
+        targetAudience: 'Small businesses, e-commerce stores, local service businesses, startups, established companies looking to grow'
+      },
+      'E-commerce': {
+        painPoints: 'High customer acquisition costs, cart abandonment, inventory management, seasonal fluctuations, competition from Amazon',
+        goals: 'Increase conversion rates, reduce customer acquisition costs, improve customer retention, expand product lines, enter new markets',
+        targetAudience: 'Online shoppers, mobile users, specific demographics, international customers, repeat buyers'
+      },
+      'Health & Wellness': {
+        painPoints: 'Client acquisition challenges, inconsistent income, difficulty scaling, insurance limitations, seasonal fluctuations',
+        goals: 'Increase client base, improve client retention, develop recurring revenue, expand services, build referral system',
+        targetAudience: 'Health-conscious individuals, specific age groups, people with specific health goals, corporate wellness programs'
+      },
+      'Finance': {
+        painPoints: 'Regulatory compliance, client trust issues, market volatility, competition from robo-advisors, difficulty explaining complex products',
+        goals: 'Increase assets under management, improve client retention, develop recurring revenue, expand service offerings, build thought leadership',
+        targetAudience: 'Individuals planning for retirement, small business owners, high-net-worth individuals, millennials building wealth'
+      },
+      'Real Estate': {
+        painPoints: 'Market fluctuations, high competition, seasonal variations, client acquisition costs, difficulty standing out',
+        goals: 'Increase sales volume, improve client retention, develop referral system, expand service areas, build team',
+        targetAudience: 'First-time homebuyers, property investors, sellers, commercial clients, specific neighborhoods'
+      }
+    }
+    
+    return industryMap[industry] || {
+      painPoints: 'Difficulty generating leads, high customer acquisition costs, inconsistent revenue, competition challenges, scaling limitations',
+      goals: 'Increase revenue, improve customer retention, expand market reach, develop recurring income, build brand awareness',
+      targetAudience: 'Small to medium businesses, specific demographics, local customers, online audience, repeat buyers'
+    }
+  }
 
   const handleInputChange = (field: keyof AvatarFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
