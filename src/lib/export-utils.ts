@@ -1,16 +1,93 @@
 import jsPDF from 'jspdf'
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, BorderStyle } from 'docx'
+import { Document, Packer, Paragraph, HeadingLevel, AlignmentType } from 'docx'
+
+export interface CustomerAvatar {
+  businessName?: string
+  industry?: string
+  targetAudience?: string
+  painPoints?: string
+  goals?: string
+  budget?: string
+  location?: string
+}
+
+export interface MainOffer {
+  productName?: string
+  productDescription?: string
+  price?: string
+  valueProposition?: string
+  features?: string
+  guarantee?: string
+}
+
+export interface OrderBump {
+  title?: string
+  description?: string
+  price?: string
+  urgency?: string
+}
+
+export interface Upsells {
+  upsell1?: {
+    title?: string
+    description?: string
+    price?: string
+  }
+  upsell2?: {
+    title?: string
+    description?: string
+    price?: string
+  }
+}
+
+export interface OrderPage {
+  headline?: string
+  subheadline?: string
+  callToAction?: string
+  guarantee?: string
+}
+
+export interface ThankYouPage {
+  headline?: string
+  message?: string
+  bonus?: string
+}
+
+export interface VSLScript {
+  hook?: string
+  problem?: string
+  solution?: string
+  proof?: string
+  offer?: string
+  close?: string
+  urgency?: string
+}
+
+export interface EmailStrategy {
+  welcome?: {
+    subject?: string
+    body?: string
+  }
+  nurture?: {
+    subject?: string
+    body?: string
+  }
+  offer?: {
+    subject?: string
+    body?: string
+  }
+}
 
 export interface ExportContent {
-  customerAvatar?: any
-  mainOffer?: any
-  orderBump?: any
-  upsells?: any
-  orderPage?: any
-  thankYou?: any
-  mainVSL?: any
-  upsellVSL?: any
-  emailStrategy?: any
+  customerAvatar?: CustomerAvatar
+  mainOffer?: MainOffer
+  orderBump?: OrderBump
+  upsells?: Upsells
+  orderPage?: OrderPage
+  thankYou?: ThankYouPage
+  mainVSL?: VSLScript
+  upsellVSL?: VSLScript
+  emailStrategy?: EmailStrategy
 }
 
 export interface ExportOptions {
