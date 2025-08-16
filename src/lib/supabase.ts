@@ -10,7 +10,7 @@ console.log('  Key starts with:', env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? env.NEXT_P
 
 // Client-side Supabase client (for use in client components)
 export const supabase = createBrowserClient(
-  env.NEXT_PUBLIC_SUPABASE_URL || '',
+  env.NEXT_PUBLIC_SUPABASE_URL || 'https://ermyyqopbhbuqqgpotpg.supabase.co',
   env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 )
 
