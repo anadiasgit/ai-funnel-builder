@@ -18,6 +18,7 @@ import {
 interface CustomerAvatarFormProps {
   existingAvatar?: CustomerAvatar | null
   onAvatarGenerated: (avatar: CustomerAvatar) => void
+  onFormChange?: () => void
 }
 
 interface CustomerAvatar {
@@ -45,7 +46,8 @@ interface AvatarFormData {
 
 export function CustomerAvatarForm({ 
   existingAvatar, 
-  onAvatarGenerated 
+  onAvatarGenerated,
+  onFormChange
 }: CustomerAvatarFormProps) {
   const [formData, setFormData] = useState<AvatarFormData>({
     businessName: existingAvatar?.businessName || '',
@@ -62,6 +64,7 @@ export function CustomerAvatarForm({
 
   const handleInputChange = (field: keyof AvatarFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
+    onFormChange?.()
   }
 
   // Helper function to handle avatar download

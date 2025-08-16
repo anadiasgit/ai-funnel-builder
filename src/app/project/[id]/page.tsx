@@ -29,6 +29,7 @@ import {
 // Import our custom components (we'll create these next)
 import { AIStatusIndicator } from '@/components/ui/ai-status-indicator'
 import { GenerationProgress } from '@/components/ui/generation-progress'
+import { FunnelFlowDiagram } from '@/components/ui/funnel-flow-diagram'
 import { CustomerAvatarForm } from '@/components/forms/customer-avatar-form'
 import { OfferGenerationForm } from '@/components/forms/offer-generation-form'
 import { OrderBumpForm } from '@/components/forms/order-bump-form'
@@ -171,6 +172,7 @@ export default function ProjectWorkspace() {
   const [project, setProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('avatar')
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [generationStatus, setGenerationStatus] = useState<GenerationStatus>({
     avatar: 'pending',
     offer: 'pending',
@@ -260,6 +262,28 @@ export default function ProjectWorkspace() {
     }
   }
 
+  const markAsDraft = () => {
+    setHasUnsavedChanges(true)
+  }
+
+  const markAsSaved = () => {
+    setHasUnsavedChanges(false)
+  }
+
+  // Warn user before leaving with unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault()
+        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?'
+        return 'You have unsaved changes. Are you sure you want to leave?'
+      }
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [hasUnsavedChanges])
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -290,6 +314,12 @@ export default function ProjectWorkspace() {
               <p className="text-sm text-gray-600 mt-1">{project.description}</p>
             </div>
             <div className="flex items-center gap-4">
+              {hasUnsavedChanges && (
+                <div className="flex items-center gap-2 px-3 py-1 bg-yellow-50 border border-yellow-200 rounded-full">
+                  <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                  <span className="text-xs text-yellow-700 font-medium">Draft</span>
+                </div>
+              )}
               <Badge variant={project.status === 'completed' ? 'default' : 'secondary'}>
                 {project.status}
               </Badge>
@@ -310,6 +340,25 @@ export default function ProjectWorkspace() {
               </span>
             </div>
             <GenerationProgress progress={calculateProgress()} />
+          </div>
+          
+          {/* Funnel Flow Diagram */}
+          <div className="pb-6">
+            <FunnelFlowDiagram 
+              steps={[
+                { id: 'avatar', name: 'Avatar', status: generationStatus.avatar, icon: User },
+                { id: 'offer', name: 'Offer', status: generationStatus.offer, icon: Target },
+                { id: 'order-bump', name: 'Order Bump', status: generationStatus.order_bump, icon: ShoppingCart },
+                { id: 'upsells', name: 'Upsells', status: generationStatus.upsells, icon: TrendingUp },
+                { id: 'order-page', name: 'Copy', status: generationStatus.order_page, icon: FileText },
+                { id: 'thank-you', name: 'Thank You', status: generationStatus.thank_you, icon: CheckCircle2 },
+                { id: 'main-vsl', name: 'Main VSL', status: generationStatus.main_vsl, icon: Video },
+                { id: 'upsell-vsl', name: 'Upsell VSL', status: generationStatus.upsell_vsl, icon: Video },
+                { id: 'email-strategy', name: 'Email', status: generationStatus.email_strategy, icon: Mail }
+              ]}
+              currentStep={activeTab}
+              onStepClick={(stepId) => setActiveTab(stepId)}
+            />
           </div>
         </div>
       </div>
@@ -494,7 +543,9 @@ export default function ProjectWorkspace() {
                     onAvatarGenerated={(avatar) => {
                       setProject(prev => prev ? { ...prev, customer_avatar: avatar } : null)
                       setGenerationStatus(prev => ({ ...prev, avatar: 'completed' }))
+                      markAsSaved()
                     }}
+                    onFormChange={markAsDraft}
                   />
                 </CardContent>
               </Card>
