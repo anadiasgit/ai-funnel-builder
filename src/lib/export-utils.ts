@@ -259,7 +259,7 @@ export const exportToPDF = async (content: ExportContent, options: ExportOptions
 
 // Word Document Export Functions
 export const exportToWord = async (content: ExportContent, options: ExportOptions) => {
-  const children: any[] = []
+  const children: Paragraph[] = []
 
   // Helper function to add section header
   const addSectionHeader = (title: string) => {
