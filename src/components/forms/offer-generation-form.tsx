@@ -19,7 +19,6 @@ import {
   Wand2,
   Copy,
   RefreshCw,
-  DollarSign,
   Zap,
   Shield,
   TrendingUp

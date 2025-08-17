@@ -10,7 +10,9 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { 
   Mail, 
   Sparkles,
-  CheckCircle2
+  CheckCircle2,
+  Users,
+  Clock
 } from 'lucide-react'
 import { CustomerAvatar, MainOffer } from '@/lib/types'
 
