@@ -235,12 +235,32 @@ SYNTHESIS & APPLICATION FRAMEWORK
 
 OUTPUT SPECIFICATIONS
 Present the complete avatar as a comprehensive marketing intelligence report with:
-1. Executive Summary
-2. Detailed Psychology Profile (all 15 framework sections)
-3. Marketing Application Guide
-4. Implementation Roadmap
 
-IMPORTANT: Base ALL insights on the actual research data provided. DO NOT use generic business insights - use the specific details provided. If they provide information about dog owners and dog toys, focus on that specific audience, not generic business owners.
+1. EXECUTIVE SUMMARY
+- One-paragraph avatar description
+- Top 3 psychological drivers
+- Primary marketing implications
+
+2. DETAILED PSYCHOLOGY PROFILE
+Complete all 15 framework sections with specific insights about the target audience.
+
+3. KEY INSIGHTS (Present as bullet points with •)
+- 5-7 specific psychological insights about the target audience
+- Focus on what makes them unique
+- Use the specific business context provided
+
+4. STRATEGIC RECOMMENDATIONS (Present as bullet points with •)
+- 5-7 actionable marketing strategies
+- Specific copy angles and messaging approaches
+- Offer design recommendations
+- Funnel strategy suggestions
+
+IMPORTANT: 
+- Base ALL insights on the actual research data provided
+- DO NOT use generic business insights - use the specific details provided
+- If they provide information about dog owners and dog toys, focus on that specific audience, not generic business owners
+- Format insights and recommendations as bullet points (•) for easy parsing
+- Make recommendations specific and actionable
 
 Create the most detailed, psychologically-driven customer avatar possible using the information provided.`
 
@@ -255,29 +275,58 @@ Create the most detailed, psychologically-driven customer avatar possible using 
       // The content will be available in the useAIStream hook
       const aiContent = content || ''
       
+      // Debug: Log the full AI response to see what we're working with
+      console.log('🔍 Full AI Response:', aiContent)
+      console.log('🔍 AI Response Length:', aiContent.length)
+      
       // Extract insights and recommendations from the comprehensive framework
       const lines = aiContent.split('\n').filter(line => line.trim().length > 0)
       
-      // Look for bullet points and numbered lists that contain insights
+      // Look for insights - be more flexible with the search
       const insights = lines
-        .filter(line => line.trim().length > 20 && (line.includes('•') || line.includes('-') || line.includes('*') || /^\d+\./.test(line)))
+        .filter(line => {
+          const trimmed = line.trim()
+          // Look for bullet points, numbered lists, or lines that seem like insights
+          return trimmed.length > 15 && (
+            trimmed.includes('•') || 
+            trimmed.includes('-') || 
+            trimmed.includes('*') || 
+            /^\d+\./.test(trimmed) ||
+            trimmed.includes(':') && trimmed.length > 30 ||
+            (trimmed.includes('dog') || trimmed.includes('toy') || trimmed.includes('owner')) && trimmed.length > 20
+          )
+        })
         .map(line => line.replace(/^[•\-*\d\.]\s*/, '').trim())
         .filter(line => line.length > 10)
-        .slice(0, 10)
+        .slice(0, 8)
       
-      // Look for strategic recommendations and marketing implications
+      // Look for recommendations - be more flexible with the search
       const recommendations = lines
-        .filter(line => line.trim().length > 20 && (
-          line.toLowerCase().includes('recommend') || 
-          line.toLowerCase().includes('strategy') || 
-          line.toLowerCase().includes('approach') ||
-          line.toLowerCase().includes('marketing') ||
-          line.toLowerCase().includes('copy') ||
-          line.toLowerCase().includes('message')
-        ))
+        .filter(line => {
+          const trimmed = line.trim()
+          return trimmed.length > 15 && (
+            trimmed.toLowerCase().includes('recommend') || 
+            trimmed.toLowerCase().includes('strategy') || 
+            trimmed.toLowerCase().includes('approach') ||
+            trimmed.toLowerCase().includes('marketing') ||
+            trimmed.toLowerCase().includes('copy') ||
+            trimmed.toLowerCase().includes('message') ||
+            trimmed.toLowerCase().includes('should') ||
+            trimmed.toLowerCase().includes('focus on') ||
+            trimmed.toLowerCase().includes('target') ||
+            trimmed.toLowerCase().includes('use') ||
+            trimmed.toLowerCase().includes('emphasize') ||
+            trimmed.toLowerCase().includes('highlight')
+          )
+        })
         .map(line => line.replace(/^[•\-*\d\.]\s*/, '').trim())
         .filter(line => line.length > 10)
-        .slice(0, 10)
+        .slice(0, 8)
+      
+      // Debug: Log what we found
+      console.log('🔍 Found Insights:', insights)
+      console.log('🔍 Found Recommendations:', recommendations)
+      console.log('🔍 Total Lines:', lines.length)
       
       const generatedAvatar = {
         ...formData,
@@ -346,15 +395,15 @@ Create the most detailed, psychologically-driven customer avatar possible using 
             <Separator />
 
             {/* Business Description */}
-            <div>
+              <div>
               <Label className="text-sm font-medium text-gray-700">Business Description</Label>
               <p className="text-sm text-gray-900 mt-1">{avatar.businessDescription}</p>
-            </div>
+              </div>
 
             <Separator />
 
             {/* Audience Information */}
-            <div>
+              <div>
               <Label className="text-sm font-medium text-gray-700">Audience Description</Label>
               <p className="text-sm text-gray-900 mt-1">{avatar.audienceDescription || 'Not provided'}</p>
             </div>
@@ -434,33 +483,33 @@ Create the most detailed, psychologically-driven customer avatar possible using 
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <Label htmlFor="businessName" className="text-sm font-medium">
-                  Business Name
-                </Label>
-                <Input
-                  id="businessName"
-                  value={formData.businessName}
-                  onChange={(e) => handleInputChange('businessName', e.target.value)}
-                  placeholder="Your business name"
-                  required
-                />
+          <div>
+              <Label htmlFor="businessName" className="text-sm font-medium">
+                Business Name
+              </Label>
+            <Input
+              id="businessName"
+              value={formData.businessName}
+              onChange={(e) => handleInputChange('businessName', e.target.value)}
+              placeholder="Your business name"
+              required
+            />
+          </div>
+          <div>
+              <Label htmlFor="industry" className="text-sm font-medium">
+                Industry
+              </Label>
+            <Input
+              id="industry"
+              value={formData.industry}
+              onChange={(e) => handleInputChange('industry', e.target.value)}
+              placeholder="e.g., E-commerce, SaaS, Consulting"
+              required
+            />
               </div>
-              <div>
-                <Label htmlFor="industry" className="text-sm font-medium">
-                  Industry
-                </Label>
-                <Input
-                  id="industry"
-                  value={formData.industry}
-                  onChange={(e) => handleInputChange('industry', e.target.value)}
-                  placeholder="e.g., E-commerce, SaaS, Consulting"
-                  required
-                />
-              </div>
-            </div>
-            
-            <div>
+          </div>
+
+          <div>
               <Label htmlFor="businessDescription" className="text-sm font-medium">
                 Business/Offer Description
               </Label>
@@ -511,19 +560,19 @@ Create the most detailed, psychologically-driven customer avatar possible using 
                 placeholder="Detailed description of your target audience - their situation, challenges, goals, etc."
                 rows={4}
               />
-            </div>
-            
-            <div>
+          </div>
+
+          <div>
               <Label htmlFor="websiteUrl" className="text-sm font-medium">
                 Option B - Website/Content Analysis
-              </Label>
-              <Input
+            </Label>
+            <Input
                 id="websiteUrl"
                 value={formData.websiteUrl}
                 onChange={(e) => handleInputChange('websiteUrl', e.target.value)}
                 placeholder="URL or website to analyze for audience insights"
-              />
-            </div>
+            />
+          </div>
             
             <div>
               <Label htmlFor="existingCustomerData" className="text-sm font-medium">
@@ -536,22 +585,22 @@ Create the most detailed, psychologically-driven customer avatar possible using 
                 placeholder="Information about current customers - surveys, feedback, testimonials, etc."
                 rows={3}
               />
-            </div>
-            
-            <div>
+        </div>
+
+          <div>
               <Label htmlFor="competitorAnalysis" className="text-sm font-medium">
                 Option D - Competitor Analysis
-              </Label>
+            </Label>
               <Textarea
                 id="competitorAnalysis"
                 value={formData.competitorAnalysis}
                 onChange={(e) => handleInputChange('competitorAnalysis', e.target.value)}
                 placeholder="Competitor websites, their messaging, or customer base to analyze"
                 rows={3}
-              />
-            </div>
-            
-            <div>
+            />
+          </div>
+
+          <div>
               <Label htmlFor="socialMediaAnalysis" className="text-sm font-medium">
                 Option E - Social Media/Community Analysis
               </Label>
@@ -576,12 +625,12 @@ Create the most detailed, psychologically-driven customer avatar possible using 
               <Label htmlFor="knownPainPoints" className="text-sm font-medium">
                 Known Pain Points
               </Label>
-              <Textarea
+            <Textarea
                 id="knownPainPoints"
                 value={formData.knownPainPoints}
                 onChange={(e) => handleInputChange('knownPainPoints', e.target.value)}
                 placeholder="Any pain points you already know about"
-                rows={3}
+              rows={3}
               />
             </div>
             
@@ -596,18 +645,18 @@ Create the most detailed, psychologically-driven customer avatar possible using 
                 placeholder="Any existing avatar work, surveys, or customer insights"
                 rows={3}
               />
-            </div>
-            
-            <div>
+          </div>
+
+          <div>
               <Label htmlFor="specificQuestions" className="text-sm font-medium">
                 Specific Questions
-              </Label>
-              <Textarea
+            </Label>
+            <Textarea
                 id="specificQuestions"
                 value={formData.specificQuestions}
                 onChange={(e) => handleInputChange('specificQuestions', e.target.value)}
                 placeholder="Any particular aspects you want to understand better"
-                rows={3}
+              rows={3}
               />
             </div>
           </CardContent>
@@ -652,54 +701,54 @@ Create the most detailed, psychologically-driven customer avatar possible using 
                   value={formData.targetIncome}
                   onChange={(e) => handleInputChange('targetIncome', e.target.value)}
                   placeholder="e.g., $50K+, $100K+, Middle class"
-                />
-              </div>
-            </div>
+            />
+          </div>
+        </div>
           </CardContent>
         </Card>
 
-        <Separator />
+      <Separator />
 
 
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Sparkles className="h-4 w-4" />
-            <span>AI will analyze this information to create a detailed customer avatar</span>
-          </div>
-          
-          <div className="flex gap-2">
-            {existingAvatar && (
-              <Button 
-                variant="outline"
-                onClick={() => handleDownload(existingAvatar)}
-                className="flex items-center gap-2"
-              >
-                <Download className="h-4 w-4" />
-                Download Existing Avatar
-              </Button>
-            )}
-            
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <Sparkles className="h-4 w-4" />
+          <span>AI will analyze this information to create a detailed customer avatar</span>
+        </div>
+        
+        <div className="flex gap-2">
+          {existingAvatar && (
             <Button 
-              type="submit" 
-              disabled={isGenerating || isStreaming}
+              variant="outline"
+              onClick={() => handleDownload(existingAvatar)}
               className="flex items-center gap-2"
             >
-              {isGenerating ? (
-                <>
-                  <LoadingSpinner size="sm" />
-                  Generating Avatar...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4" />
-                  Generate Complete Avatar
-                </>
-              )}
+              <Download className="h-4 w-4" />
+              Download Existing Avatar
             </Button>
-          </div>
+          )}
+          
+          <Button 
+            type="submit" 
+              disabled={isGenerating || isStreaming}
+            className="flex items-center gap-2"
+          >
+            {isGenerating ? (
+              <>
+                <LoadingSpinner size="sm" />
+                Generating Avatar...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4" />
+                  Generate Complete Avatar
+              </>
+            )}
+          </Button>
         </div>
-      </form>
+      </div>
+    </form>
     </div>
   )
 }

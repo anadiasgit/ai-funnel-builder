@@ -811,14 +811,14 @@ export function OfferGenerationForm({
       </Card>
 
       <form onSubmit={(e) => { e.preventDefault(); generateFullOffer(); }} className="space-y-6">
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* Product Information */}
-          <div className="space-y-4">
-            <div>
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Product Information */}
+        <div className="space-y-4">
+          <div>
               <div className="flex items-center justify-between mb-2">
-                <Label htmlFor="productName" className="text-sm font-medium">
-                  Product/Service Name
-                </Label>
+            <Label htmlFor="productName" className="text-sm font-medium">
+              Product/Service Name
+            </Label>
                 <Button
                   type="button"
                   size="sm"
@@ -831,20 +831,20 @@ export function OfferGenerationForm({
                   AI Generate
                 </Button>
               </div>
-              <Input
-                id="productName"
-                value={formData.productName}
-                onChange={(e) => handleInputChange('productName', e.target.value)}
-                placeholder="Your main product or service"
-                required
-              />
-            </div>
+            <Input
+              id="productName"
+              value={formData.productName}
+              onChange={(e) => handleInputChange('productName', e.target.value)}
+              placeholder="Your main product or service"
+              required
+            />
+          </div>
 
-            <div>
+          <div>
               <div className="flex items-center justify-between mb-2">
-                <Label htmlFor="productDescription" className="text-sm font-medium">
-                  Product Description
-                </Label>
+            <Label htmlFor="productDescription" className="text-sm font-medium">
+              Product Description
+            </Label>
                 <Button
                   type="button"
                   size="sm"
@@ -857,21 +857,21 @@ export function OfferGenerationForm({
                   AI Generate
                 </Button>
               </div>
-              <Textarea
-                id="productDescription"
-                value={formData.productDescription}
-                onChange={(e) => handleInputChange('productDescription', e.target.value)}
-                placeholder="What does your product/service do?"
-                rows={3}
-                required
-              />
-            </div>
+            <Textarea
+              id="productDescription"
+              value={formData.productDescription}
+              onChange={(e) => handleInputChange('productDescription', e.target.value)}
+              placeholder="What does your product/service do?"
+              rows={3}
+              required
+            />
+          </div>
 
-            <div>
+          <div>
               <div className="flex items-center justify-between mb-2">
-                <Label htmlFor="price" className="text-sm font-medium">
-                  Price
-                </Label>
+            <Label htmlFor="price" className="text-sm font-medium">
+              Price
+            </Label>
                 <Button
                   type="button"
                   size="sm"
@@ -884,25 +884,25 @@ export function OfferGenerationForm({
                   AI Generate
                 </Button>
               </div>
-              <Input
-                id="price"
-                type="number"
-                value={formData.price}
-                onChange={(e) => handleInputChange('price', e.target.value)}
-                placeholder="0.00"
-                step="0.01"
-                required
-              />
-            </div>
+            <Input
+              id="price"
+              type="number"
+              value={formData.price}
+              onChange={(e) => handleInputChange('price', e.target.value)}
+              placeholder="0.00"
+              step="0.01"
+              required
+            />
           </div>
+        </div>
 
-          {/* Offer Details */}
-          <div className="space-y-4">
-            <div>
+        {/* Offer Details */}
+        <div className="space-y-4">
+          <div>
               <div className="flex items-center justify-between mb-2">
-                <Label htmlFor="valueProposition" className="text-sm font-medium">
-                  Value Proposition
-                </Label>
+            <Label htmlFor="valueProposition" className="text-sm font-medium">
+              Value Proposition
+            </Label>
                 <Button
                   type="button"
                   size="sm"
@@ -915,21 +915,21 @@ export function OfferGenerationForm({
                   AI Generate
                 </Button>
               </div>
-              <Textarea
-                id="valueProposition"
-                value={formData.valueProposition}
-                onChange={(e) => handleInputChange('valueProposition', e.target.value)}
-                placeholder="What's the main benefit for customers?"
-                rows={3}
-                required
-              />
-            </div>
+            <Textarea
+              id="valueProposition"
+              value={formData.valueProposition}
+              onChange={(e) => handleInputChange('valueProposition', e.target.value)}
+              placeholder="What's the main benefit for customers?"
+              rows={3}
+              required
+            />
+          </div>
 
-            <div>
+          <div>
               <div className="flex items-center justify-between mb-2">
-                <Label htmlFor="features" className="text-sm font-medium">
-                  Key Features
-                </Label>
+            <Label htmlFor="features" className="text-sm font-medium">
+              Key Features
+            </Label>
                 <Button
                   type="button"
                   size="sm"
@@ -942,21 +942,21 @@ export function OfferGenerationForm({
                   AI Generate
                 </Button>
               </div>
-              <Textarea
-                id="features"
-                value={formData.features}
-                onChange={(e) => handleInputChange('features', e.target.value)}
-                placeholder="What features make your offer unique?"
-                rows={3}
-                required
-              />
-            </div>
+            <Textarea
+              id="features"
+              value={formData.features}
+              onChange={(e) => handleInputChange('features', e.target.value)}
+              placeholder="What features make your offer unique?"
+              rows={3}
+              required
+            />
+          </div>
 
-            <div>
+          <div>
               <div className="flex items-center justify-between mb-2">
-                <Label htmlFor="guarantee" className="text-sm font-medium">
-                  Guarantee/Refund Policy
-                </Label>
+            <Label htmlFor="guarantee" className="text-sm font-medium">
+              Guarantee/Refund Policy
+            </Label>
                 <Button
                   type="button"
                   size="sm"
@@ -969,17 +969,17 @@ export function OfferGenerationForm({
                   AI Generate
                 </Button>
               </div>
-              <Textarea
-                id="guarantee"
-                value={formData.guarantee}
-                onChange={(e) => handleInputChange('guarantee', e.target.value)}
-                placeholder="What's your guarantee to customers?"
-                rows={2}
-                required
-              />
-            </div>
+            <Textarea
+              id="guarantee"
+              value={formData.guarantee}
+              onChange={(e) => handleInputChange('guarantee', e.target.value)}
+              placeholder="What's your guarantee to customers?"
+              rows={2}
+              required
+            />
           </div>
         </div>
+      </div>
 
         <Separator />
 
@@ -1043,46 +1043,46 @@ export function OfferGenerationForm({
           </Button>
         </div>
 
-        <Separator />
+      <Separator />
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Sparkles className="h-4 w-4" />
-            <span>AI will optimize your offer for maximum conversions</span>
-          </div>
-          
-          <div className="flex gap-2">
-            {existingOffer && (
-              <Button 
-                variant="outline"
-                onClick={() => handleDownload(existingOffer)}
-                className="flex items-center gap-2"
-              >
-                <Download className="h-4 w-4" />
-                Download Existing Offer
-              </Button>
-            )}
-            
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <Sparkles className="h-4 w-4" />
+          <span>AI will optimize your offer for maximum conversions</span>
+        </div>
+        
+        <div className="flex gap-2">
+          {existingOffer && (
             <Button 
-              type="submit" 
-              disabled={isGenerating || isStreaming}
+              variant="outline"
+              onClick={() => handleDownload(existingOffer)}
               className="flex items-center gap-2"
             >
-              {isGenerating ? (
-                <>
-                  <LoadingSpinner size="sm" />
-                  Generating Offer...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4" />
-                  Generate Complete Offer
-                </>
-              )}
+              <Download className="h-4 w-4" />
+              Download Existing Offer
             </Button>
-          </div>
+          )}
+          
+          <Button 
+            type="submit" 
+              disabled={isGenerating || isStreaming}
+            className="flex items-center gap-2"
+          >
+            {isGenerating ? (
+              <>
+                <LoadingSpinner size="sm" />
+                Generating Offer...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-4 w-4" />
+                  Generate Complete Offer
+              </>
+            )}
+          </Button>
         </div>
-      </form>
+      </div>
+    </form>
     </div>
   )
 }
