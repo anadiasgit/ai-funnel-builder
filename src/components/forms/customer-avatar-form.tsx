@@ -198,152 +198,168 @@ Additional Context:
 - Specific Questions: ${formData.specificQuestions || 'Not specified'}
 - Basic Demographics: Age: ${formData.targetAge || 'Not specified'}, Location: ${formData.targetLocation || 'Not specified'}, Income: ${formData.targetIncome || 'Not specified'}
 
-COMPREHENSIVE AVATAR ANALYSIS FRAMEWORK
+OUTPUT REQUIREMENTS:
 
-PHASE 1: FOUNDATIONAL PSYCHOLOGY
-1. Core Identity & Self-Perception
-2. Value System & Belief Architecture  
-3. Motivational Architecture
+1. INSIGHTS SECTION (Format exactly as shown):
+INSIGHTS:
+• [First specific psychological insight about the target audience]
+• [Second specific insight about their motivations and behaviors]
+• [Third insight about their decision-making patterns]
+• [Fourth insight about their emotional triggers]
+• [Fifth insight about their pain points and goals]
 
-PHASE 2: DECISION-MAKING PSYCHOLOGY
-4. Cognitive Processing Style
-5. Trust & Authority Patterns
-6. Objection & Resistance Patterns
+2. RECOMMENDATIONS SECTION (Format exactly as shown):
+RECOMMENDATIONS:
+• [First actionable marketing strategy recommendation]
+• [Second recommendation about messaging approach]
+• [Third recommendation about offer positioning]
+• [Fourth recommendation about copy angles]
+• [Fifth recommendation about funnel strategy]
 
-PHASE 3: EMOTIONAL & BEHAVIORAL PATTERNS
-7. Emotional Trigger Mapping
-8. Communication & Relationship Preferences
-9. Social & Status Psychology
+IMPORTANT FORMATTING RULES:
+- Use exactly "INSIGHTS:" as the section header
+- Use exactly "RECOMMENDATIONS:" as the section header
+- Each insight/recommendation must start with "• " (bullet point + space)
+- Each point should be 1-2 sentences maximum
+- Be specific to the business context provided
+- Do NOT use generic business advice
+- Focus on psychological drivers and practical marketing strategies
 
-PHASE 4: BEHAVIORAL & LIFESTYLE PATTERNS
-10. Daily Life & Environment
-11. Information Consumption Habits
-12. Purchase Psychology & Buying Patterns
-
-PHASE 5: ADVANCED PSYCHOLOGICAL PROFILING
-13. Cognitive Bias Susceptibility
-14. Transformation Psychology
-15. Language & Messaging Resonance
-
-SYNTHESIS & APPLICATION FRAMEWORK
-- Avatar Summary Profile
-- Marketing Strategy Implications
-- Messaging Strategy
-- Offer Design Implications
-- Funnel & Communication Strategy
-- Validation & Testing Framework
-
-OUTPUT SPECIFICATIONS
-Present the complete avatar as a comprehensive marketing intelligence report with:
-
-1. EXECUTIVE SUMMARY
-- One-paragraph avatar description
-- Top 3 psychological drivers
-- Primary marketing implications
-
-2. DETAILED PSYCHOLOGY PROFILE
-Complete all 15 framework sections with specific insights about the target audience.
-
-3. KEY INSIGHTS (Present as bullet points with •)
-- 5-7 specific psychological insights about the target audience
-- Focus on what makes them unique
-- Use the specific business context provided
-
-4. STRATEGIC RECOMMENDATIONS (Present as bullet points with •)
-- 5-7 actionable marketing strategies
-- Specific copy angles and messaging approaches
-- Offer design recommendations
-- Funnel strategy suggestions
-
-IMPORTANT: 
-- Base ALL insights on the actual research data provided
-- DO NOT use generic business insights - use the specific details provided
-- If they provide information about dog owners and dog toys, focus on that specific audience, not generic business owners
-- Format insights and recommendations as bullet points (•) for easy parsing
-- Make recommendations specific and actionable
-
-Create the most detailed, psychologically-driven customer avatar possible using the information provided.`
+Create the customer avatar analysis now:`
 
       // Start the AI stream
       await startStream(
         prompt,
         'customerAvatar',
-        { model: 'gpt-4o', maxTokens: 800, temperature: 0.7 }
+        { model: 'gpt-4o', maxTokens: 1500, temperature: 0.7 }
       )
 
-      // Wait for the stream to complete and get the content
-      // The content will be available in the useAIStream hook
+      // Wait for stream completion and process content
+      let attempts = 0
+      const maxAttempts = 50 // 5 seconds total wait time
+      
+      while (attempts < maxAttempts) {
+        if (!isStreaming && content) {
+          break
+        }
+        await new Promise(resolve => setTimeout(resolve, 100))
+        attempts++
+      }
+
       const aiContent = content || ''
       
-      // Debug: Log the full AI response to see what we're working with
-      console.log('🔍 Full AI Response:', aiContent)
-      console.log('🔍 AI Response Length:', aiContent.length)
+      console.log('🔍 AI Response:', aiContent)
       
-      // Extract insights and recommendations from the comprehensive framework
-      const lines = aiContent.split('\n').filter(line => line.trim().length > 0)
+      // Enhanced parsing logic
+      const parseInsightsAndRecommendations = (text: string) => {
+        const insights: string[] = []
+        const recommendations: string[] = []
+        
+        // Split into lines and clean them
+        const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0)
+        
+        let currentSection = ''
+        
+        for (const line of lines) {
+          // Check for section headers
+          if (line.toUpperCase().includes('INSIGHTS:') || line.toUpperCase().includes('KEY INSIGHTS')) {
+            currentSection = 'insights'
+            continue
+          }
+          
+          if (line.toUpperCase().includes('RECOMMENDATIONS:') || line.toUpperCase().includes('STRATEGIC RECOMMENDATIONS')) {
+            currentSection = 'recommendations'
+            continue
+          }
+          
+          // Parse bullet points
+          if (line.startsWith('•') || line.startsWith('-') || line.startsWith('*')) {
+            const cleanLine = line.replace(/^[•\-*]\s*/, '').trim()
+            
+            if (cleanLine.length > 10) { // Only include substantial content
+              if (currentSection === 'insights') {
+                insights.push(cleanLine)
+              } else if (currentSection === 'recommendations') {
+                recommendations.push(cleanLine)
+              }
+            }
+          }
+          
+          // Also check for numbered lists
+          const numberedMatch = line.match(/^\d+\.\s*(.+)/)
+          if (numberedMatch && numberedMatch[1].length > 10) {
+            if (currentSection === 'insights') {
+              insights.push(numberedMatch[1].trim())
+            } else if (currentSection === 'recommendations') {
+              recommendations.push(numberedMatch[1].trim())
+            }
+          }
+        }
+        
+        return { insights, recommendations }
+      }
+
+      const { insights, recommendations } = parseInsightsAndRecommendations(aiContent)
       
-      // Look for insights - be more flexible with the search
-      const insights = lines
-        .filter(line => {
-          const trimmed = line.trim()
-          // Look for bullet points, numbered lists, or lines that seem like insights
-          return trimmed.length > 15 && (
-            trimmed.includes('•') || 
-            trimmed.includes('-') || 
-            trimmed.includes('*') || 
-            /^\d+\./.test(trimmed) ||
-            trimmed.includes(':') && trimmed.length > 30 ||
-            (trimmed.includes('dog') || trimmed.includes('toy') || trimmed.includes('owner')) && trimmed.length > 20
-          )
-        })
-        .map(line => line.replace(/^[•\-*\d\.]\s*/, '').trim())
-        .filter(line => line.length > 10)
-        .slice(0, 8)
+      console.log('🎯 Parsed Insights:', insights)
+      console.log('🎯 Parsed Recommendations:', recommendations)
       
-      // Look for recommendations - be more flexible with the search
-      const recommendations = lines
-        .filter(line => {
-          const trimmed = line.trim()
-          return trimmed.length > 15 && (
-            trimmed.toLowerCase().includes('recommend') || 
-            trimmed.toLowerCase().includes('strategy') || 
-            trimmed.toLowerCase().includes('approach') ||
-            trimmed.toLowerCase().includes('marketing') ||
-            trimmed.toLowerCase().includes('copy') ||
-            trimmed.toLowerCase().includes('message') ||
-            trimmed.toLowerCase().includes('should') ||
-            trimmed.toLowerCase().includes('focus on') ||
-            trimmed.toLowerCase().includes('target') ||
-            trimmed.toLowerCase().includes('use') ||
-            trimmed.toLowerCase().includes('emphasize') ||
-            trimmed.toLowerCase().includes('highlight')
-          )
-        })
-        .map(line => line.replace(/^[•\-*\d\.]\s*/, '').trim())
-        .filter(line => line.length > 10)
-        .slice(0, 8)
+      // Fallback extraction if structured parsing fails
+      if (insights.length === 0 && recommendations.length === 0) {
+        console.log('🔄 Attempting fallback parsing...')
+        
+        // Try to extract any meaningful bullet points or numbered items
+        const allLines = aiContent.split('\n').map(line => line.trim())
+        const meaningfulLines = allLines.filter(line => 
+          (line.startsWith('•') || line.startsWith('-') || line.startsWith('*') || /^\d+\./.test(line)) &&
+          line.length > 20
+        ).map(line => line.replace(/^[•\-*\d\.]\s*/, '').trim())
+        
+        // Split meaningful lines between insights and recommendations
+        const midPoint = Math.ceil(meaningfulLines.length / 2)
+        insights.push(...meaningfulLines.slice(0, midPoint))
+        recommendations.push(...meaningfulLines.slice(midPoint))
+      }
       
-      // Debug: Log what we found
-      console.log('🔍 Found Insights:', insights)
-      console.log('🔍 Found Recommendations:', recommendations)
-      console.log('🔍 Total Lines:', lines.length)
-      
-      const generatedAvatar = {
+      const generatedAvatar: CustomerAvatar = {
         ...formData,
         id: Date.now().toString(),
-        generatedAt: new Date().toISOString(),
         insights: insights.length > 0 ? insights : [
-          'AI insights will be generated based on your specific business'
+          'Detailed psychological insights will be generated based on your specific business and audience data',
+          'AI analysis will uncover emotional triggers and decision-making patterns',
+          'Customer motivation drivers will be identified from your provided information'
         ],
         recommendations: recommendations.length > 0 ? recommendations : [
-          'AI recommendations will be generated based on your specific business'
+          'Targeted marketing strategies will be recommended based on your customer psychology',
+          'Specific copy angles and messaging approaches will be suggested',
+          'Conversion optimization tactics will be provided for your funnel'
         ]
       }
       
+      console.log('✅ Final Avatar:', generatedAvatar)
+      
       setAvatar(generatedAvatar)
       onAvatarGenerated(generatedAvatar)
+      
     } catch (error) {
       console.error('Error generating avatar:', error)
+      
+      // Create avatar with error state but still usable
+      const fallbackAvatar: CustomerAvatar = {
+        ...formData,
+        id: Date.now().toString(),
+        insights: [
+          'AI generation encountered an issue. Please try regenerating.',
+          'Your business information has been saved and can be used for manual analysis.'
+        ],
+        recommendations: [
+          'Please try regenerating the avatar for AI-powered recommendations.',
+          'Consider reviewing your input data and trying again.'
+        ]
+      }
+      
+      setAvatar(fallbackAvatar)
+      onAvatarGenerated(fallbackAvatar)
     } finally {
       setIsGenerating(false)
     }
