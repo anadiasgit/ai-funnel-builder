@@ -12,7 +12,6 @@ import {
   Sparkles,
   CheckCircle2
 } from 'lucide-react'
-import { Input } from '@/components/ui/input'
 import { CustomerAvatar, MainOffer } from '@/lib/types'
 
 interface UpsellVSLFormProps {
